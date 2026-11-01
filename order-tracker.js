@@ -1,5 +1,6 @@
 (() => {
   const SESSION_STORAGE_KEY = "saborcito_user";
+  const USER_COORDS_STORAGE_KEY = "saborcito_user_coords";
   const STAGE_DURATION_MS = 10000; // Avanza automáticamente cada 10 segundos
 
   const ORDER_STAGES = [
@@ -10,7 +11,8 @@
       subtitle: "El restaurante recibió tu orden y está cocinando tus platillos.",
       icon: "🍳",
       eta: "Llegada estimada: 20–25 min",
-      progress: 25
+      progress: 25,
+      routeRatio: 0.05
     },
     {
       key: "ready",
@@ -19,25 +21,28 @@
       subtitle: "El restaurante empacó tu pedido y espera al repartidor.",
       icon: "🛍️",
       eta: "Llegada estimada: 12–15 min",
-      progress: 50
+      progress: 50,
+      routeRatio: 0.18
     },
     {
       key: "on_the_way",
       shortLabel: "En camino",
       title: "Tu pedido está en camino",
-      subtitle: "El repartidor va en ruta hacia tu dirección de entrega.",
+      subtitle: "El repartidor va en ruta hacia tu ubicación actual.",
       icon: "🛵",
       eta: "Llegada estimada: 5–8 min",
-      progress: 78
+      progress: 78,
+      routeRatio: 0.65
     },
     {
       key: "arrived",
       shortLabel: "¡Ya llegó!",
       title: "¡Tu pedido ya llegó!",
-      subtitle: "El repartidor está en tu puerta. ¡Que disfrutes tu comida!",
+      subtitle: "El repartidor está en tu ubicación. ¡Que disfrutes tu comida!",
       icon: "🎉",
       eta: "Entregado ahora",
-      progress: 100
+      progress: 100,
+      routeRatio: 1.0
     }
   ];
 
@@ -100,6 +105,193 @@
   let trackerRoot = null;
   let headerBadgeBtn = null;
   let tickTimer = null;
+  let renderedSignature = "";
+
+  // Estado del mapa interactivo (Leaflet + OpenStreetMap + Geolocation API)
+  let leafletReadyPromise = null;
+  let mapInstance = null;
+  let userMarker = null;
+  let restaurantMarker = null;
+  let courierMarker = null;
+  let routeLine = null;
+  let userCoords = loadSavedCoords();
+  let geoRequested = false;
+
+  function loadSavedCoords() {
+    try {
+      const saved = JSON.parse(sessionStorage.getItem(USER_COORDS_STORAGE_KEY) || "null");
+      if (saved && Number.isFinite(saved.lat) && Number.isFinite(saved.lng)) {
+        return saved;
+      }
+    } catch {
+      // ignore
+    }
+    return { lat: -0.1807, lng: -78.4678, isRealGps: false };
+  }
+
+  function requestUserGeolocation(forceRecenter = false) {
+    if (!("geolocation" in navigator)) return;
+    geoRequested = true;
+    const statusLabel = document.querySelector("#tracker-gps-status");
+    if (statusLabel && forceRecenter) {
+      statusLabel.textContent = "Obteniendo tu ubicación GPS...";
+    }
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        userCoords = {
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude,
+          isRealGps: true
+        };
+        try {
+          sessionStorage.setItem(USER_COORDS_STORAGE_KEY, JSON.stringify(userCoords));
+        } catch {
+          // ignore
+        }
+        updateLiveMapPositions(true);
+      },
+      () => {
+        const lbl = document.querySelector("#tracker-gps-status");
+        if (lbl) lbl.textContent = "📍 Ubicación estimada en el mapa";
+      },
+      { enableHighAccuracy: true, timeout: 7000, maximumAge: 60000 }
+    );
+  }
+
+  function ensureLeafletLoaded() {
+    if (window.L) return Promise.resolve(window.L);
+    if (leafletReadyPromise) return leafletReadyPromise;
+
+    leafletReadyPromise = new Promise(resolve => {
+      if (!document.querySelector("#leaflet-css")) {
+        const link = document.createElement("link");
+        link.id = "leaflet-css";
+        link.rel = "stylesheet";
+        link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
+        document.head.appendChild(link);
+      }
+      const script = document.createElement("script");
+      script.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
+      script.async = true;
+      script.onload = () => resolve(window.L || null);
+      script.onerror = () => resolve(null);
+      document.head.appendChild(script);
+    });
+
+    return leafletReadyPromise;
+  }
+
+  function destroyMapInstance() {
+    if (mapInstance) {
+      try {
+        mapInstance.remove();
+      } catch {
+        // ignore
+      }
+    }
+    mapInstance = null;
+    userMarker = null;
+    restaurantMarker = null;
+    courierMarker = null;
+    routeLine = null;
+  }
+
+  function getActiveStageRatio() {
+    const orders = loadActiveOrders();
+    const activeOrder = orders.find(o => o.id === selectedOrderId) || orders[0];
+    if (!activeOrder) return 0.1;
+    const stageIdx = computeStageIndex(activeOrder);
+    return ORDER_STAGES[stageIdx]?.routeRatio ?? 0.1;
+  }
+
+  function updateLiveMapPositions(recenter = false) {
+    const statusLabel = document.querySelector("#tracker-gps-status");
+    if (statusLabel) {
+      statusLabel.textContent = userCoords.isRealGps
+        ? `📍 Tu ubicación actual (${userCoords.lat.toFixed(4)}, ${userCoords.lng.toFixed(4)})`
+        : "📍 Tu ubicación en el mapa";
+    }
+
+    if (!mapInstance || !window.L) return;
+
+    const uLat = userCoords.lat;
+    const uLng = userCoords.lng;
+    const rLat = uLat + 0.0045;
+    const rLng = uLng - 0.0055;
+    const ratio = getActiveStageRatio();
+    const cLat = rLat + (uLat - rLat) * ratio;
+    const cLng = rLng + (uLng - rLng) * ratio;
+
+    if (userMarker) userMarker.setLatLng([uLat, uLng]);
+    if (restaurantMarker) restaurantMarker.setLatLng([rLat, rLng]);
+    if (courierMarker) courierMarker.setLatLng([cLat, cLng]);
+    if (routeLine) routeLine.setLatLngs([[rLat, rLng], [uLat, uLng]]);
+
+    if (recenter) {
+      mapInstance.fitBounds([[rLat, rLng], [uLat, uLng]], { padding: [22, 22], maxZoom: 15 });
+    }
+  }
+
+  async function initLiveMap() {
+    const mapContainer = document.querySelector("#tracker-live-map");
+    if (!mapContainer) return;
+
+    if (!geoRequested) {
+      requestUserGeolocation(false);
+    }
+
+    const L = await ensureLeafletLoaded();
+    if (!L || !document.querySelector("#tracker-live-map")) return;
+
+    destroyMapInstance();
+
+    const uLat = userCoords.lat;
+    const uLng = userCoords.lng;
+    const rLat = uLat + 0.0045;
+    const rLng = uLng - 0.0055;
+    const ratio = getActiveStageRatio();
+    const cLat = rLat + (uLat - rLat) * ratio;
+    const cLng = rLng + (uLng - rLng) * ratio;
+
+    mapInstance = L.map(mapContainer, {
+      zoomControl: false,
+      attributionControl: false
+    });
+
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 18
+    }).addTo(mapInstance);
+
+    const makePin = (emoji, bg) => L.divIcon({
+      className: "tracker-map-divicon",
+      html: `<span class="tracker-map-pin" style="background:${bg}">${emoji}</span>`,
+      iconSize: [30, 30],
+      iconAnchor: [15, 15]
+    });
+
+    restaurantMarker = L.marker([rLat, rLng], { icon: makePin("🏪", "#fff0d5") })
+      .addTo(mapInstance)
+      .bindTooltip("Restaurante", { direction: "top" });
+
+    userMarker = L.marker([uLat, uLng], { icon: makePin("📍", "#dcfce7") })
+      .addTo(mapInstance)
+      .bindTooltip("Tu ubicación actual", { direction: "top" });
+
+    courierMarker = L.marker([cLat, cLng], { icon: makePin("🛵", "#FFB03B") })
+      .addTo(mapInstance)
+      .bindTooltip("Tu pedido", { direction: "top" });
+
+    routeLine = L.polyline([[rLat, rLng], [uLat, uLng]], {
+      color: "#FFB03B",
+      weight: 4,
+      dashArray: "6, 6"
+    }).addTo(mapInstance);
+
+    mapInstance.fitBounds([[rLat, rLng], [uLat, uLng]], { padding: [22, 22], maxZoom: 15 });
+    window.setTimeout(() => {
+      mapInstance?.invalidateSize();
+    }, 150);
+  }
 
   function isMinimized() {
     return sessionStorage.getItem(getMinimizedKey()) === "true";
@@ -124,7 +316,7 @@
       headerBadgeBtn.addEventListener("click", () => {
         setMinimized(false);
         if (trackerRoot) trackerRoot.hidden = false;
-        renderTracker();
+        renderTracker(true);
       });
       headerActions.insertBefore(headerBadgeBtn, headerActions.firstChild);
     }
@@ -148,46 +340,18 @@
 
       if (btn.dataset.trackerMinimize !== undefined) {
         setMinimized(!isMinimized());
-        renderTracker();
+        renderTracker(true);
         return;
       }
 
       if (btn.dataset.trackerSelectOrder) {
         selectedOrderId = btn.dataset.trackerSelectOrder;
-        renderTracker();
+        renderTracker(true);
         return;
       }
 
-      if (btn.dataset.trackerNextStage) {
-        const orderId = btn.dataset.trackerNextStage;
-        const orders = loadActiveOrders();
-        const target = orders.find(o => o.id === orderId);
-        if (target) {
-          const currentIdx = computeStageIndex(target);
-          if (currentIdx < ORDER_STAGES.length - 1) {
-            target.manualStage = currentIdx + 1;
-            target.createdAt = Date.now() - (currentIdx + 1) * STAGE_DURATION_MS;
-          } else {
-            target.manualStage = 0;
-            target.createdAt = Date.now();
-          }
-          saveActiveOrders(orders);
-          renderTracker();
-        }
-        return;
-      }
-
-      if (btn.dataset.trackerSetStage !== undefined) {
-        const orderId = btn.dataset.orderId;
-        const nextStage = Number(btn.dataset.trackerSetStage);
-        const orders = loadActiveOrders();
-        const target = orders.find(o => o.id === orderId);
-        if (target && Number.isFinite(nextStage)) {
-          target.manualStage = Math.max(0, Math.min(ORDER_STAGES.length - 1, nextStage));
-          target.createdAt = Date.now() - target.manualStage * STAGE_DURATION_MS;
-          saveActiveOrders(orders);
-          renderTracker();
-        }
+      if (btn.dataset.trackerLocateMe !== undefined) {
+        requestUserGeolocation(true);
         return;
       }
 
@@ -198,14 +362,40 @@
         if (selectedOrderId === orderId) {
           selectedOrderId = orders[0]?.id || null;
         }
-        renderTracker();
+        renderTracker(true);
       }
     });
 
     return trackerRoot;
   }
 
-  function renderTracker() {
+  function updateTrackerDynamicContent(activeOrder, stageIdx) {
+    const stage = ORDER_STAGES[stageIdx];
+    const heroIcon = trackerRoot?.querySelector("#tracker-hero-icon");
+    const etaPill = trackerRoot?.querySelector("#tracker-eta-pill");
+    const heroTitle = trackerRoot?.querySelector("#tracker-hero-title");
+    const heroSubtitle = trackerRoot?.querySelector("#tracker-hero-subtitle");
+    const progressFill = trackerRoot?.querySelector("#tracker-progress-fill");
+
+    if (heroIcon) heroIcon.textContent = stage.icon;
+    if (etaPill) etaPill.textContent = stage.eta;
+    if (heroTitle) heroTitle.textContent = stage.title;
+    if (heroSubtitle) heroSubtitle.textContent = stage.subtitle;
+    if (progressFill) progressFill.style.width = `${stage.progress}%`;
+
+    trackerRoot?.querySelectorAll("[data-step-idx]").forEach(li => {
+      const idx = Number(li.dataset.stepIdx);
+      li.className = `tracker-step ${idx < stageIdx ? "is-done" : idx === stageIdx ? "is-current" : "is-pending"}`;
+      const circle = li.querySelector(".tracker-step-circle");
+      if (circle) {
+        circle.textContent = idx < stageIdx ? "✓" : ORDER_STAGES[idx].icon;
+      }
+    });
+
+    updateLiveMapPositions(false);
+  }
+
+  function renderTracker(forceRebuild = false) {
     const user = getCurrentUser();
     const badge = ensureHeaderBadge();
     const root = ensureTrackerDOM();
@@ -213,6 +403,8 @@
     if (!user) {
       root.hidden = true;
       if (badge) badge.hidden = true;
+      destroyMapInstance();
+      renderedSignature = "";
       return;
     }
 
@@ -220,6 +412,8 @@
     if (orders.length === 0) {
       root.hidden = true;
       if (badge) badge.hidden = true;
+      destroyMapInstance();
+      renderedSignature = "";
       return;
     }
 
@@ -241,6 +435,14 @@
     root.hidden = false;
     root.classList.toggle("is-minimized", minimized);
 
+    const nextSignature = `${activeOrder.id}_${minimized}_${orders.length}`;
+    if (!forceRebuild && renderedSignature === nextSignature && !minimized) {
+      updateTrackerDynamicContent(activeOrder, stageIdx);
+      return;
+    }
+
+    renderedSignature = nextSignature;
+
     const itemsSummary = (activeOrder.items || [])
       .map(item => `${item.quantity}x ${item.name}`)
       .join(", ");
@@ -258,6 +460,7 @@
       : "";
 
     if (minimized) {
+      destroyMapInstance();
       root.innerHTML = `
         <div class="tracker-minimized-bar">
           <button type="button" class="tracker-minimized-main" data-tracker-minimize="toggle" aria-label="Expandir ventana de estado del pedido">
@@ -289,31 +492,40 @@
 
       <div class="tracker-body">
         <div class="tracker-hero">
-          <div class="tracker-hero-icon" aria-hidden="true">${escapeHTML(stage.icon)}</div>
+          <div class="tracker-hero-icon" id="tracker-hero-icon" aria-hidden="true">${escapeHTML(stage.icon)}</div>
           <div class="tracker-hero-copy">
-            <span class="tracker-eta-pill">${escapeHTML(stage.eta)}</span>
-            <h3>${escapeHTML(stage.title)}</h3>
-            <p>${escapeHTML(stage.subtitle)}</p>
+            <span class="tracker-eta-pill" id="tracker-eta-pill">${escapeHTML(stage.eta)}</span>
+            <h3 id="tracker-hero-title">${escapeHTML(stage.title)}</h3>
+            <p id="tracker-hero-subtitle">${escapeHTML(stage.subtitle)}</p>
           </div>
         </div>
 
         <div class="tracker-progress-track" aria-hidden="true">
-          <div class="tracker-progress-fill" style="width: ${stage.progress}%"></div>
+          <div class="tracker-progress-fill" id="tracker-progress-fill" style="width: ${stage.progress}%"></div>
         </div>
 
         <ol class="tracker-steps" aria-label="Etapas del pedido">
           ${ORDER_STAGES.map((st, idx) => {
             const stateClass = idx < stageIdx ? "is-done" : idx === stageIdx ? "is-current" : "is-pending";
             return `
-              <li class="tracker-step ${stateClass}">
-                <button type="button" class="tracker-step-btn" data-tracker-set-stage="${idx}" data-order-id="${escapeHTML(activeOrder.id)}" title="Cambiar a: ${escapeHTML(st.shortLabel)}">
+              <li class="tracker-step ${stateClass}" data-step-idx="${idx}">
+                <div class="tracker-step-btn">
                   <span class="tracker-step-circle" aria-hidden="true">${idx < stageIdx ? "✓" : escapeHTML(st.icon)}</span>
                   <span class="tracker-step-label">${escapeHTML(st.shortLabel)}</span>
-                </button>
+                </div>
               </li>
             `;
           }).join("")}
         </ol>
+
+        <!-- Mini-mapa en vivo con ubicación actual -->
+        <div class="tracker-map-wrapper">
+          <div class="tracker-map-topbar">
+            <span id="tracker-gps-status">📍 ${userCoords.isRealGps ? `Tu ubicación actual (${userCoords.lat.toFixed(4)}, ${userCoords.lng.toFixed(4)})` : "Tu ubicación en el mapa"}</span>
+            <button type="button" class="tracker-gps-btn" data-tracker-locate-me="true" title="Actualizar con mi GPS actual">Mi GPS 🎯</button>
+          </div>
+          <div class="tracker-live-map" id="tracker-live-map" aria-label="Mapa de ubicación actual y ruta del pedido"></div>
+        </div>
 
         <div class="tracker-details">
           <div class="tracker-detail-row">
@@ -332,12 +544,11 @@
 
         <div class="tracker-footer">
           <span class="tracker-nonblocking-hint">✨ Puedes seguir explorando o hacer otro pedido mientras tanto.</span>
-          <button type="button" class="tracker-sim-btn" data-tracker-next-stage="${escapeHTML(activeOrder.id)}">
-            ${stageIdx < ORDER_STAGES.length - 1 ? "Siguiente estado ⏭" : "Reiniciar estados ↻"}
-          </button>
         </div>
       </div>
     `;
+
+    initLiveMap();
   }
 
   function createActiveOrder(orderData) {
@@ -358,7 +569,7 @@
     saveActiveOrders(orders.slice(0, 5));
     selectedOrderId = newOrder.id;
     setMinimized(false);
-    renderTracker();
+    renderTracker(true);
     return newOrder;
   }
 
@@ -367,7 +578,7 @@
     tickTimer = window.setInterval(() => {
       const orders = loadActiveOrders();
       if (orders.length > 0) {
-        renderTracker();
+        renderTracker(false);
       }
     }, 2500);
   }
@@ -380,14 +591,14 @@
 
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", () => {
-      renderTracker();
+      renderTracker(true);
       startTicker();
     });
   } else {
-    renderTracker();
+    renderTracker(true);
     startTicker();
   }
 
-  window.addEventListener("pageshow", () => renderTracker());
-  window.addEventListener("storage", () => renderTracker());
+  window.addEventListener("pageshow", () => renderTracker(true));
+  window.addEventListener("storage", () => renderTracker(false));
 })();

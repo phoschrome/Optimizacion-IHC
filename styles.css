@@ -769,6 +769,61 @@
       line-height: 1.15;
     }
 
+    .tracker-map-wrapper {
+      margin-bottom: 12px;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      overflow: hidden;
+      background: #eef2f6;
+    }
+    .tracker-map-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 6px 10px;
+      background: #fff8ea;
+      border-bottom: 1px solid var(--line);
+      font-size: .74rem;
+      font-weight: 750;
+      color: #573600;
+    }
+    .tracker-gps-btn {
+      padding: 3px 8px;
+      color: #29251f;
+      background: var(--yellow);
+      border: 0;
+      border-radius: 7px;
+      font-size: .71rem;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .tracker-gps-btn:hover {
+      background: var(--orange);
+    }
+    .tracker-live-map {
+      width: 100%;
+      height: 132px;
+      background:
+        linear-gradient(90deg, rgb(255 255 255 / 45%) 1px, transparent 1px) 0 0 / 24px 24px,
+        linear-gradient(0deg, rgb(255 255 255 / 45%) 1px, transparent 1px) 0 0 / 24px 24px,
+        #dde7dc;
+    }
+    .tracker-map-divicon {
+      background: transparent;
+      border: 0;
+    }
+    .tracker-map-pin {
+      display: grid;
+      width: 30px;
+      height: 30px;
+      place-items: center;
+      border: 2px solid #29251f;
+      border-radius: 50%;
+      box-shadow: 0 3px 8px rgb(0 0 0 / 25%);
+      font-size: .95rem;
+    }
+
     .tracker-details {
       display: grid;
       gap: 5px;
@@ -793,27 +848,15 @@
     .tracker-footer {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      margin-top: 12px;
+      justify-content: center;
+      margin-top: 10px;
+      text-align: center;
     }
     .tracker-nonblocking-hint {
       color: var(--muted);
       font-size: .73rem;
       line-height: 1.25;
     }
-    .tracker-sim-btn {
-      flex: 0 0 auto;
-      padding: 6px 11px;
-      color: #573600;
-      background: #ffe7a5;
-      border: 0;
-      border-radius: 9px;
-      font-size: .76rem;
-      font-weight: 800;
-      cursor: pointer;
-    }
-    .tracker-sim-btn:hover { background: var(--yellow); }
 
     @media (max-width: 800px) {
       .topbar { grid-template-columns: 1fr auto; gap: 10px; padding: 10px 18px; }
