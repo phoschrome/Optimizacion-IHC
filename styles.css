@@ -108,6 +108,60 @@
     .restaurant-menu-link { display: inline-block; margin-top: 8px; padding: 0; color: #754600; background: transparent; border: 0; font-size: .86rem; font-weight: 750; text-decoration: none; cursor: pointer; }
     .restaurant-menu-link:hover { text-decoration: underline; text-underline-offset: 3px; }
     .rating { color: #6a4a08; font-weight: 750; }
+
+    /* Tarjetas de Platillos en Oferta / Promoción en restaurants.html */
+    .promo-dish-card {
+      position: relative;
+      align-items: flex-start;
+      padding: 16px;
+      background: linear-gradient(180deg, #ffffff 0%, #fffbf3 100%);
+      border: 1.5px solid #f0dfc0;
+      transition: transform .16s ease, box-shadow .16s ease;
+    }
+    .promo-dish-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow);
+    }
+    .promo-dish-copy {
+      flex: 1;
+    }
+    .promo-dish-badges {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      flex-wrap: wrap;
+      margin-bottom: 4px;
+    }
+    .promo-badge-pill {
+      display: inline-block;
+      padding: 2px 8px;
+      color: #fff;
+      background: #b93815;
+      border-radius: 999px;
+      font-size: .68rem;
+      font-weight: 850;
+      letter-spacing: .03em;
+    }
+    .promo-price-row {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      margin-top: 6px;
+    }
+    .promo-old-price {
+      color: var(--muted);
+      font-size: .82rem;
+      text-decoration: line-through;
+    }
+    .promo-new-price {
+      color: #166534;
+      font-size: 1.02rem;
+      font-weight: 850;
+    }
+    .promo-add-btn {
+      flex: 0 0 38px;
+      align-self: center;
+    }
     .restaurant-directory-promo { display: flex; align-items: center; justify-content: center; gap: clamp(24px, 8vw, 100px); min-height: 135px; background: #fff2d9; border-radius: 20px; font-size: clamp(2.4rem, 6vw, 4rem); }
     .restaurant-directory-promo span:nth-child(even) { transform: translateY(14px) rotate(9deg); }
     .offers-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 17px; }

@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#FFB03B">
-  <meta name="description" content="Descubre el menú y tus últimos pedidos de tu restaurante favorito en Saborcito.">
+  <meta name="description" content="Descubre platillos en oferta, descuentos exclusivos y promociones de tus restaurantes favoritos en Saborcito.">
   <meta name="saborcito-api-base-url" content="https://gd384485b9fe421-ecommerce.adb.sa-bogota-1.oraclecloudapps.com/ords/admin/v1">
-  <title>Menú — Saborcito</title>
-  <link rel="stylesheet" href="styles.css?v=20261101">
+  <title>Ofertas y Promociones — Saborcito</title>
+  <link rel="stylesheet" href="styles.css?v=20261101b">
 </head>
 <body class="restaurant-page">
   <a class="skip-link" href="#restaurant-content">Saltar al contenido principal</a>
@@ -31,9 +31,9 @@
 
   <main class="restaurant-main" id="restaurant-content">
     <section class="restaurant-page-intro" id="restaurant-page-intro" aria-labelledby="restaurant-page-title" hidden>
-      <span class="eyebrow">Un menú para ti</span>
-      <h1 id="restaurant-page-title">Restaurantes disponibles</h1>
-      <p id="restaurant-page-subtitle">Selecciona un restaurante para ver su pantalla plantilla.</p>
+      <span class="eyebrow">🔥 Promociones por tiempo limitado</span>
+      <h1 id="restaurant-page-title">Ofertas, descuentos y promociones</h1>
+      <p id="restaurant-page-subtitle">Descubre platillos con descuento, combos especiales y 2x1 de nuestros restaurantes asociados listos para pedir hoy mismo.</p>
     </section>
 
     <p class="catalog-source-note" id="catalog-source-note" role="status">Conectando con el catálogo...</p>
@@ -41,11 +41,17 @@
     <section class="section" id="restaurant-directory-section" aria-labelledby="directory-title" hidden>
       <div class="section-heading">
         <div>
-          <h2 id="directory-title">Elige un restaurante</h2>
-          <p id="directory-description">Selecciona cualquiera de los restaurantes en la nube para abrir su plantilla dinámica.</p>
+          <h2 id="directory-title">Platillos en oferta y promoción 🏷️</h2>
+          <p id="directory-description">Añade cualquier promoción directamente a tu carrito o visita el restaurante que la prepara.</p>
         </div>
       </div>
-      <div class="restaurant-grid" id="restaurant-directory-grid" aria-live="polite"></div>
+      <div class="filters" id="promo-type-filters" role="group" aria-label="Filtrar por tipo de promoción">
+        <button class="filter-button" type="button" data-promo-filter="all" aria-pressed="true">🔥 Todas las promos</button>
+        <button class="filter-button" type="button" data-promo-filter="descuento" aria-pressed="false">🏷️ Descuentos %</button>
+        <button class="filter-button" type="button" data-promo-filter="2x1" aria-pressed="false">⚡ 2x1 Hoy</button>
+        <button class="filter-button" type="button" data-promo-filter="combo" aria-pressed="false">🎁 Combos y Especiales</button>
+      </div>
+      <div class="restaurant-grid promo-dishes-grid" id="restaurant-directory-grid" aria-live="polite"></div>
     </section>
 
     <section class="restaurant-detail-section" id="restaurant-detail-section" aria-labelledby="restaurant-detail-title" hidden>
@@ -107,7 +113,7 @@
   <div class="notice" id="notice" role="status" aria-live="polite" hidden></div>
 
   <footer class="auth-footer restaurant-footer">© 2026 Saborcito · Hecho para disfrutar cada bocado.</footer>
-  <script src="order-tracker.js?v=20261101" defer></script>
-  <script src="restaurants.js?v=20261101" defer></script>
+  <script src="order-tracker.js?v=20261101b" defer></script>
+  <script src="restaurants.js?v=20261101b" defer></script>
 </body>
 </html>

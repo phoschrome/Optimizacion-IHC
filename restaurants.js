@@ -5,6 +5,7 @@ let recentDishIds = [];
 let currentRestaurant = null;
 let currentUser = null;
 let apiBaseUrl = "";
+let selectedPromoFilter = "all";
 const cart = new Map();
 let noticeTimer;
 const CATALOG_CACHE_KEY = "saborcito_catalog_cache_v1";
@@ -236,6 +237,16 @@ function normalizeDish(record, apiBase) {
     image = `${apiBase.replace(/\/+$/, "")}/${image.replace(/^\/+/, "")}`;
   }
 
+  const numId = Number(id);
+  const isPromotion = Boolean(
+    record.isPromotion === true ||
+    record.isPromotion === "true" ||
+    record.isPromotion === 1 ||
+    record.ispromotion === 1 ||
+    record.ispromotion === "true" ||
+    (Number.isFinite(numId) && numId % 5 === 1)
+  );
+
   return {
     id: String(id),
     restaurantId: String(restaurantId),
@@ -244,7 +255,8 @@ function normalizeDish(record, apiBase) {
     description: String(record.description ?? record.descripcion ?? ""),
     price,
     image,
-    alt: String(record.alt || name)
+    alt: String(record.alt || name),
+    isPromotion
   };
 }
 
@@ -281,25 +293,69 @@ function renderDish(dish) {
     </article>`;
 }
 
+const PROMO_TYPES = [
+  { type: "descuento", badge: "🔥 25% DCTO", multiplier: 1.33, note: "25% de descuento directo hoy." },
+  { type: "2x1", badge: "⚡ 2X1 HOY", multiplier: 1.5, note: "Lleva 2 por el precio especial de promoción." },
+  { type: "combo", badge: "🎁 PRECIO COMBO", multiplier: 1.25, note: "Promoción especial por tiempo limitado." },
+  { type: "descuento", badge: "🏷️ 30% OFF", multiplier: 1.42, note: "Ahorra 30% pidiendo en línea." }
+];
+
+function getPromoMeta(dish) {
+  const numId = Math.abs(Number(dish.id) || 1);
+  const preset = PROMO_TYPES[numId % PROMO_TYPES.length];
+  const originalPrice = Math.max(dish.price + 1.5, Number((dish.price * preset.multiplier).toFixed(2)));
+  return {
+    type: preset.type,
+    badge: preset.badge,
+    note: preset.note,
+    originalPrice
+  };
+}
+
 function renderDirectory() {
-  const query = (topSearch?.value || "").trim().toLocaleLowerCase("es");
-  const visible = restaurants.filter(r =>
-    !query || `${r.name} ${r.category} ${r.description}`.toLocaleLowerCase("es").includes(query)
-  );
   if (!directoryGrid) return;
+  const query = (topSearch?.value || "").trim().toLocaleLowerCase("es");
+
+  // Seleccionar los platos en oferta/promoción de todos los restaurantes
+  let promoDishes = allDishes.filter(d => d.isPromotion || Number(d.id) % 5 === 1);
+  if (promoDishes.length === 0) {
+    promoDishes = allDishes.slice(0, 12);
+  }
+
+  const visible = promoDishes.filter(dish => {
+    const rest = restaurants.find(r => r.id === dish.restaurantId);
+    const meta = getPromoMeta(dish);
+    const matchesFilter = selectedPromoFilter === "all" || meta.type === selectedPromoFilter;
+    const matchesQuery = !query || `${dish.name} ${dish.description} ${rest?.name || ""} ${meta.badge}`.toLocaleLowerCase("es").includes(query);
+    return matchesFilter && matchesQuery;
+  });
+
   directoryGrid.innerHTML = visible.length
-    ? visible.map(r => `
-      <article class="restaurant-card">
-        <span class="restaurant-icon" aria-hidden="true">${escapeHTML(r.icon)}</span>
-        <div class="restaurant-copy">
-          <span class="offer-tag">${escapeHTML(r.category)}</span>
-          <h3>${escapeHTML(r.name)}</h3>
-          <p>${escapeHTML(r.description)}</p>
-          <p class="rating">★ ${escapeHTML(r.rating)} · ${escapeHTML(r.time)}</p>
-          <a class="restaurant-menu-link" href="restaurants.html?restaurant=${encodeURIComponent(r.id)}">Ver menú →</a>
+    ? visible.map(dish => {
+      const rest = restaurants.find(r => r.id === dish.restaurantId);
+      const meta = getPromoMeta(dish);
+      const icon = rest?.icon || "🍽️";
+      const restName = rest?.name || "Saborcito";
+      return `
+      <article class="restaurant-card promo-dish-card">
+        <span class="restaurant-icon promo-dish-icon" aria-hidden="true">${escapeHTML(icon)}</span>
+        <div class="restaurant-copy promo-dish-copy">
+          <div class="promo-dish-badges">
+            <span class="promo-badge-pill">${escapeHTML(meta.badge)}</span>
+            <span class="offer-tag">${escapeHTML(restName)}</span>
+          </div>
+          <h3>${escapeHTML(dish.name)}</h3>
+          <p>${escapeHTML(meta.note)}</p>
+          <div class="promo-price-row">
+            <span class="promo-old-price">$${escapeHTML(meta.originalPrice.toFixed(2))}</span>
+            <strong class="promo-new-price">$${escapeHTML(dish.price.toFixed(2))}</strong>
+          </div>
+          <a class="restaurant-menu-link" href="restaurants.html?restaurant=${encodeURIComponent(dish.restaurantId)}">Ver menú de ${escapeHTML(restName)} →</a>
         </div>
-      </article>`).join("")
-    : '<p class="empty-state">No encontramos restaurantes con esa búsqueda.</p>';
+        <button class="add-button promo-add-btn" type="button" data-add="${escapeHTML(dish.id)}" aria-label="Añadir promoción ${escapeHTML(dish.name)} al carrito" title="Añadir oferta al carrito">+</button>
+      </article>`;
+    }).join("")
+    : '<p class="empty-state">No encontramos platillos en promoción con ese filtro o búsqueda.</p>';
 }
 
 function renderRecentOrders() {
@@ -381,6 +437,7 @@ function renderRestaurant() {
     detailSection.hidden = true;
     if (pageIntro) pageIntro.hidden = false;
     if (directorySection) directorySection.hidden = false;
+    document.title = "Ofertas y Promociones — Saborcito";
     renderDirectory();
     return;
   }
@@ -478,7 +535,8 @@ async function loadCloudCatalog() {
     description: "Preparado al momento.",
     price,
     image: "",
-    alt: name
+    alt: name,
+    isPromotion: id % 5 === 1
   }));
 
   try {
@@ -598,6 +656,14 @@ document.addEventListener("click", event => {
     if (searchResults && !event.target.closest(".search-wrap")) {
       searchResults.hidden = true;
     }
+    return;
+  }
+  if (target.dataset.promoFilter !== undefined) {
+    selectedPromoFilter = target.dataset.promoFilter;
+    document.querySelectorAll("#promo-type-filters [data-promo-filter]").forEach(btn => {
+      btn.setAttribute("aria-pressed", String(btn.dataset.promoFilter === selectedPromoFilter));
+    });
+    renderDirectory();
     return;
   }
   if (target.dataset.gotoRestaurant) {
