@@ -47,6 +47,7 @@
     let noticeTimer;
     const favoritesGrid = document.querySelector("#favorites-grid");
     const categoryRestaurantsGrid = document.querySelector("#category-restaurants-grid");
+    const homePromoDishesGrid = document.querySelector("#home-promo-dishes-grid");
     const search = document.querySelector("#search");
     const searchResults = document.querySelector("#search-results");
     const drawer = document.querySelector("#cart-drawer");
@@ -225,6 +226,7 @@
         }));
         renderCategoryRestaurants();
         renderFavoriteRestaurants();
+        renderHomePromoDishes();
       } catch {
         // Si Oracle Cloud está despertando, se mantienen los datos en caché local
       }
@@ -238,6 +240,70 @@
       } catch {
         return new Set();
       }
+    }
+
+    const PROMO_TYPES = [
+      { type: "2x1", badge: "🔥 2x1", multiplier: 1.85, note: "Pide 2 por el precio de 1." },
+      { type: "combo", badge: "⭐ COMBO", multiplier: 1.35, note: "Incluye bebida y acompañamiento." },
+      { type: "descuento", badge: "🏷️ 30% OFF", multiplier: 1.42, note: "Ahorra 30% pidiendo en línea." }
+    ];
+
+    function getPromoMeta(dish) {
+      const numId = Math.abs(Number(dish.id) || 1);
+      const preset = PROMO_TYPES[numId % PROMO_TYPES.length];
+      const originalPrice = Math.max(dish.price + 1.5, Number((dish.price * preset.multiplier).toFixed(2)));
+      return {
+        type: preset.type,
+        badge: preset.badge,
+        note: preset.note,
+        originalPrice
+      };
+    }
+
+    function renderHomePromoDishes() {
+      if (!homePromoDishesGrid) return;
+      const allKnown = getAllKnownDishes();
+      const allRests = getCatalogRestaurants();
+
+      let promoDishes = allKnown.filter(d => d.isPromotion || Number(d.id) % 5 === 1);
+      if (promoDishes.length < 3) {
+        promoDishes = allKnown.slice(0, 3);
+      }
+      const top3 = promoDishes.slice(0, 3);
+
+      homePromoDishesGrid.innerHTML = top3.map(dish => {
+        const rest = allRests.find(r => String(r.id) === String(dish.restaurantId));
+        const meta = getPromoMeta(dish);
+        const icon = rest?.icon || "🍽️";
+        const restName = rest?.name || "Saborcito";
+        const dishImage = dish.image || (dish.id === "1" ? "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?auto=format&fit=crop&w=700&q=80" : "");
+        const targetMenuUrl = isAuthenticated
+          ? `restaurants.html?restaurant=${encodeURIComponent(dish.restaurantId)}`
+          : "auth.html";
+
+        return `
+        <article class="food-card promo-dish-card">
+          <div class="food-image promo-dish-image">
+            ${dishImage
+              ? `<img src="${escapeHTML(dishImage)}" alt="${escapeHTML(dish.name)}" loading="lazy">`
+              : `<div class="food-image-placeholder" aria-hidden="true"><span>${escapeHTML(icon)}</span><small>Imagen del plato</small></div>`}
+            <span class="promo-badge-pill promo-badge-floating">${escapeHTML(meta.badge)}</span>
+          </div>
+          <div class="food-info promo-dish-copy">
+            <span class="offer-tag">${escapeHTML(icon)} ${escapeHTML(restName)}</span>
+            <h3 class="food-name">${escapeHTML(dish.name)}</h3>
+            <p class="food-description">${escapeHTML(meta.note)}</p>
+            <div class="food-bottom promo-bottom-row">
+              <div class="promo-price-row">
+                <span class="promo-old-price">$${escapeHTML(meta.originalPrice.toFixed(2))}</span>
+                <strong class="promo-new-price">$${escapeHTML(Number(dish.price).toFixed(2))}</strong>
+              </div>
+              <button class="add-button promo-add-btn" type="button" data-add="${escapeHTML(dish.id)}" aria-label="${isAuthenticated ? `Añadir ${escapeHTML(dish.name)} al carrito` : `Inicia sesión para pedir ${escapeHTML(dish.name)}`}" title="${isAuthenticated ? "Añadir al carrito" : "Inicia sesión para pedir"}" ${!isAuthenticated ? "disabled" : ""}>+</button>
+            </div>
+            <a class="restaurant-menu-link" href="${escapeHTML(targetMenuUrl)}">Ver menú de ${escapeHTML(restName)} →</a>
+          </div>
+        </article>`;
+      }).join("");
     }
 
     function renderFavoriteRestaurants() {
@@ -367,6 +433,7 @@
       cartButton.title = isAuthenticated ? "Abrir carrito" : "Inicia sesión para acceder al carrito";
       document.querySelector("#checkout-button").disabled = !isAuthenticated;
       updateOrderButtons();
+    renderHomePromoDishes();
       accountLink.textContent = isAuthenticated ? `👤 ${user.name} ▾` : "👤 Entrar";
       accountLink.href = isAuthenticated ? "#" : "auth.html";
       accountLink.setAttribute("aria-label", isAuthenticated ? `Abrir menú de cuenta de ${user.name}` : "Iniciar sesión");
@@ -375,6 +442,7 @@
       });
       renderFavoriteRestaurants();
       renderCategoryRestaurants();
+      renderHomePromoDishes();
       if (isAuthenticated) {
         loadCartFromCache();
         syncFavoritesFromCloud();
@@ -424,12 +492,13 @@
           showNotice("Inicia sesión para añadir platos al carrito.");
           return;
         }
-        const dish = dishes.find(item => item.id === target.dataset.add);
+        const knownDishes = getAllKnownDishes();
+        const dish = knownDishes.find(item => String(item.id) === String(target.dataset.add));
         if (!dish) {
           showNotice("Este plato ya no está disponible.");
           return;
         }
-        cart.set(target.dataset.add, (cart.get(target.dataset.add) || 0) + 1);
+        cart.set(String(target.dataset.add), (cart.get(String(target.dataset.add)) || 0) + 1);
         updateCart();
         showNotice(`${dish.name} se añadió al carrito.`);
       }
@@ -539,6 +608,7 @@
       }
       renderFavoriteRestaurants();
       renderCategoryRestaurants();
+      renderHomePromoDishes();
     });
 
     window.addEventListener("storage", () => {
@@ -548,4 +618,5 @@
       }
       renderFavoriteRestaurants();
       renderCategoryRestaurants();
+      renderHomePromoDishes();
     });
