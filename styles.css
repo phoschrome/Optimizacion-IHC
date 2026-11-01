@@ -125,7 +125,7 @@
       box-shadow: var(--shadow);
     }
     .promo-dish-image {
-      height: 165px;
+      height: 190px;
       background: linear-gradient(135deg, #faeed7 0%, #ffe6bf 100%);
     }
     .promo-badge-pill {
@@ -183,15 +183,17 @@
     .restaurant-directory-promo { display: flex; align-items: center; justify-content: center; gap: clamp(24px, 8vw, 100px); min-height: 135px; background: #fff2d9; border-radius: 20px; font-size: clamp(2.4rem, 6vw, 4rem); }
     .restaurant-directory-promo span:nth-child(even) { transform: translateY(14px) rotate(9deg); }
     .offers-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 17px; }
-    .offer-card { display: flex; align-items: center; gap: 14px; min-width: 0; padding: 17px; background: var(--wash); border: 1px solid var(--line); border-radius: 17px; }
+    .offer-card { display: flex; align-items: center; gap: 15px; min-width: 0; padding: 15px 16px; background: var(--wash); border: 1px solid var(--line); border-radius: 18px; transition: transform .18s ease, box-shadow .18s ease; }
+    .offer-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
     .offer-card-highlight { background: #fff2d9; border-color: #f0b54d; }
-    .offer-icon { display: grid; flex: 0 0 58px; height: 58px; place-items: center; background: white; border-radius: 16px; font-size: 1.9rem; overflow: hidden; }
-    .offer-icon img { width: 100%; height: 100%; object-fit: cover; }
+    .offer-icon { display: grid; flex: 0 0 100px; width: 100px; height: 100px; place-items: center; background: white; border-radius: 16px; font-size: 2.7rem; overflow: hidden; box-shadow: 0 2px 8px rgb(0 0 0 / 7%); }
+    .offer-icon img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .offer-copy { flex: 1; min-width: 0; }
-    .offer-tag { color: #754600; font-size: .7rem; font-weight: 850; letter-spacing: .05em; }
-    .offer-copy h3 { margin: 3px 0; font-size: .98rem; }
-    .offer-copy p { margin: 0 0 7px; color: var(--muted); font-size: .82rem; }
-    .offer-copy strong { font-size: .9rem; display: flex; align-items: baseline; gap: 8px; }
+    .offer-tag { display: inline-block; color: #754600; font-size: .72rem; font-weight: 850; letter-spacing: .04em; margin-bottom: 2px; }
+    .offer-copy h3 { margin: 2px 0 4px; font-size: 1rem; line-height: 1.25; }
+    .offer-copy p { margin: 0 0 8px; color: var(--muted); font-size: .82rem; line-height: 1.32; }
+    .offer-copy strong { font-size: .92rem; display: flex; align-items: baseline; gap: 8px; }
+    .offer-card .add-button { flex: 0 0 38px; width: 38px; height: 38px; }
     .categories {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(105px, 1fr));
