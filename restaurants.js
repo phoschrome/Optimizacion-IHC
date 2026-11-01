@@ -175,12 +175,26 @@ function normalizeCollection(payload, name) {
   return records;
 }
 
+const DEFAULT_RESTAURANT_BANNERS = {
+  "1": "https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=900&q=80",
+  "2": "https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=900&q=80",
+  "3": "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&w=900&q=80",
+  "4": "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?auto=format&fit=crop&w=900&q=80",
+  "5": "https://images.unsplash.com/photo-1626645738196-c2a7c87a8f58?auto=format&fit=crop&w=900&q=80",
+  "6": "https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&w=900&q=80",
+  "7": "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=900&q=80",
+  "8": "https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=900&q=80",
+  "9": "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=900&q=80",
+  "10": "https://images.unsplash.com/photo-1501443762994-82bd5dace89a?auto=format&fit=crop&w=900&q=80"
+};
+
 function normalizeRestaurant(record, apiBase) {
   const id = record?.id ?? record?.id_restaurante;
   const name = record?.name ?? record?.nombre_comercial;
   if (!record || (typeof id !== "string" && typeof id !== "number") || !name) {
     throw new Error("Un restaurante recibido no contiene un id y un nombre válidos.");
   }
+  const strId = String(id);
   let logo = String(record.logo || "").trim();
   if (logo && !/^https?:\/\//i.test(logo) && apiBase) {
     logo = `${apiBase.replace(/\/+$/, "")}/${logo.replace(/^\/+/, "")}`;
@@ -189,8 +203,11 @@ function normalizeRestaurant(record, apiBase) {
   if (banner && !/^https?:\/\//i.test(banner) && apiBase) {
     banner = `${apiBase.replace(/\/+$/, "")}/${banner.replace(/^\/+/, "")}`;
   }
+  if (!banner) {
+    banner = DEFAULT_RESTAURANT_BANNERS[strId] || "";
+  }
   return {
-    id: String(id),
+    id: strId,
     name: String(name),
     category: String(record.category || "Restaurante"),
     icon: String(record.icon || "🍽️"),
@@ -431,16 +448,16 @@ async function loadCloudCatalog() {
 
   // 1. Renderizado instantáneo desde caché del navegador si existe (Stale-While-Revalidate como Uber Eats/Rappi)
   const SEED_RESTAURANTS = [
-    { id: "1", name: "Pizzería Roma", category: "Pizza", icon: "🍕", rating: 4.8, time: "20–30 min", description: "Dirección: Av. Principal 101", logo: "", banner: "" },
-    { id: "2", name: "Burger King", category: "Hamburguesas", icon: "🍔", rating: 4.8, time: "20–30 min", description: "Dirección: Mall Central L-20", logo: "", banner: "" },
-    { id: "3", name: "Sushi Zen", category: "Asiática", icon: "🍣", rating: 4.8, time: "20–30 min", description: "Dirección: Calle del Río 45", logo: "", banner: "" },
-    { id: "4", name: "Tacos El Loco", category: "Mexicana", icon: "🌮", rating: 4.8, time: "20–30 min", description: "Dirección: Plaza Sur Local 5", logo: "", banner: "" },
-    { id: "5", name: "KFC", category: "Pollo", icon: "🍗", rating: 4.8, time: "20–30 min", description: "Dirección: Av. Naciones Unidas 1023", logo: "", banner: "" },
-    { id: "6", name: "Wok Express", category: "Asiática", icon: "🥡", rating: 4.8, time: "20–30 min", description: "Dirección: Patio de Comidas Centro", logo: "", banner: "" },
-    { id: "7", name: "Veggie Life", category: "Saludable", icon: "🥗", rating: 4.8, time: "20–30 min", description: "Dirección: Calle Verde 99", logo: "", banner: "" },
-    { id: "8", name: "Sweet Bakery", category: "Postres", icon: "🥐", rating: 4.8, time: "20–30 min", description: "Dirección: Av. Las Flores 21", logo: "", banner: "" },
-    { id: "9", name: "Texas Steakhouse", category: "Carnes", icon: "🥩", rating: 4.8, time: "20–30 min", description: "Dirección: Boulevard Norte 500", logo: "", banner: "" },
-    { id: "10", name: "Gelato Mio", category: "Postres", icon: "🍨", rating: 4.8, time: "20–30 min", description: "Dirección: Plaza Mayor Local 12", logo: "", banner: "" }
+    { id: "1", name: "Pizzería Roma", category: "Pizza", icon: "🍕", rating: 4.8, time: "20–30 min", description: "Dirección: Av. Principal 101", logo: "", banner: DEFAULT_RESTAURANT_BANNERS["1"] },
+    { id: "2", name: "Burger King", category: "Hamburguesas", icon: "🍔", rating: 4.8, time: "20–30 min", description: "Dirección: Mall Central L-20", logo: "", banner: DEFAULT_RESTAURANT_BANNERS["2"] },
+    { id: "3", name: "Sushi Zen", category: "Asiática", icon: "🍣", rating: 4.8, time: "20–30 min", description: "Dirección: Calle del Río 45", logo: "", banner: DEFAULT_RESTAURANT_BANNERS["3"] },
+    { id: "4", name: "Tacos El Loco", category: "Mexicana", icon: "🌮", rating: 4.8, time: "20–30 min", description: "Dirección: Plaza Sur Local 5", logo: "", banner: DEFAULT_RESTAURANT_BANNERS["4"] },
+    { id: "5", name: "KFC", category: "Pollo", icon: "🍗", rating: 4.8, time: "20–30 min", description: "Dirección: Av. Naciones Unidas 1023", logo: "", banner: DEFAULT_RESTAURANT_BANNERS["5"] },
+    { id: "6", name: "Wok Express", category: "Asiática", icon: "🥡", rating: 4.8, time: "20–30 min", description: "Dirección: Patio de Comidas Centro", logo: "", banner: DEFAULT_RESTAURANT_BANNERS["6"] },
+    { id: "7", name: "Veggie Life", category: "Saludable", icon: "🥗", rating: 4.8, time: "20–30 min", description: "Dirección: Calle Verde 99", logo: "", banner: DEFAULT_RESTAURANT_BANNERS["7"] },
+    { id: "8", name: "Sweet Bakery", category: "Postres", icon: "🥐", rating: 4.8, time: "20–30 min", description: "Dirección: Av. Las Flores 21", logo: "", banner: DEFAULT_RESTAURANT_BANNERS["8"] },
+    { id: "9", name: "Texas Steakhouse", category: "Carnes", icon: "🥩", rating: 4.8, time: "20–30 min", description: "Dirección: Boulevard Norte 500", logo: "", banner: DEFAULT_RESTAURANT_BANNERS["9"] },
+    { id: "10", name: "Gelato Mio", category: "Postres", icon: "🍨", rating: 4.8, time: "20–30 min", description: "Dirección: Plaza Mayor Local 12", logo: "", banner: DEFAULT_RESTAURANT_BANNERS["10"] }
   ];
   const SEED_DISHES = [
     [1,"1","Pizza Margherita",12.5],[2,"1","Pizza Pepperoni",14],[3,"1","Pizza Cuatro Quesos",15.5],[4,"1","Pizza Hawaiana",13],[5,"1","Calzone Clásico",11],[6,"1","Lasaña de Carne",10.5],[7,"1","Espagueti Carbonara",9.5],[8,"1","Pan de Ajo",4],[9,"1","Tiramisú",5.5],[10,"1","Gaseosa 1.5L",3],

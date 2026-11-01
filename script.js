@@ -1,14 +1,27 @@
+    const DEFAULT_RESTAURANT_BANNERS = {
+      "1": "https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=900&q=80",
+      "2": "https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=900&q=80",
+      "3": "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&w=900&q=80",
+      "4": "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?auto=format&fit=crop&w=900&q=80",
+      "5": "https://images.unsplash.com/photo-1626645738196-c2a7c87a8f58?auto=format&fit=crop&w=900&q=80",
+      "6": "https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&w=900&q=80",
+      "7": "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=900&q=80",
+      "8": "https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=900&q=80",
+      "9": "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=900&q=80",
+      "10": "https://images.unsplash.com/photo-1501443762994-82bd5dace89a?auto=format&fit=crop&w=900&q=80"
+    };
+
     const SEED_RESTAURANTS = [
-      { id: "1", name: "Pizzería Roma", category: "Pizza", icon: "🍕", rating: 4.8, time: "20–30 min", description: "Dirección: Av. Principal 101" },
-      { id: "2", name: "Burger King", category: "Hamburguesas", icon: "🍔", rating: 4.8, time: "20–30 min", description: "Dirección: Mall Central L-20" },
-      { id: "3", name: "Sushi Zen", category: "Asiática", icon: "🍣", rating: 4.8, time: "20–30 min", description: "Dirección: Calle del Río 45" },
-      { id: "4", name: "Tacos El Loco", category: "Mexicana", icon: "🌮", rating: 4.8, time: "20–30 min", description: "Dirección: Plaza Sur Local 5" },
-      { id: "5", name: "KFC", category: "Pollo", icon: "🍗", rating: 4.8, time: "20–30 min", description: "Dirección: Av. Naciones Unidas 1023" },
-      { id: "6", name: "Wok Express", category: "Asiática", icon: "🥡", rating: 4.8, time: "20–30 min", description: "Dirección: Patio de Comidas Centro" },
-      { id: "7", name: "Veggie Life", category: "Saludable", icon: "🥗", rating: 4.8, time: "20–30 min", description: "Dirección: Calle Verde 99" },
-      { id: "8", name: "Sweet Bakery", category: "Postres", icon: "🥐", rating: 4.8, time: "20–30 min", description: "Dirección: Av. Las Flores 21" },
-      { id: "9", name: "Texas Steakhouse", category: "Carnes", icon: "🥩", rating: 4.8, time: "20–30 min", description: "Dirección: Boulevard Norte 500" },
-      { id: "10", name: "Gelato Mio", category: "Postres", icon: "🍨", rating: 4.8, time: "20–30 min", description: "Dirección: Plaza Mayor Local 12" }
+      { id: "1", name: "Pizzería Roma", category: "Pizza", icon: "🍕", rating: 4.8, time: "20–30 min", description: "Dirección: Av. Principal 101", banner: DEFAULT_RESTAURANT_BANNERS["1"] },
+      { id: "2", name: "Burger King", category: "Hamburguesas", icon: "🍔", rating: 4.8, time: "20–30 min", description: "Dirección: Mall Central L-20", banner: DEFAULT_RESTAURANT_BANNERS["2"] },
+      { id: "3", name: "Sushi Zen", category: "Asiática", icon: "🍣", rating: 4.8, time: "20–30 min", description: "Dirección: Calle del Río 45", banner: DEFAULT_RESTAURANT_BANNERS["3"] },
+      { id: "4", name: "Tacos El Loco", category: "Mexicana", icon: "🌮", rating: 4.8, time: "20–30 min", description: "Dirección: Plaza Sur Local 5", banner: DEFAULT_RESTAURANT_BANNERS["4"] },
+      { id: "5", name: "KFC", category: "Pollo", icon: "🍗", rating: 4.8, time: "20–30 min", description: "Dirección: Av. Naciones Unidas 1023", banner: DEFAULT_RESTAURANT_BANNERS["5"] },
+      { id: "6", name: "Wok Express", category: "Asiática", icon: "🥡", rating: 4.8, time: "20–30 min", description: "Dirección: Patio de Comidas Centro", banner: DEFAULT_RESTAURANT_BANNERS["6"] },
+      { id: "7", name: "Veggie Life", category: "Saludable", icon: "🥗", rating: 4.8, time: "20–30 min", description: "Dirección: Calle Verde 99", banner: DEFAULT_RESTAURANT_BANNERS["7"] },
+      { id: "8", name: "Sweet Bakery", category: "Postres", icon: "🥐", rating: 4.8, time: "20–30 min", description: "Dirección: Av. Las Flores 21", banner: DEFAULT_RESTAURANT_BANNERS["8"] },
+      { id: "9", name: "Texas Steakhouse", category: "Carnes", icon: "🥩", rating: 4.8, time: "20–30 min", description: "Dirección: Boulevard Norte 500", banner: DEFAULT_RESTAURANT_BANNERS["9"] },
+      { id: "10", name: "Gelato Mio", category: "Postres", icon: "🍨", rating: 4.8, time: "20–30 min", description: "Dirección: Plaza Mayor Local 12", banner: DEFAULT_RESTAURANT_BANNERS["10"] }
     ];
 
     let dishes = [
@@ -30,8 +43,10 @@
     let currentUser = null;
     let isAuthenticated = false;
     let promoIndex = 0;
+    let selectedCategory = "all";
     let noticeTimer;
     const favoritesGrid = document.querySelector("#favorites-grid");
+    const categoryRestaurantsGrid = document.querySelector("#category-restaurants-grid");
     const search = document.querySelector("#search");
     const searchResults = document.querySelector("#search-results");
     const drawer = document.querySelector("#cart-drawer");
@@ -111,16 +126,108 @@
       }
     }
 
+    function normalizeCategoryText(value) {
+      return String(value || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .trim()
+        .toLowerCase();
+    }
+
+    function enrichRestaurantBanner(r, apiBase = "") {
+      const id = String(r?.id ?? r?.id_restaurante ?? "");
+      const seedMatch = SEED_RESTAURANTS.find(s => s.id === id);
+      let banner = String(r?.banner || "").trim();
+      if (banner && !/^https?:\/\//i.test(banner) && apiBase) {
+        banner = `${apiBase.replace(/\/+$/, "")}/${banner.replace(/^\/+/, "")}`;
+      }
+      if (!banner) {
+        banner = DEFAULT_RESTAURANT_BANNERS[id] || seedMatch?.banner || "";
+      }
+      return {
+        id,
+        name: String(r?.name ?? r?.nombre_comercial ?? seedMatch?.name ?? "Restaurante"),
+        category: String(r?.category || seedMatch?.category || "Restaurante"),
+        icon: String(r?.icon || seedMatch?.icon || "🍽️"),
+        rating: Number(r?.rating ?? seedMatch?.rating ?? 4.8),
+        time: String(r?.time || r?.deliveryTime || r?.time_est || seedMatch?.time || "20–30 min"),
+        description: String(r?.description || r?.direccion || seedMatch?.description || ""),
+        banner
+      };
+    }
+
     function getCatalogRestaurants() {
       try {
         const cached = JSON.parse(localStorage.getItem(CATALOG_CACHE_KEY) || "null");
         if (cached && Array.isArray(cached.restaurants) && cached.restaurants.length > 0) {
-          return cached.restaurants;
+          return cached.restaurants.map(r => enrichRestaurantBanner(r));
         }
       } catch {
         // ignore cache parse errors
       }
       return SEED_RESTAURANTS;
+    }
+
+    function renderCategoryRestaurants() {
+      if (!categoryRestaurantsGrid) return;
+      const allRestaurants = getCatalogRestaurants();
+      const normalizedFilter = normalizeCategoryText(selectedCategory);
+
+      const filtered = allRestaurants.filter(r => {
+        if (selectedCategory === "all" || !normalizedFilter) return true;
+        const restCat = normalizeCategoryText(r.category);
+        return restCat === normalizedFilter || restCat.includes(normalizedFilter);
+      });
+
+      if (filtered.length === 0) {
+        categoryRestaurantsGrid.innerHTML = '<p class="empty-state">No encontramos restaurantes en esta categoría por ahora.</p>';
+        return;
+      }
+
+      categoryRestaurantsGrid.innerHTML = filtered.map(r => {
+        const targetHref = isAuthenticated
+          ? `restaurants.html?restaurant=${encodeURIComponent(r.id)}`
+          : "auth.html";
+        return `
+          <a class="category-restaurant-card" href="${escapeHTML(targetHref)}" aria-label="Ver menú de ${escapeHTML(r.name)} (${escapeHTML(r.category)})">
+            <div class="category-restaurant-banner">
+              ${r.banner
+                ? `<img src="${escapeHTML(r.banner)}" alt="Banner de ${escapeHTML(r.name)}" loading="lazy">`
+                : `<span class="category-banner-fallback" aria-hidden="true">${escapeHTML(r.icon)}</span>`}
+              <span class="category-banner-tag">${escapeHTML(r.icon)} ${escapeHTML(r.category)}</span>
+            </div>
+            <div class="category-restaurant-caption">
+              <h3 class="category-restaurant-name">${escapeHTML(r.name)}</h3>
+              <span class="category-restaurant-meta">★ ${escapeHTML(r.rating)} · ${escapeHTML(r.time)}</span>
+            </div>
+          </a>`;
+      }).join("");
+    }
+
+    async function syncCatalogFromCloud() {
+      const apiBase = (document.querySelector('meta[name="saborcito-api-base-url"]')?.content || "").trim().replace(/\/+$/, "");
+      if (!apiBase) return;
+      try {
+        const response = await fetch(`${apiBase}/restaurants`, {
+          headers: { Accept: "application/json" }
+        });
+        if (!response.ok) return;
+        const payload = await response.json();
+        const records = Array.isArray(payload) ? payload : (payload?.data ?? payload?.items);
+        if (!Array.isArray(records) || records.length === 0) return;
+
+        const cloudRestaurants = records.map(rec => enrichRestaurantBanner(rec, apiBase));
+        const existingCache = JSON.parse(localStorage.getItem(CATALOG_CACHE_KEY) || "null") || {};
+        localStorage.setItem(CATALOG_CACHE_KEY, JSON.stringify({
+          restaurants: cloudRestaurants,
+          dishes: Array.isArray(existingCache.dishes) && existingCache.dishes.length > 0 ? existingCache.dishes : SEED_CATALOG_DISHES,
+          updatedAt: Date.now()
+        }));
+        renderCategoryRestaurants();
+        renderFavoriteRestaurants();
+      } catch {
+        // Si Oracle Cloud está despertando, se mantienen los datos en caché local
+      }
     }
 
     function getBookmarkedRestaurantIds() {
@@ -265,6 +372,7 @@
         link.href = isAuthenticated ? "restaurants.html" : "auth.html";
       });
       renderFavoriteRestaurants();
+      renderCategoryRestaurants();
       if (isAuthenticated) {
         loadCartFromCache();
         syncFavoritesFromCloud();
@@ -300,6 +408,15 @@
     document.addEventListener("click", event => {
       const target = event.target.closest("button");
       if (!target) return;
+      if (target.dataset.category !== undefined) {
+        const clickedCat = target.dataset.category;
+        selectedCategory = (selectedCategory === clickedCat && clickedCat !== "all") ? "all" : clickedCat;
+        document.querySelectorAll("#category-filters .category").forEach(btn => {
+          btn.setAttribute("aria-pressed", String(btn.dataset.category === selectedCategory));
+        });
+        renderCategoryRestaurants();
+        return;
+      }
       if (target.dataset.add) {
         if (!isAuthenticated) {
           showNotice("Inicia sesión para añadir platos al carrito.");
@@ -409,12 +526,15 @@
       updateAuthentication(null);
     }
 
+    syncCatalogFromCloud();
+
     window.addEventListener("pageshow", () => {
       if (isAuthenticated) {
         loadCartFromCache();
         updateCart();
       }
       renderFavoriteRestaurants();
+      renderCategoryRestaurants();
     });
 
     window.addEventListener("storage", () => {
@@ -423,4 +543,5 @@
         updateCart();
       }
       renderFavoriteRestaurants();
+      renderCategoryRestaurants();
     });

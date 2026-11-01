@@ -7,7 +7,7 @@
   <meta name="description" content="Pide tus platos favoritos y descubre restaurantes cerca de ti en Saborcito.">
   <meta name="saborcito-api-base-url" content="https://gd384485b9fe421-ecommerce.adb.sa-bogota-1.oraclecloudapps.com/ords/admin/v1">
   <title>Saborcito — comida rica, a tu manera</title>
-  <link rel="stylesheet" href="styles.css?v=20261028">
+  <link rel="stylesheet" href="styles.css?v=20261031">
 </head>
 <body>
   <a class="skip-link" href="#contenido">Saltar al contenido principal</a>
@@ -106,14 +106,18 @@
 
     <section class="section" id="categorias" aria-labelledby="categories-title">
       <div class="section-heading"><div><h2 id="categories-title">¿Qué se te antoja?</h2><p>Explora por categoría y encuentra tu próximo favorito.</p></div></div>
-      <div class="categories">
-        <div class="category"><span aria-hidden="true">🍔</span><span>Hamburguesas</span></div>
-        <div class="category"><span aria-hidden="true">🍕</span><span>Pizza</span></div>
-        <div class="category"><span aria-hidden="true">🌮</span><span>Mexicana</span></div>
-        <div class="category"><span aria-hidden="true">🍜</span><span>Asiática</span></div>
-        <div class="category"><span aria-hidden="true">🥗</span><span>Saludable</span></div>
-        <div class="category"><span aria-hidden="true">🍰</span><span>Postres</span></div>
+      <div class="categories" id="category-filters" role="group" aria-label="Filtrar restaurantes por categoría">
+        <button class="category" type="button" data-category="all" aria-pressed="true"><span aria-hidden="true">🍽️</span><span>Todos</span></button>
+        <button class="category" type="button" data-category="Hamburguesas" aria-pressed="false"><span aria-hidden="true">🍔</span><span>Hamburguesas</span></button>
+        <button class="category" type="button" data-category="Pizza" aria-pressed="false"><span aria-hidden="true">🍕</span><span>Pizza</span></button>
+        <button class="category" type="button" data-category="Mexicana" aria-pressed="false"><span aria-hidden="true">🌮</span><span>Mexicana</span></button>
+        <button class="category" type="button" data-category="Asiática" aria-pressed="false"><span aria-hidden="true">🍜</span><span>Asiática</span></button>
+        <button class="category" type="button" data-category="Saludable" aria-pressed="false"><span aria-hidden="true">🥗</span><span>Saludable</span></button>
+        <button class="category" type="button" data-category="Postres" aria-pressed="false"><span aria-hidden="true">🍰</span><span>Postres</span></button>
+        <button class="category" type="button" data-category="Pollo" aria-pressed="false"><span aria-hidden="true">🍗</span><span>Pollo</span></button>
+        <button class="category" type="button" data-category="Carnes" aria-pressed="false"><span aria-hidden="true">🥩</span><span>Carnes</span></button>
       </div>
+      <div class="category-banners-grid" id="category-restaurants-grid" aria-live="polite"></div>
     </section>
     <footer class="site-footer">© 2026 Saborcito · Hecho para disfrutar cada bocado.</footer>
   </main>
@@ -127,7 +131,7 @@
   </aside>
   <div class="notice" id="notice" role="status" aria-live="polite" hidden></div>
 
-  <script src="order-tracker.js?v=20261028" defer></script>
-  <script src="script.js?v=20261028" defer></script>
+  <script src="order-tracker.js?v=20261031" defer></script>
+  <script src="script.js?v=20261031" defer></script>
 </body>
 </html>
