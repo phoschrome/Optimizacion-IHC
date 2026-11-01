@@ -693,7 +693,10 @@
       z-index: 35;
       right: 22px;
       bottom: 22px;
+      display: flex;
+      flex-direction: column;
       width: min(415px, calc(100vw - 32px));
+      max-height: min(80dvh, 570px);
       background: white;
       border: 2px solid var(--orange);
       border-radius: 22px;
@@ -704,10 +707,12 @@
     .order-tracker-popup[hidden] { display: none; }
     .order-tracker-popup.is-minimized {
       width: min(350px, calc(100vw - 32px));
+      max-height: none;
       border-radius: 16px;
     }
 
     .tracker-header {
+      flex-shrink: 0;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -769,6 +774,7 @@
     .tracker-minimized-copy small { color: #ffe19b; font-size: .75rem; }
 
     .tracker-order-tabs {
+      flex-shrink: 0;
       display: flex;
       gap: 6px;
       padding: 8px 14px;
@@ -791,8 +797,32 @@
       border-color: var(--orange);
     }
 
-    .tracker-body { padding: 16px; }
+    .tracker-body {
+      flex: 1;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      padding: 16px;
+      scrollbar-width: thin;
+      scrollbar-color: #d6cebe transparent;
+    }
+    .tracker-body::-webkit-scrollbar {
+      width: 6px;
+    }
+    .tracker-body::-webkit-scrollbar-thumb {
+      background: #d6cebe;
+      border-radius: 999px;
+    }
     .tracker-hero { display: flex; align-items: center; gap: 13px; margin-bottom: 13px; }
+    .tracker-hero-arrived {
+      padding: 10px 12px;
+      background: #ecfdf3;
+      border: 1px solid #bbf7d0;
+      border-radius: 14px;
+    }
+    .tracker-eta-arrived {
+      color: #14532d;
+      background: #bbf7d0;
+    }
     .tracker-hero-icon {
       display: grid;
       flex: 0 0 54px;
@@ -930,6 +960,226 @@
       border-radius: 50%;
       box-shadow: 0 3px 8px rgb(0 0 0 / 25%);
       font-size: .95rem;
+    }
+
+    .tracker-courier-card {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      margin-bottom: 12px;
+      padding: 10px 12px;
+      background: #fff9ed;
+      border: 1px solid #f2dfb8;
+      border-radius: 13px;
+    }
+    .tracker-courier-avatar {
+      display: grid;
+      flex: 0 0 42px;
+      width: 42px;
+      height: 42px;
+      place-items: center;
+      background: white;
+      border: 1.5px solid var(--orange);
+      border-radius: 50%;
+      font-size: 1.35rem;
+    }
+    .tracker-courier-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .tracker-courier-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      font-size: .84rem;
+    }
+    .tracker-courier-rating {
+      padding: 2px 7px;
+      color: #6a4a08;
+      background: #ffe8b3;
+      border-radius: 999px;
+      font-size: .71rem;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    .tracker-courier-vehicle {
+      margin: 2px 0 5px;
+      color: var(--muted);
+      font-size: .76rem;
+    }
+    .tracker-courier-meta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      font-size: .73rem;
+      font-weight: 750;
+    }
+    .tracker-courier-status {
+      color: #166534;
+    }
+    .tracker-courier-phone {
+      color: #573600;
+    }
+
+    /* Calificación por estrellas al llegar el pedido */
+    .tracker-rating-panel {
+      display: grid;
+      gap: 11px;
+      margin-bottom: 12px;
+    }
+    .tracker-rating-block {
+      padding: 11px 12px;
+      background: var(--wash);
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      text-align: center;
+    }
+    .tracker-rating-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+      text-align: left;
+    }
+    .tracker-rating-emoji {
+      display: grid;
+      flex: 0 0 36px;
+      width: 36px;
+      height: 36px;
+      place-items: center;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      font-size: 1.2rem;
+    }
+    .tracker-rating-header h4 {
+      margin: 0;
+      font-size: .86rem;
+      line-height: 1.2;
+    }
+    .tracker-rating-header p {
+      margin: 2px 0 0;
+      color: var(--muted);
+      font-size: .74rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 260px;
+    }
+    .tracker-star-row {
+      display: inline-flex;
+      justify-content: center;
+      gap: 6px;
+      margin: 2px 0 4px;
+    }
+    .tracker-star-btn {
+      width: 38px;
+      height: 38px;
+      padding: 0;
+      color: #c8c1b4;
+      background: white;
+      border: 1.5px solid var(--line);
+      border-radius: 10px;
+      font-size: 1.4rem;
+      line-height: 1;
+      cursor: pointer;
+      transition: transform .12s ease, color .12s ease, border-color .12s ease, background .12s ease;
+    }
+    .tracker-star-btn:hover {
+      transform: scale(1.08);
+      color: #f59e0b;
+      border-color: var(--orange);
+    }
+    .tracker-star-btn.is-active {
+      color: #f59e0b;
+      background: #fff9e6;
+      border-color: var(--orange);
+    }
+    .tracker-rate-caption {
+      display: block;
+      color: #6a4a08;
+      font-size: .74rem;
+      font-weight: 750;
+    }
+    .tracker-rating-comment-label {
+      display: grid;
+      gap: 5px;
+      font-size: .78rem;
+      font-weight: 750;
+    }
+    .tracker-rating-input {
+      width: 100%;
+      min-height: 38px;
+      padding: 0 11px;
+      color: var(--ink);
+      background: white;
+      border: 1px solid #d9d5ce;
+      border-radius: 10px;
+      font-size: .82rem;
+    }
+    .tracker-rating-error {
+      margin: 0;
+      padding: 8px 10px;
+      color: #991b1b;
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      border-radius: 9px;
+      font-size: .76rem;
+      font-weight: 700;
+    }
+    .tracker-rating-error[hidden] { display: none; }
+    .tracker-submit-rating-btn, .tracker-finish-btn {
+      width: 100%;
+      min-height: 42px;
+      font-size: .9rem;
+    }
+    .tracker-rating-thanks {
+      padding: 14px;
+      margin-bottom: 12px;
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 14px;
+      text-align: center;
+    }
+    .tracker-thanks-icon {
+      font-size: 2rem;
+      line-height: 1.1;
+    }
+    .tracker-rating-thanks h4 {
+      margin: 6px 0 4px;
+      font-size: .98rem;
+    }
+    .tracker-rating-thanks p {
+      margin: 0 0 10px;
+      color: var(--muted);
+      font-size: .78rem;
+    }
+    .tracker-thanks-summary {
+      display: grid;
+      gap: 5px;
+      margin-bottom: 12px;
+      padding: 9px 11px;
+      background: white;
+      border-radius: 10px;
+      font-size: .8rem;
+      text-align: left;
+    }
+    .tracker-thanks-summary > div {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .tracker-thanks-summary strong {
+      color: #f59e0b;
+      letter-spacing: 1px;
+    }
+    .tracker-thanks-comment {
+      margin: 4px 0 0 !important;
+      font-style: italic;
+      color: var(--ink) !important;
     }
 
     .tracker-details {

@@ -11,6 +11,7 @@
       subtitle: "El restaurante recibió tu orden y está cocinando tus platillos.",
       icon: "🍳",
       eta: "Llegada estimada: 20–25 min",
+      courierStatus: "En camino al restaurante",
       progress: 25,
       routeRatio: 0.05
     },
@@ -18,9 +19,10 @@
       key: "ready",
       shortLabel: "Listo para recoger",
       title: "Listo para ser recogido",
-      subtitle: "El restaurante empacó tu pedido y espera al repartidor.",
+      subtitle: "El restaurante empacó tu pedido y lo entrega al repartidor.",
       icon: "🛍️",
       eta: "Llegada estimada: 12–15 min",
+      courierStatus: "Recogiendo tu pedido en el local",
       progress: 50,
       routeRatio: 0.18
     },
@@ -31,6 +33,7 @@
       subtitle: "El repartidor va en ruta hacia tu ubicación actual.",
       icon: "🛵",
       eta: "Llegada estimada: 5–8 min",
+      courierStatus: "En ruta hacia tu dirección",
       progress: 78,
       routeRatio: 0.65
     },
@@ -38,13 +41,62 @@
       key: "arrived",
       shortLabel: "¡Ya llegó!",
       title: "¡Tu pedido ya llegó!",
-      subtitle: "El repartidor está en tu ubicación. ¡Que disfrutes tu comida!",
+      subtitle: "El repartidor entregó tu pedido. ¡Califica tu experiencia!",
       icon: "🎉",
       eta: "Entregado ahora",
+      courierStatus: "Pedido entregado en tu ubicación",
       progress: 100,
       routeRatio: 1.0
     }
   ];
+
+  const COURIER_PROFILES = [
+    {
+      name: "Carlos Mendoza",
+      rating: "4.9",
+      deliveries: 842,
+      vehicle: "Moto Honda CB190",
+      plate: "PBA-4821",
+      phone: "099 482 1903",
+      avatar: "🛵"
+    },
+    {
+      name: "Sofía Herrera",
+      rating: "4.95",
+      deliveries: 1120,
+      vehicle: "Moto Yamaha FZ",
+      plate: "PBC-7390",
+      phone: "098 761 3340",
+      avatar: "🛵"
+    },
+    {
+      name: "Mateo Vargas",
+      rating: "4.88",
+      deliveries: 615,
+      vehicle: "Scooter Eléctrica Niu",
+      plate: "PBD-2109",
+      phone: "099 114 8821",
+      avatar: "⚡"
+    },
+    {
+      name: "Valeria Castro",
+      rating: "4.92",
+      deliveries: 930,
+      vehicle: "Moto Suzuki Gixxer",
+      plate: "PBA-9054",
+      phone: "098 339 5120",
+      avatar: "🛵"
+    }
+  ];
+
+  const STAR_LABELS = {
+    0: "Selecciona de 1 a 5 estrellas",
+    1: "1 estrella · Muy malo",
+    2: "2 estrellas · Regular",
+    3: "3 estrellas · Bueno",
+    4: "4 estrellas · Muy bueno",
+    5: "5 estrellas · ¡Excelente!"
+  };
 
   function escapeHTML(value) {
     return String(value ?? "").replace(/[&<>"']/g, ch => ({
@@ -54,6 +106,14 @@
       '"': "&quot;",
       "'": "&#39;"
     })[ch]);
+  }
+
+  function getOrderCourier(order) {
+    if (order && order.courier && order.courier.name) {
+      return order.courier;
+    }
+    const seed = Number(String(order?.shortCode || "0").replace(/\D/g, "")) || 0;
+    return COURIER_PROFILES[seed % COURIER_PROFILES.length];
   }
 
   function getCurrentUser() {
@@ -279,7 +339,7 @@
 
     courierMarker = L.marker([cLat, cLng], { icon: makePin("🛵", "#FFB03B") })
       .addTo(mapInstance)
-      .bindTooltip("Tu pedido", { direction: "top" });
+      .bindTooltip("Repartidor en camino", { direction: "top" });
 
     routeLine = L.polyline([[rLat, rLng], [uLat, uLng]], {
       color: "#FFB03B",
@@ -323,6 +383,25 @@
     return headerBadgeBtn;
   }
 
+  function updateRatingStarsDOM(target, value) {
+    if (!trackerRoot) return;
+    trackerRoot.querySelectorAll(`[data-rate-target="${target}"]`).forEach(btn => {
+      const starVal = Number(btn.dataset.rateValue);
+      const isFilled = starVal <= value;
+      btn.classList.toggle("is-active", isFilled);
+      btn.setAttribute("aria-pressed", String(starVal === value));
+      btn.textContent = isFilled ? "★" : "☆";
+    });
+    const labelEl = trackerRoot.querySelector(`#tracker-rate-label-${target}`);
+    if (labelEl) {
+      labelEl.textContent = STAR_LABELS[value] || STAR_LABELS[0];
+    }
+    const errorEl = trackerRoot.querySelector("#tracker-rating-error");
+    if (errorEl) {
+      errorEl.hidden = true;
+    }
+  }
+
   function ensureTrackerDOM() {
     if (trackerRoot) return trackerRoot;
     trackerRoot = document.createElement("aside");
@@ -355,6 +434,50 @@
         return;
       }
 
+      if (btn.dataset.rateTarget && btn.dataset.rateValue) {
+        const target = btn.dataset.rateTarget; // "food" | "courier"
+        const val = Math.max(1, Math.min(5, Number(btn.dataset.rateValue) || 5));
+        const orders = loadActiveOrders();
+        const activeOrder = orders.find(o => o.id === selectedOrderId) || orders[0];
+        if (activeOrder) {
+          if (target === "food") {
+            activeOrder.foodRating = val;
+          } else if (target === "courier") {
+            activeOrder.courierRating = val;
+          }
+          saveActiveOrders(orders);
+          updateRatingStarsDOM(target, val);
+        }
+        return;
+      }
+
+      if (btn.dataset.trackerSubmitRating) {
+        const orderId = btn.dataset.trackerSubmitRating;
+        const orders = loadActiveOrders();
+        const activeOrder = orders.find(o => o.id === orderId) || orders[0];
+        if (!activeOrder) return;
+
+        const foodStars = Number(activeOrder.foodRating || 0);
+        const courierStars = Number(activeOrder.courierRating || 0);
+        if (foodStars < 1 || courierStars < 1) {
+          const errorEl = trackerRoot.querySelector("#tracker-rating-error");
+          if (errorEl) {
+            errorEl.hidden = false;
+            errorEl.textContent = "⚠️ Por favor selecciona las estrellas tanto para tu comida como para el repartidor.";
+          }
+          return;
+        }
+
+        const commentInput = trackerRoot.querySelector("#tracker-rating-comment");
+        if (commentInput) {
+          activeOrder.ratingComment = commentInput.value.trim();
+        }
+        activeOrder.ratingSubmitted = true;
+        saveActiveOrders(orders);
+        renderTracker(true);
+        return;
+      }
+
       if (btn.dataset.trackerDismiss) {
         const orderId = btn.dataset.trackerDismiss;
         const orders = loadActiveOrders().filter(o => o.id !== orderId);
@@ -369,6 +492,49 @@
     return trackerRoot;
   }
 
+  function renderCourierCardHTML(courier, stage) {
+    return `
+      <div class="tracker-courier-card" aria-label="Datos del repartidor asignado">
+        <div class="tracker-courier-avatar" aria-hidden="true">${escapeHTML(courier.avatar || "🛵")}</div>
+        <div class="tracker-courier-info">
+          <div class="tracker-courier-top">
+            <strong>${escapeHTML(courier.name)}</strong>
+            <span class="tracker-courier-rating">★ ${escapeHTML(courier.rating)} · ${escapeHTML(courier.deliveries)} entregas</span>
+          </div>
+          <p class="tracker-courier-vehicle">${escapeHTML(courier.vehicle)} · Placa <strong>${escapeHTML(courier.plate)}</strong></p>
+          <div class="tracker-courier-meta">
+            <span class="tracker-courier-status" id="tracker-courier-status">🛵 ${escapeHTML(stage.courierStatus)}</span>
+            <span class="tracker-courier-phone">📞 ${escapeHTML(courier.phone)}</span>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function buildStarButtonsHTML(target, currentRating, groupLabel) {
+    const val = Number(currentRating || 0);
+    const stars = [1, 2, 3, 4, 5].map(n => {
+      const isFilled = n <= val;
+      return `
+        <button
+          type="button"
+          class="tracker-star-btn ${isFilled ? "is-active" : ""}"
+          data-rate-target="${escapeHTML(target)}"
+          data-rate-value="${n}"
+          aria-label="Calificar ${escapeHTML(groupLabel)} con ${n} de 5 estrellas"
+          aria-pressed="${val === n}"
+        >${isFilled ? "★" : "☆"}</button>
+      `;
+    }).join("");
+
+    return `
+      <div class="tracker-star-row" role="group" aria-label="Calificación de ${escapeHTML(groupLabel)}">
+        ${stars}
+      </div>
+      <span class="tracker-rate-caption" id="tracker-rate-label-${escapeHTML(target)}">${escapeHTML(STAR_LABELS[val] || STAR_LABELS[0])}</span>
+    `;
+  }
+
   function updateTrackerDynamicContent(activeOrder, stageIdx) {
     const stage = ORDER_STAGES[stageIdx];
     const heroIcon = trackerRoot?.querySelector("#tracker-hero-icon");
@@ -376,12 +542,14 @@
     const heroTitle = trackerRoot?.querySelector("#tracker-hero-title");
     const heroSubtitle = trackerRoot?.querySelector("#tracker-hero-subtitle");
     const progressFill = trackerRoot?.querySelector("#tracker-progress-fill");
+    const courierStatus = trackerRoot?.querySelector("#tracker-courier-status");
 
     if (heroIcon) heroIcon.textContent = stage.icon;
     if (etaPill) etaPill.textContent = stage.eta;
     if (heroTitle) heroTitle.textContent = stage.title;
     if (heroSubtitle) heroSubtitle.textContent = stage.subtitle;
     if (progressFill) progressFill.style.width = `${stage.progress}%`;
+    if (courierStatus) courierStatus.textContent = `🛵 ${stage.courierStatus}`;
 
     trackerRoot?.querySelectorAll("[data-step-idx]").forEach(li => {
       const idx = Number(li.dataset.stepIdx);
@@ -424,6 +592,8 @@
     const activeOrder = orders.find(o => o.id === selectedOrderId) || orders[0];
     const stageIdx = computeStageIndex(activeOrder);
     const stage = ORDER_STAGES[stageIdx];
+    const isArrived = stage.key === "arrived";
+    const courier = getOrderCourier(activeOrder);
     const minimized = isMinimized();
 
     if (badge) {
@@ -435,9 +605,13 @@
     root.hidden = false;
     root.classList.toggle("is-minimized", minimized);
 
-    const nextSignature = `${activeOrder.id}_${minimized}_${orders.length}`;
-    if (!forceRebuild && renderedSignature === nextSignature && !minimized) {
+    const viewMode = isArrived ? (activeOrder.ratingSubmitted ? "rated" : "rating") : "tracking";
+    const nextSignature = `${activeOrder.id}_${minimized}_${orders.length}_${viewMode}`;
+    if (!forceRebuild && renderedSignature === nextSignature && !minimized && viewMode === "tracking") {
       updateTrackerDynamicContent(activeOrder, stageIdx);
+      return;
+    }
+    if (!forceRebuild && renderedSignature === nextSignature && !minimized && viewMode !== "tracking") {
       return;
     }
 
@@ -467,7 +641,7 @@
             <span class="tracker-stage-badge">${escapeHTML(stage.icon)}</span>
             <span class="tracker-minimized-copy">
               <strong>Pedido #${escapeHTML(activeOrder.shortCode)} · ${escapeHTML(stage.shortLabel)}</strong>
-              <small>${escapeHTML(stage.eta)}</small>
+              <small>${escapeHTML(isArrived && !activeOrder.ratingSubmitted ? "⭐ Toca para calificar tu pedido" : stage.eta)}</small>
             </span>
           </button>
           <button type="button" class="tracker-icon-btn" data-tracker-minimize="toggle" aria-label="Expandir seguimiento" title="Expandir">▢</button>
@@ -476,6 +650,123 @@
       return;
     }
 
+    // Si el pedido ya llegó (stage === "arrived"), cambiar a la vista de calificación por estrellas
+    if (isArrived) {
+      destroyMapInstance();
+
+      const ratingContentHTML = activeOrder.ratingSubmitted
+        ? `
+          <div class="tracker-rating-thanks">
+            <div class="tracker-thanks-icon" aria-hidden="true">🌟</div>
+            <h4>¡Gracias por calificar tu pedido!</h4>
+            <p>Tu opinión ayuda a mejorar la calidad de los restaurantes y repartidores en Saborcito.</p>
+            <div class="tracker-thanks-summary">
+              <div>
+                <span>🍽️ Comida:</span>
+                <strong>${"★".repeat(Number(activeOrder.foodRating || 5))}${"☆".repeat(5 - Number(activeOrder.foodRating || 5))}</strong>
+              </div>
+              <div>
+                <span>🛵 Repartidor (${escapeHTML(courier.name)}):</span>
+                <strong>${"★".repeat(Number(activeOrder.courierRating || 5))}${"☆".repeat(5 - Number(activeOrder.courierRating || 5))}</strong>
+              </div>
+              ${activeOrder.ratingComment ? `<p class="tracker-thanks-comment">“${escapeHTML(activeOrder.ratingComment)}”</p>` : ""}
+            </div>
+            <button type="button" class="primary-button tracker-finish-btn" data-tracker-dismiss="${escapeHTML(activeOrder.id)}">
+              Finalizar y cerrar
+            </button>
+          </div>
+        `
+        : `
+          <div class="tracker-rating-panel">
+            <div class="tracker-rating-block">
+              <div class="tracker-rating-header">
+                <span class="tracker-rating-emoji" aria-hidden="true">🍽️</span>
+                <div>
+                  <h4>¿Qué tal estuvo tu comida?</h4>
+                  <p>${escapeHTML(itemsSummary || "Platillos de tu pedido")}</p>
+                </div>
+              </div>
+              ${buildStarButtonsHTML("food", activeOrder.foodRating, "la comida")}
+            </div>
+
+            <div class="tracker-rating-block">
+              <div class="tracker-rating-header">
+                <span class="tracker-rating-emoji" aria-hidden="true">${escapeHTML(courier.avatar || "🛵")}</span>
+                <div>
+                  <h4>Califica a tu repartidor: ${escapeHTML(courier.name)}</h4>
+                  <p>${escapeHTML(courier.vehicle)} · Placa ${escapeHTML(courier.plate)}</p>
+                </div>
+              </div>
+              ${buildStarButtonsHTML("courier", activeOrder.courierRating, "el repartidor")}
+            </div>
+
+            <label class="tracker-rating-comment-label" for="tracker-rating-comment">
+              Comentario adicional (opcional)
+              <input
+                type="text"
+                id="tracker-rating-comment"
+                class="tracker-rating-input"
+                placeholder="Ej. Llegó calientito y muy puntual..."
+                value="${escapeHTML(activeOrder.ratingComment || "")}"
+              >
+            </label>
+
+            <p class="tracker-rating-error" id="tracker-rating-error" hidden></p>
+
+            <button type="button" class="primary-button tracker-submit-rating-btn" data-tracker-submit-rating="${escapeHTML(activeOrder.id)}">
+              Enviar calificación ⭐
+            </button>
+          </div>
+        `;
+
+      root.innerHTML = `
+        <div class="tracker-header">
+          <div class="tracker-header-title">
+            <span class="live-pulse-dot" aria-hidden="true"></span>
+            <span>Pedido entregado · <strong>#${escapeHTML(activeOrder.shortCode)}</strong></span>
+          </div>
+          <div class="tracker-header-actions">
+            <button type="button" class="tracker-icon-btn" data-tracker-minimize="toggle" aria-label="Minimizar ventana de seguimiento" title="Minimizar">−</button>
+            <button type="button" class="tracker-icon-btn" data-tracker-dismiss="${escapeHTML(activeOrder.id)}" aria-label="Cerrar seguimiento de este pedido" title="Cerrar pedido">×</button>
+          </div>
+        </div>
+
+        ${orderTabsHTML}
+
+        <div class="tracker-body">
+          <div class="tracker-hero tracker-hero-arrived">
+            <div class="tracker-hero-icon" id="tracker-hero-icon" aria-hidden="true">${escapeHTML(stage.icon)}</div>
+            <div class="tracker-hero-copy">
+              <span class="tracker-eta-pill tracker-eta-arrived" id="tracker-eta-pill">${escapeHTML(stage.eta)}</span>
+              <h3 id="tracker-hero-title">${escapeHTML(stage.title)}</h3>
+              <p id="tracker-hero-subtitle">${escapeHTML(stage.subtitle)}</p>
+            </div>
+          </div>
+
+          ${ratingContentHTML}
+
+          ${renderCourierCardHTML(courier, stage)}
+
+          <div class="tracker-details">
+            <div class="tracker-detail-row">
+              <span>📍 Entregado en:</span>
+              <strong>${escapeHTML(activeOrder.address || "Av. Siempre Viva 742")}</strong>
+            </div>
+            <div class="tracker-detail-row">
+              <span>💳 Pago (${escapeHTML(activeOrder.paymentLabel || "Tarjeta")}):</span>
+              <strong>$${Number(activeOrder.total || 0).toFixed(2)}</strong>
+            </div>
+            <div class="tracker-detail-row tracker-items-line">
+              <span>🍽️ Productos:</span>
+              <span title="${escapeHTML(itemsSummary)}">${escapeHTML(itemsSummary)}</span>
+            </div>
+          </div>
+        </div>
+      `;
+      return;
+    }
+
+    // Vista normal de seguimiento en vivo (Pasos 1 a 3)
     root.innerHTML = `
       <div class="tracker-header">
         <div class="tracker-header-title">
@@ -518,6 +809,9 @@
           }).join("")}
         </ol>
 
+        <!-- Datos del repartidor asignado -->
+        ${renderCourierCardHTML(courier, stage)}
+
         <!-- Mini-mapa en vivo con ubicación actual -->
         <div class="tracker-map-wrapper">
           <div class="tracker-map-topbar">
@@ -543,7 +837,7 @@
         </div>
 
         <div class="tracker-footer">
-          <span class="tracker-nonblocking-hint">✨ Puedes seguir explorando o hacer otro pedido mientras tanto.</span>
+          <span class="tracker-nonblocking-hint">✨ Desliza hacia abajo para ver más detalles · Puedes seguir explorando</span>
         </div>
       </div>
     `;
@@ -554,6 +848,8 @@
   function createActiveOrder(orderData) {
     const orders = loadActiveOrders();
     const shortCode = String(Math.floor(1000 + Math.random() * 9000));
+    const seed = Number(shortCode) || 0;
+    const courier = COURIER_PROFILES[seed % COURIER_PROFILES.length];
     const newOrder = {
       id: `ord_${Date.now()}_${shortCode}`,
       shortCode,
@@ -563,7 +859,12 @@
       paymentMethod: orderData.paymentMethod || "card",
       paymentLabel: orderData.paymentLabel || "Tarjeta",
       total: Number(orderData.total || 0),
-      items: Array.isArray(orderData.items) ? orderData.items : []
+      items: Array.isArray(orderData.items) ? orderData.items : [],
+      courier,
+      foodRating: 0,
+      courierRating: 0,
+      ratingComment: "",
+      ratingSubmitted: false
     };
     orders.unshift(newOrder);
     saveActiveOrders(orders.slice(0, 5));
