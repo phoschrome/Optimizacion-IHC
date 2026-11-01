@@ -236,6 +236,10 @@ function normalizeDish(record, apiBase) {
   if (image && !/^https?:\/\//i.test(image) && apiBase) {
     image = `${apiBase.replace(/\/+$/, "")}/${image.replace(/^\/+/, "")}`;
   }
+  // Asegurar que la imagen del plato nunca use un banner de restaurante
+  if (image && Object.values(DEFAULT_RESTAURANT_BANNERS).includes(image)) {
+    image = "";
+  }
 
   const numId = Number(id);
   const isPromotion = Boolean(
@@ -547,7 +551,13 @@ async function loadCloudCatalog() {
     const cached = JSON.parse(localStorage.getItem(CATALOG_CACHE_KEY) || "null");
     if (cached && Array.isArray(cached.restaurants) && Array.isArray(cached.dishes)) {
       restaurants = cached.restaurants;
-      allDishes = cached.dishes;
+      allDishes = cached.dishes.map(d => {
+        // Asegurarse de que ningún plato en caché contenga un banner de restaurante como foto
+        if (d && d.image && Object.values(DEFAULT_RESTAURANT_BANNERS).includes(d.image)) {
+          return { ...d, image: "" };
+        }
+        return d;
+      });
     } else {
       restaurants = SEED_RESTAURANTS;
       allDishes = SEED_DISHES;

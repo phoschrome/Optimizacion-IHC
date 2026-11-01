@@ -93,7 +93,13 @@
       try {
         const cached = JSON.parse(localStorage.getItem(CATALOG_CACHE_KEY) || "null");
         if (cached && Array.isArray(cached.dishes) && cached.dishes.length > 0) {
-          return [...dishes, ...cached.dishes];
+          const sanitizedCachedDishes = cached.dishes.map(d => {
+            if (d && d.image && Object.values(DEFAULT_RESTAURANT_BANNERS).includes(d.image)) {
+              return { ...d, image: "" };
+            }
+            return d;
+          });
+          return [...dishes, ...sanitizedCachedDishes];
         }
       } catch {
         // ignore cache errors
@@ -278,7 +284,9 @@
         const meta = getPromoMeta(dish);
         const icon = rest?.icon || "🍽️";
         const restName = rest?.name || "Saborcito";
-        const dishImage = dish.image || (dish.id === "1" ? "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?auto=format&fit=crop&w=700&q=80" : "");
+        const dishImage = (dish.image && !Object.values(DEFAULT_RESTAURANT_BANNERS).includes(dish.image))
+          ? dish.image
+          : "";
         const targetMenuUrl = isAuthenticated
           ? `restaurants.html?restaurant=${encodeURIComponent(dish.restaurantId)}`
           : "auth.html";

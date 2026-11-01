@@ -104,9 +104,15 @@ function getCatalogData() {
   try {
     const cached = JSON.parse(localStorage.getItem(CATALOG_CACHE_KEY) || "null");
     if (cached && Array.isArray(cached.restaurants) && Array.isArray(cached.dishes)) {
+      const sanitizedDishes = cached.dishes.map(d => {
+        if (d && d.image && Object.values(DEFAULT_RESTAURANT_BANNERS).includes(d.image)) {
+          return { ...d, image: "" };
+        }
+        return d;
+      });
       return {
         restaurants: cached.restaurants,
-        dishes: [...cached.dishes, ...PROMO_DISHES]
+        dishes: [...sanitizedDishes, ...PROMO_DISHES]
       };
     }
   } catch {
