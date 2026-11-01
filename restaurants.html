@@ -7,7 +7,7 @@
   <meta name="description" content="Descubre platillos en oferta, descuentos exclusivos y promociones de tus restaurantes favoritos en Saborcito.">
   <meta name="saborcito-api-base-url" content="https://gd384485b9fe421-ecommerce.adb.sa-bogota-1.oraclecloudapps.com/ords/admin/v1">
   <title>Ofertas y Promociones — Saborcito</title>
-  <link rel="stylesheet" href="styles.css?v=20261101c">
+  <link rel="stylesheet" href="styles.css?v=20261101d">
 </head>
 <body class="restaurant-page">
   <a class="skip-link" href="#restaurant-content">Saltar al contenido principal</a>
@@ -30,10 +30,17 @@
   </header>
 
   <main class="restaurant-main" id="restaurant-content">
-    <section class="restaurant-page-intro" id="restaurant-page-intro" aria-labelledby="restaurant-page-title" hidden>
-      <span class="eyebrow">🔥 Promociones por tiempo limitado</span>
-      <h1 id="restaurant-page-title">Ofertas, descuentos y promociones</h1>
-      <p id="restaurant-page-subtitle">Descubre platillos con descuento, combos especiales y 2x1 de nuestros restaurantes asociados listos para pedir hoy mismo.</p>
+    <section class="promo restaurant-page-intro" id="restaurant-page-intro" aria-labelledby="restaurant-page-title" hidden>
+      <div class="promo-copy">
+        <span class="eyebrow">🔥 Promociones por tiempo limitado</span>
+        <h1 id="restaurant-page-title">Ofertas, descuentos y promociones</h1>
+        <p id="restaurant-page-subtitle">Descubre platillos con descuento, combos especiales y 2x1 de nuestros restaurantes asociados listos para pedir hoy mismo.</p>
+        <a class="primary-button" href="#restaurant-directory-section">Explorar ofertas <span aria-hidden="true">↓</span></a>
+      </div>
+      <div class="promo-art" aria-hidden="true">
+        <span class="promo-tag">HASTA 30% DCTO</span>
+        <span class="promo-food">🏷️</span>
+      </div>
     </section>
 
     <p class="catalog-source-note" id="catalog-source-note" role="status">Conectando con el catálogo...</p>

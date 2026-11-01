@@ -353,10 +353,9 @@
     /* Plantilla dinámica de Restaurante (Estructura Wireframe) */
     .restaurant-page { min-height: 100vh; background: var(--surface); }
     .restaurant-main { width: min(1060px, calc(100% - 40px)); min-height: calc(100vh - 150px); padding: 28px 0 64px; }
-    .restaurant-page-intro { max-width: 720px; margin: 0 auto 24px; text-align: center; }
+    .restaurant-page-intro { margin: 0 0 12px; }
     .restaurant-page-intro[hidden], .restaurant-detail-section[hidden], .catalog-error[hidden] { display: none; }
-    .restaurant-page-intro h1 { margin: 12px 0 8px; font-size: clamp(2rem, 4.5vw, 3rem); line-height: 1.1; letter-spacing: -1.5px; }
-    .restaurant-page-intro > p { margin: 0; color: var(--muted); }
+    .restaurant-page-intro .promo-copy p { max-width: 460px; }
 
     .restaurant-banner {
       position: relative;
