@@ -70,6 +70,32 @@
       deliveryInput.value = saved;
       deliveryInput.dispatchEvent(new Event("input", { bubbles: true }));
     }
+
+    attachAddressListeners();
+  }
+
+  function attachAddressListeners() {
+    document.querySelectorAll("#address-button").forEach(btn => {
+      if (!btn._addressModalAttached) {
+        btn._addressModalAttached = true;
+        btn.addEventListener("click", event => {
+          event.stopPropagation();
+          openModal();
+        });
+      }
+    });
+
+    document.querySelectorAll(".location").forEach(loc => {
+      if (!loc._addressModalAttached) {
+        loc._addressModalAttached = true;
+        loc.style.cursor = "pointer";
+        loc.addEventListener("click", event => {
+          if (!event.target.closest("button")) {
+            openModal();
+          }
+        });
+      }
+    });
   }
 
   function loadLeaflet(callback) {
@@ -519,11 +545,9 @@
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", () => {
       syncGlobalAddressUI();
-      document.querySelector("#address-button")?.addEventListener("click", () => openModal());
     });
   } else {
     syncGlobalAddressUI();
-    document.querySelector("#address-button")?.addEventListener("click", () => openModal());
   }
 
   window.addEventListener("pageshow", syncGlobalAddressUI);

@@ -10,7 +10,7 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title>Ofertas y Promociones — Saborcito</title>
-  <link rel="stylesheet" href="styles.css?v=20261101q">
+  <link rel="stylesheet" href="styles.css?v=20261101r">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
   <style>
@@ -44,6 +44,12 @@
   </header>
 
   <main class="restaurant-main" id="restaurant-content">
+    <div class="location">
+      <span aria-hidden="true">📍</span><span>Enviar a:</span>
+      <strong id="address" class="address-empty">Indica tu dirección de entrega</strong>
+      <button type="button" id="address-button" class="address-btn-prompt">Ingresar dirección</button>
+    </div>
+
     <section class="promo restaurant-page-intro" id="restaurant-page-intro" aria-labelledby="restaurant-page-title" hidden>
       <div class="promo-copy">
         <span class="eyebrow">🔥 Promociones por tiempo limitado</span>
@@ -132,8 +138,8 @@
   <div class="notice" id="notice" role="status" aria-live="polite" hidden></div>
 
   <footer class="auth-footer restaurant-footer">© 2026 Saborcito · Hecho para disfrutar cada bocado.</footer>
-  <script src="order-tracker.js?v=20261101q" defer></script>
-  <script src="address-modal.js?v=20261101q" defer></script>
-  <script src="restaurants.js?v=20261101q" defer></script>
+  <script src="order-tracker.js?v=20261101r" defer></script>
+  <script src="address-modal.js?v=20261101r" defer></script>
+  <script src="restaurants.js?v=20261101r" defer></script>
 </body>
 </html>
