@@ -169,7 +169,7 @@
         id: "ord_hist_1",
         shortCode: "8421",
         createdAt: Date.now() - 86400000 * 2,
-        address: localStorage.getItem("saborcito_delivery_address") || "Av. Siempre Viva 742",
+        address: localStorage.getItem("saborcito_delivery_address") || "Dirección de entrega",
         paymentMethod: "card",
         paymentLabel: "Tarjeta •••• 4242",
         total: 26.99,
@@ -744,7 +744,7 @@
                   </div>
                   <p class="user-history-items">🍽️ ${escapeHTML(itemsText)}</p>
                   <div class="user-history-meta">
-                    <span>📍 ${escapeHTML(ord.address || "Av. Siempre Viva 742")}</span>
+                    <span>📍 ${escapeHTML(ord.address || "Dirección de entrega")}</span>
                     <span>💳 ${escapeHTML(ord.paymentLabel || "Tarjeta")}</span>
                   </div>
                   <div class="user-history-bottom">
@@ -1251,7 +1251,7 @@
           <div class="tracker-details">
             <div class="tracker-detail-row">
               <span>📍 Entregado en:</span>
-              <strong>${escapeHTML(activeOrder.address || "Av. Siempre Viva 742")}</strong>
+              <strong>${escapeHTML(activeOrder.address || "Dirección de entrega")}</strong>
             </div>
             <div class="tracker-detail-row">
               <span>💳 Pago (${escapeHTML(activeOrder.paymentLabel || "Tarjeta")}):</span>
@@ -1325,7 +1325,7 @@
         <div class="tracker-details">
           <div class="tracker-detail-row">
             <span>📍 Entrega en:</span>
-            <strong>${escapeHTML(activeOrder.address || "Av. Siempre Viva 742")}</strong>
+            <strong>${escapeHTML(activeOrder.address || "Dirección de entrega")}</strong>
           </div>
           <div class="tracker-detail-row">
             <span>💳 Pago (${escapeHTML(activeOrder.paymentLabel || "Tarjeta")}):</span>
@@ -1356,7 +1356,7 @@
       shortCode,
       createdAt: Date.now(),
       manualStage: 0,
-      address: orderData.address || "Av. Siempre Viva 742",
+      address: orderData.address || localStorage.getItem("saborcito_delivery_address") || "Dirección de entrega",
       paymentMethod: orderData.paymentMethod || "card",
       paymentLabel: orderData.paymentLabel || "Tarjeta",
       total: Number(orderData.total || 0),

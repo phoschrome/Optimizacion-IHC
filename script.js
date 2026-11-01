@@ -577,18 +577,16 @@
     });
     document.querySelector("#previous-promo").addEventListener("click", () => changePromo(-1));
     document.querySelector("#next-promo").addEventListener("click", () => changePromo(1));
-    const savedAddress = localStorage.getItem("saborcito_delivery_address");
-    if (savedAddress) {
-      document.querySelector("#address").textContent = savedAddress;
+    if (window.SaborcitoAddressModal) {
+      window.SaborcitoAddressModal.syncUI();
     }
-
-    document.querySelector("#address-button").addEventListener("click", () => {
-      const address = window.prompt("¿A qué dirección llevamos tu pedido?", document.querySelector("#address").textContent);
-      if (address && address.trim()) {
-        const cleanAddress = address.trim();
-        document.querySelector("#address").textContent = cleanAddress;
-        localStorage.setItem("saborcito_delivery_address", cleanAddress);
-        showNotice("Actualizamos tu dirección de entrega.");
+    document.querySelector("#address-button")?.addEventListener("click", () => {
+      if (window.SaborcitoAddressModal) {
+        window.SaborcitoAddressModal.open({
+          onAddressSelected: () => {
+            showNotice("Actualizamos tu dirección de entrega.");
+          }
+        });
       }
     });
     document.querySelector("#checkout-button").addEventListener("click", () => {

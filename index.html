@@ -7,7 +7,9 @@
   <meta name="description" content="Pide tus platos favoritos y descubre restaurantes cerca de ti en Saborcito.">
   <meta name="saborcito-api-base-url" content="https://gd384485b9fe421-ecommerce.adb.sa-bogota-1.oraclecloudapps.com/ords/admin/v1">
   <title>Saborcito — comida rica, a tu manera</title>
-  <link rel="stylesheet" href="styles.css?v=20261101p">
+  <link rel="stylesheet" href="styles.css?v=20261101q">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#contenido">Saltar al contenido principal</a>
@@ -32,8 +34,8 @@
   <main id="contenido">
     <div class="location">
       <span aria-hidden="true">📍</span><span>Enviar a:</span>
-      <strong id="address">Av. Siempre Viva 742</strong>
-      <button type="button" id="address-button">Cambiar dirección</button>
+      <strong id="address" class="address-empty">Indica tu dirección de entrega</strong>
+      <button type="button" id="address-button" class="address-btn-prompt">Ingresar dirección</button>
     </div>
 
     <section class="signup-prompt" aria-labelledby="signup-title">
@@ -105,7 +107,8 @@
   </aside>
   <div class="notice" id="notice" role="status" aria-live="polite" hidden></div>
 
-  <script src="order-tracker.js?v=20261101p" defer></script>
-  <script src="script.js?v=20261101p" defer></script>
+  <script src="order-tracker.js?v=20261101q" defer></script>
+  <script src="address-modal.js?v=20261101q" defer></script>
+  <script src="script.js?v=20261101q" defer></script>
 </body>
 </html>

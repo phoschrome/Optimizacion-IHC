@@ -240,7 +240,64 @@ function renderCheckout() {
   confirmBtn.textContent = `Confirmar y pagar $${total.toFixed(2)}`;
 
   updateCashPreview();
+  updateCheckoutPaymentButtonState();
 }
+
+function updateCheckoutPaymentButtonState() {
+  const addressInput = document.querySelector("#delivery-address");
+  const confirmBtn = document.querySelector("#confirm-payment-btn");
+  const warningEl = document.querySelector("#checkout-address-warning");
+  const addressVal = (addressInput?.value || "").trim();
+  const hasValidAddress = Boolean(addressVal.length >= 3 && addressVal !== "Av. Siempre Viva 742");
+
+  if (confirmBtn) {
+    if (!hasValidAddress) {
+      confirmBtn.disabled = true;
+      confirmBtn.setAttribute("aria-disabled", "true");
+      confirmBtn.classList.add("btn-disabled-address");
+      confirmBtn.title = "⚠️ Debes ingresar una dirección de entrega antes de pagar.";
+      if (warningEl) warningEl.hidden = false;
+    } else {
+      confirmBtn.disabled = false;
+      confirmBtn.removeAttribute("aria-disabled");
+      confirmBtn.classList.remove("btn-disabled-address");
+      confirmBtn.title = "Confirmar y procesar tu pedido";
+      if (warningEl) warningEl.hidden = true;
+    }
+  }
+  return hasValidAddress;
+}
+
+document.querySelector("#delivery-address")?.addEventListener("input", event => {
+  const val = event.target.value.trim();
+  if (val && val !== "Av. Siempre Viva 742") {
+    localStorage.setItem(ADDRESS_STORAGE_KEY, val);
+  }
+  updateCheckoutPaymentButtonState();
+});
+
+document.querySelector("#btn-checkout-pick-address")?.addEventListener("click", () => {
+  if (window.SaborcitoAddressModal) {
+    window.SaborcitoAddressModal.open({
+      onAddressSelected: selectedAddress => {
+        const addrInput = document.querySelector("#delivery-address");
+        if (addrInput) {
+          addrInput.value = selectedAddress;
+        }
+        updateCheckoutPaymentButtonState();
+      }
+    });
+  }
+});
+
+window.addEventListener("saborcito:address-updated", event => {
+  const newAddr = event.detail?.address || localStorage.getItem(ADDRESS_STORAGE_KEY) || "";
+  const addrInput = document.querySelector("#delivery-address");
+  if (addrInput && newAddr && newAddr !== "Av. Siempre Viva 742") {
+    addrInput.value = newAddr;
+  }
+  updateCheckoutPaymentButtonState();
+});
 
 // Formateo amigable de tarjeta y vencimiento
 document.querySelector("#card-number")?.addEventListener("input", event => {
@@ -394,8 +451,8 @@ checkoutForm?.addEventListener("submit", event => {
 
   const addressInput = document.querySelector("#delivery-address");
   const address = addressInput?.value.trim() || "";
-  if (!address) {
-    feedbackEl.textContent = "Por favor, indica una dirección de entrega.";
+  if (!updateCheckoutPaymentButtonState() || !address) {
+    feedbackEl.textContent = "Por favor, indica una dirección de entrega antes de pagar.";
     feedbackEl.hidden = false;
     addressInput?.focus();
     return;
@@ -511,11 +568,10 @@ try {
     window.location.replace("auth.html");
   } else {
     currentUser = savedUser;
-    const savedAddress = localStorage.getItem(ADDRESS_STORAGE_KEY);
-    if (savedAddress) {
-      const addrInput = document.querySelector("#delivery-address");
-      if (addrInput) addrInput.value = savedAddress;
-    }
+    const rawAddress = localStorage.getItem(ADDRESS_STORAGE_KEY);
+    const savedAddress = (rawAddress && rawAddress.trim() !== "Av. Siempre Viva 742") ? rawAddress.trim() : "";
+    const addrInput = document.querySelector("#delivery-address");
+    if (addrInput) addrInput.value = savedAddress;
     const accountLink = document.querySelector("#account-link");
     if (accountLink && savedUser.name) {
       accountLink.textContent = `👤 ${savedUser.name} ▾`;
