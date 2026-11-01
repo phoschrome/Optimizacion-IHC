@@ -466,8 +466,8 @@ function renderRestaurant() {
     bannerEl.innerHTML = currentRestaurant.banner
       ? `<img src="${escapeHTML(currentRestaurant.banner)}" alt="Banner de ${escapeHTML(currentRestaurant.name)}">`
       : "";
-    Array.from(bannerEl.children).forEach(child => {
-      if (child.tagName !== "IMG") child.remove();
+    Array.from(bannerEl.childNodes).forEach(child => {
+      if (child.nodeType !== 1 || child.tagName !== "IMG") child.remove();
     });
   }
 

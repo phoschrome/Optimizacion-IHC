@@ -1562,7 +1562,7 @@
     document.querySelectorAll(".restaurant-banner-label, #restaurant-banner-label").forEach(el => el.remove());
     const b = document.querySelector("#restaurant-banner");
     if (b) {
-      Array.from(b.children).forEach(c => { if (c.tagName !== "IMG") c.remove(); });
+      Array.from(b.childNodes).forEach(c => { if (c.nodeType !== 1 || c.tagName !== "IMG") c.remove(); });
     }
   }
 

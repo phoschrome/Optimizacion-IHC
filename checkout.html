@@ -7,7 +7,7 @@
   <meta name="description" content="Finaliza tu pedido y elige tu método de pago en Saborcito.">
   <meta name="saborcito-api-base-url" content="https://gd384485b9fe421-ecommerce.adb.sa-bogota-1.oraclecloudapps.com/ords/admin/v1">
   <title>Finalizar pedido y pago — Saborcito</title>
-  <link rel="stylesheet" href="styles.css?v=20261101q">
+  <link rel="stylesheet" href="styles.css?v=20261101s">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
 </head>
@@ -67,18 +67,20 @@
             </div>
           </div>
 
-          <div class="checkout-field-grid">
-            <label class="auth-field" for="delivery-address">
-              <span>📍 Dirección de entrega</span>
-              <div class="delivery-address-row">
-                <input id="delivery-address" name="address" type="text" required value="" placeholder="Indica calle, número o selecciona en el mapa">
-                <button type="button" id="btn-checkout-pick-address" class="btn-checkout-pick-map" title="Elegir en el mapa o usar GPS">🗺️ Mapa / GPS</button>
-              </div>
-              <p class="checkout-address-warning" id="checkout-address-warning">
-                ⚠️ Debes ingresar una dirección de entrega para habilitar el pago.
-              </p>
-            </label>
+          <!-- 1. Dirección de entrega (Ancho completo, botón a la derecha) -->
+          <label class="auth-field checkout-full-width" for="delivery-address">
+            <span>📍 Dirección de entrega</span>
+            <div class="delivery-address-row">
+              <input id="delivery-address" name="address" type="text" required value="" placeholder="Indica calle, número o selecciona en el mapa">
+              <button type="button" id="btn-checkout-pick-address" class="btn-checkout-pick-map" title="Elegir en el mapa o usar GPS">🗺️ Mapa / GPS</button>
+            </div>
+            <p class="checkout-address-warning" id="checkout-address-warning" hidden>
+              ⚠️ Debes ingresar una dirección de entrega para habilitar el pago.
+            </p>
+          </label>
 
+          <!-- 2. Modalidad de recepción e Instrucciones debajo de la dirección -->
+          <div class="checkout-field-grid">
             <label class="auth-field" for="delivery-handoff">
               <span>🚪 Modalidad de recepción</span>
               <select id="delivery-handoff" class="checkout-select">
@@ -87,12 +89,12 @@
                 <option value="Encontrarse afuera">Encontrarse afuera</option>
               </select>
             </label>
-          </div>
 
-          <label class="auth-field" for="delivery-notes">
-            <span>📝 Instrucciones para el repartidor (opcional)</span>
-            <input id="delivery-notes" name="notes" type="text" placeholder="Ej. Casa de rejas negras, tocar el timbre 2B">
-          </label>
+            <label class="auth-field" for="delivery-notes">
+              <span>📝 Instrucciones para el repartidor (opcional)</span>
+              <input id="delivery-notes" name="notes" type="text" placeholder="Ej. Casa de rejas negras, tocar el timbre 2B">
+            </label>
+          </div>
 
           <div class="delivery-speed-group" role="radiogroup" aria-label="Velocidad de entrega">
             <label class="delivery-speed-option is-selected" data-speed-card="standard">
@@ -275,8 +277,8 @@
   <div class="notice" id="notice" role="status" aria-live="polite" hidden></div>
   <footer class="auth-footer restaurant-footer">© 2026 Saborcito · Hecho para disfrutar cada bocado.</footer>
 
-  <script src="order-tracker.js?v=20261101q" defer></script>
-  <script src="address-modal.js?v=20261101q" defer></script>
-  <script src="checkout.js?v=20261101q" defer></script>
+  <script src="order-tracker.js?v=20261101s" defer></script>
+  <script src="address-modal.js?v=20261101s" defer></script>
+  <script src="checkout.js?v=20261101s" defer></script>
 </body>
 </html>
