@@ -462,9 +462,13 @@ function renderRestaurant() {
 
   const bannerEl = document.querySelector("#restaurant-banner");
   if (bannerEl) {
+    bannerEl.querySelectorAll(".restaurant-banner-label").forEach(el => el.remove());
     bannerEl.innerHTML = currentRestaurant.banner
       ? `<img src="${escapeHTML(currentRestaurant.banner)}" alt="Banner de ${escapeHTML(currentRestaurant.name)}">`
       : "";
+    Array.from(bannerEl.children).forEach(child => {
+      if (child.tagName !== "IMG") child.remove();
+    });
   }
 
   const logoEl = document.querySelector("#restaurant-detail-icon");

@@ -413,6 +413,13 @@
       object-fit: cover;
       display: block;
     }
+    .restaurant-banner-label,
+    .restaurant-banner > :not(img) {
+      display: none !important;
+      visibility: hidden !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+    }
 
     .restaurant-identity-bar {
       display: flex;

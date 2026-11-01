@@ -1558,23 +1558,35 @@
     closeDishModal
   };
 
+  function removeBannerLabels() {
+    document.querySelectorAll(".restaurant-banner-label, #restaurant-banner-label").forEach(el => el.remove());
+    const b = document.querySelector("#restaurant-banner");
+    if (b) {
+      Array.from(b.children).forEach(c => { if (c.tagName !== "IMG") c.remove(); });
+    }
+  }
+
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", () => {
+      removeBannerLabels();
       setupGlobalUserMenuListeners();
       renderTracker(true);
       startTicker();
     });
   } else {
+    removeBannerLabels();
     setupGlobalUserMenuListeners();
     renderTracker(true);
     startTicker();
   }
 
   window.addEventListener("pageshow", () => {
+    removeBannerLabels();
     decorateAccountNavButton();
     renderTracker(true);
   });
   window.addEventListener("storage", () => {
+    removeBannerLabels();
     decorateAccountNavButton();
     renderTracker(false);
   });
