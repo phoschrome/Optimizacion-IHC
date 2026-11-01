@@ -281,7 +281,7 @@ function renderDish(dish) {
     <article class="food-card">
       <div class="food-image">${dish.image
         ? `<img src="${escapeHTML(dish.image)}" alt="${escapeHTML(dish.alt)}" loading="lazy">`
-        : `<span class="food-image-placeholder" aria-hidden="true">${escapeHTML(currentRestaurant?.icon || "🍽️")}</span>`}</div>
+        : `<div class="food-image-placeholder" aria-hidden="true"><span>${escapeHTML(currentRestaurant?.icon || "🍽️")}</span><small>Imagen del plato</small></div>`}</div>
       <div class="food-info">
         <h4 class="food-name">${escapeHTML(dish.name)}</h4>
         <p class="food-description">${escapeHTML(dish.description)}</p>
@@ -337,22 +337,26 @@ function renderDirectory() {
       const icon = rest?.icon || "🍽️";
       const restName = rest?.name || "Saborcito";
       return `
-      <article class="restaurant-card promo-dish-card">
-        <span class="restaurant-icon promo-dish-icon" aria-hidden="true">${escapeHTML(icon)}</span>
-        <div class="restaurant-copy promo-dish-copy">
-          <div class="promo-dish-badges">
-            <span class="promo-badge-pill">${escapeHTML(meta.badge)}</span>
-            <span class="offer-tag">${escapeHTML(restName)}</span>
-          </div>
-          <h3>${escapeHTML(dish.name)}</h3>
-          <p>${escapeHTML(meta.note)}</p>
-          <div class="promo-price-row">
-            <span class="promo-old-price">$${escapeHTML(meta.originalPrice.toFixed(2))}</span>
-            <strong class="promo-new-price">$${escapeHTML(dish.price.toFixed(2))}</strong>
+      <article class="food-card promo-dish-card">
+        <div class="food-image promo-dish-image">
+          ${dish.image
+            ? `<img src="${escapeHTML(dish.image)}" alt="${escapeHTML(dish.alt)}" loading="lazy">`
+            : `<div class="food-image-placeholder" aria-hidden="true"><span>${escapeHTML(icon)}</span><small>Imagen del plato</small></div>`}
+          <span class="promo-badge-pill promo-badge-floating">${escapeHTML(meta.badge)}</span>
+        </div>
+        <div class="food-info promo-dish-copy">
+          <span class="offer-tag">${escapeHTML(icon)} ${escapeHTML(restName)}</span>
+          <h3 class="food-name">${escapeHTML(dish.name)}</h3>
+          <p class="food-description">${escapeHTML(meta.note)}</p>
+          <div class="food-bottom promo-bottom-row">
+            <div class="promo-price-row">
+              <span class="promo-old-price">$${escapeHTML(meta.originalPrice.toFixed(2))}</span>
+              <strong class="promo-new-price">$${escapeHTML(dish.price.toFixed(2))}</strong>
+            </div>
+            <button class="add-button promo-add-btn" type="button" data-add="${escapeHTML(dish.id)}" aria-label="Añadir promoción ${escapeHTML(dish.name)} al carrito" title="Añadir oferta al carrito">+</button>
           </div>
           <a class="restaurant-menu-link" href="restaurants.html?restaurant=${encodeURIComponent(dish.restaurantId)}">Ver menú de ${escapeHTML(restName)} →</a>
         </div>
-        <button class="add-button promo-add-btn" type="button" data-add="${escapeHTML(dish.id)}" aria-label="Añadir promoción ${escapeHTML(dish.name)} al carrito" title="Añadir oferta al carrito">+</button>
       </article>`;
     }).join("")
     : '<p class="empty-state">No encontramos platillos en promoción con ese filtro o búsqueda.</p>';

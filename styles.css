@@ -85,9 +85,10 @@
     .food-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; }
     .food-card { min-width: 0; overflow: hidden; background: white; border: 1px solid var(--line); border-radius: 17px; transition: transform .18s ease, box-shadow .18s ease; }
     .food-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
-    .food-image { position: relative; height: 155px; overflow: hidden; background: #f7e9d2; }
+    .food-image { position: relative; height: 160px; overflow: hidden; background: #f7e9d2; border-bottom: 1px solid var(--line); }
     .food-image img { width: 100%; height: 100%; object-fit: cover; }
-    .food-image-placeholder { display: grid; width: 100%; height: 100%; place-items: center; font-size: 3.5rem; }
+    .food-image-placeholder { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; width: 100%; height: 100%; color: #786b59; font-size: 2.8rem; }
+    .food-image-placeholder small { font-size: .76rem; font-weight: 750; letter-spacing: .02em; opacity: .85; }
     .food-image .heart-button { position: absolute; top: 10px; right: 10px; display: grid; width: 38px; height: 38px; place-items: center; color: #29251f; background: white; border: 0; border-radius: 50%; font-size: 1.15rem; cursor: pointer; box-shadow: 0 2px 8px rgb(0 0 0 / 12%); }
     .heart-button[aria-pressed="true"] { color: #a32e2e; }
     .food-info { padding: 13px; }
@@ -111,56 +112,73 @@
 
     /* Tarjetas de Platillos en Oferta / Promoción en restaurants.html */
     .promo-dish-card {
-      position: relative;
-      align-items: flex-start;
-      padding: 16px;
+      display: flex;
+      flex-direction: column;
       background: linear-gradient(180deg, #ffffff 0%, #fffbf3 100%);
       border: 1.5px solid #f0dfc0;
+      border-radius: 18px;
+      overflow: hidden;
       transition: transform .16s ease, box-shadow .16s ease;
     }
     .promo-dish-card:hover {
-      transform: translateY(-2px);
+      transform: translateY(-3px);
       box-shadow: var(--shadow);
     }
-    .promo-dish-copy {
-      flex: 1;
-    }
-    .promo-dish-badges {
-      display: flex;
-      align-items: center;
-      gap: 7px;
-      flex-wrap: wrap;
-      margin-bottom: 4px;
+    .promo-dish-image {
+      height: 165px;
+      background: linear-gradient(135deg, #faeed7 0%, #ffe6bf 100%);
     }
     .promo-badge-pill {
       display: inline-block;
-      padding: 2px 8px;
+      padding: 4px 10px;
       color: #fff;
       background: #b93815;
       border-radius: 999px;
-      font-size: .68rem;
+      font-size: .72rem;
       font-weight: 850;
       letter-spacing: .03em;
+      box-shadow: 0 3px 10px rgb(0 0 0 / 18%);
+    }
+    .promo-badge-floating {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      z-index: 2;
+    }
+    .promo-dish-copy {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      padding: 14px 16px 16px;
+    }
+    .promo-dish-copy .food-name {
+      margin: 4px 0 3px;
+      font-size: 1.05rem;
+    }
+    .promo-dish-copy .food-description {
+      min-height: 22px;
+      margin: 0 0 10px;
+    }
+    .promo-bottom-row {
+      margin-top: auto;
     }
     .promo-price-row {
       display: flex;
       align-items: baseline;
       gap: 8px;
-      margin-top: 6px;
     }
     .promo-old-price {
       color: var(--muted);
-      font-size: .82rem;
+      font-size: .84rem;
       text-decoration: line-through;
     }
     .promo-new-price {
       color: #166534;
-      font-size: 1.02rem;
+      font-size: 1.08rem;
       font-weight: 850;
     }
     .promo-add-btn {
       flex: 0 0 38px;
-      align-self: center;
     }
     .restaurant-directory-promo { display: flex; align-items: center; justify-content: center; gap: clamp(24px, 8vw, 100px); min-height: 135px; background: #fff2d9; border-radius: 20px; font-size: clamp(2.4rem, 6vw, 4rem); }
     .restaurant-directory-promo span:nth-child(even) { transform: translateY(14px) rotate(9deg); }
