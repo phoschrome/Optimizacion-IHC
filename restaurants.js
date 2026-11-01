@@ -717,9 +717,29 @@ document.addEventListener("click", event => {
     }
   }
   if (target.dataset.quantity) {
-    const next = (cart.get(target.dataset.quantity) || 0) + Number(target.dataset.delta);
-    if (next <= 0) cart.delete(target.dataset.quantity);
-    else cart.set(target.dataset.quantity, next);
+    const dishId = target.dataset.quantity;
+    const delta = Number(target.dataset.delta);
+    const currentQty = cart.get(dishId) || 0;
+
+    if (delta === -1 && currentQty === 1) {
+      const dish = findCartDish(dishId);
+      const dishName = dish ? dish.name : "este producto";
+
+      if (window.SaborcitoOrderTracker?.confirmRemoveDish) {
+        window.SaborcitoOrderTracker.confirmRemoveDish(dishName, () => {
+          cart.delete(dishId);
+          updateCart();
+        });
+      } else if (window.confirm(`¿Deseas eliminar "${dishName}" del carrito?`)) {
+        cart.delete(dishId);
+        updateCart();
+      }
+      return;
+    }
+
+    const next = currentQty + delta;
+    if (next <= 0) cart.delete(dishId);
+    else cart.set(dishId, next);
     updateCart();
   }
 });

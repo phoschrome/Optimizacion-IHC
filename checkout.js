@@ -366,7 +366,28 @@ document.addEventListener("click", event => {
   if (btn.dataset.qtyId) {
     const id = btn.dataset.qtyId;
     const delta = Number(btn.dataset.delta || 0);
-    const next = (cart.get(id) || 0) + delta;
+    const currentQty = cart.get(id) || 0;
+
+    if (delta === -1 && currentQty === 1) {
+      const { dishes } = getCatalogData();
+      const dish = dishes.find(d => String(d.id) === String(id));
+      const dishName = dish ? dish.name : "este producto";
+
+      if (window.SaborcitoOrderTracker?.confirmRemoveDish) {
+        window.SaborcitoOrderTracker.confirmRemoveDish(dishName, () => {
+          cart.delete(id);
+          saveCartToCache();
+          renderCheckout();
+        });
+      } else if (window.confirm(`¿Deseas eliminar "${dishName}" del pedido?`)) {
+        cart.delete(id);
+        saveCartToCache();
+        renderCheckout();
+      }
+      return;
+    }
+
+    const next = currentQty + delta;
     if (next <= 0) cart.delete(id);
     else cart.set(id, next);
     saveCartToCache();

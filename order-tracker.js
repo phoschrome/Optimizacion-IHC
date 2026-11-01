@@ -1509,6 +1509,81 @@
     }
   }
 
+  /* ==========================================================================
+     Modal Emergente de Advertencia para Eliminar Plato del Carrito (cantidad 1)
+     ========================================================================== */
+  let removeConfirmBackdropEl = null;
+  let onRemoveConfirmCallback = null;
+
+  function ensureRemoveConfirmDOM() {
+    if (removeConfirmBackdropEl) return removeConfirmBackdropEl;
+
+    removeConfirmBackdropEl = document.createElement("div");
+    removeConfirmBackdropEl.id = "remove-confirm-modal-backdrop";
+    removeConfirmBackdropEl.className = "remove-confirm-backdrop";
+    removeConfirmBackdropEl.hidden = true;
+    document.body.appendChild(removeConfirmBackdropEl);
+
+    removeConfirmBackdropEl.addEventListener("click", event => {
+      if (event.target === removeConfirmBackdropEl) {
+        closeRemoveConfirmModal();
+        return;
+      }
+      const btn = event.target.closest("button");
+      if (!btn) return;
+
+      if (btn.dataset.removeConfirmClose !== undefined) {
+        closeRemoveConfirmModal();
+        return;
+      }
+
+      if (btn.dataset.removeConfirmDelete !== undefined) {
+        const cb = onRemoveConfirmCallback;
+        closeRemoveConfirmModal();
+        if (typeof cb === "function") cb();
+      }
+    });
+
+    return removeConfirmBackdropEl;
+  }
+
+  function confirmRemoveDish(dishName, onConfirm) {
+    ensureRemoveConfirmDOM();
+    onRemoveConfirmCallback = onConfirm;
+
+    removeConfirmBackdropEl.innerHTML = `
+      <div class="remove-confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="remove-confirm-title" aria-describedby="remove-confirm-desc">
+        <button type="button" class="remove-confirm-close" data-remove-confirm-close="true" aria-label="Cerrar advertencia">×</button>
+        <div class="remove-confirm-icon-wrap" aria-hidden="true">
+          <span class="remove-confirm-icon">⚠️</span>
+        </div>
+        <div class="remove-confirm-content">
+          <h3 class="remove-confirm-title" id="remove-confirm-title">¿Eliminar producto?</h3>
+          <p class="remove-confirm-desc" id="remove-confirm-desc">
+            Solo queda 1 unidad de <strong>${escapeHTML(dishName || "este producto")}</strong> en tu pedido. ¿Deseas eliminarlo del carrito?
+          </p>
+        </div>
+        <div class="remove-confirm-actions">
+          <button type="button" class="remove-confirm-btn-cancel" data-remove-confirm-close="true">
+            Cancelar
+          </button>
+          <button type="button" class="remove-confirm-btn-delete" data-remove-confirm-delete="true">
+            Sí, eliminar
+          </button>
+        </div>
+      </div>
+    `;
+
+    removeConfirmBackdropEl.hidden = false;
+  }
+
+  function closeRemoveConfirmModal() {
+    onRemoveConfirmCallback = null;
+    if (removeConfirmBackdropEl) {
+      removeConfirmBackdropEl.hidden = true;
+    }
+  }
+
   function setupGlobalUserMenuListeners() {
     ensureUserMenuDOM();
     decorateAccountNavButton();
@@ -1541,6 +1616,9 @@
         if (dishModalBackdropEl && !dishModalBackdropEl.hidden) {
           closeDishModal();
         }
+        if (removeConfirmBackdropEl && !removeConfirmBackdropEl.hidden) {
+          closeRemoveConfirmModal();
+        }
       }
     });
   }
@@ -1555,7 +1633,9 @@
     toggleUserDropdown,
     openUserModal,
     openDishModal,
-    closeDishModal
+    closeDishModal,
+    confirmRemoveDish,
+    closeRemoveConfirmModal
   };
 
   function removeBannerLabels() {

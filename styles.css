@@ -1742,6 +1742,114 @@
     }
 
     /* ==========================================================================
+       Modal de Advertencia para Eliminar Producto del Carrito (Cantidad = 1)
+       ========================================================================== */
+    .remove-confirm-backdrop {
+      position: fixed;
+      z-index: 75;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: 18px;
+      background: rgb(24 21 17 / 55%);
+      backdrop-filter: blur(4px);
+    }
+    .remove-confirm-backdrop[hidden] { display: none; }
+    .remove-confirm-dialog {
+      position: relative;
+      width: min(410px, 100%);
+      padding: 26px 24px 22px;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 48px -10px rgb(0 0 0 / 28%), 0 0 0 1px rgb(0 0 0 / 5%);
+      text-align: center;
+      animation: dishModalPop .2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .remove-confirm-close {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      display: grid;
+      width: 32px;
+      height: 32px;
+      place-items: center;
+      background: #f4efe9;
+      border: 0;
+      border-radius: 50%;
+      color: var(--ink);
+      font-size: 1.25rem;
+      cursor: pointer;
+      transition: background .14s ease;
+    }
+    .remove-confirm-close:hover { background: #e5ded3; }
+    .remove-confirm-icon-wrap {
+      display: inline-grid;
+      width: 58px;
+      height: 58px;
+      place-items: center;
+      background: #fff4e5;
+      border: 2px solid #ffd8a8;
+      border-radius: 50%;
+      margin: 0 auto 14px;
+    }
+    .remove-confirm-icon {
+      font-size: 1.8rem;
+      line-height: 1;
+    }
+    .remove-confirm-title {
+      margin: 0 0 8px;
+      font-size: 1.25rem;
+      font-weight: 850;
+      color: var(--ink);
+    }
+    .remove-confirm-desc {
+      margin: 0 0 22px;
+      font-size: .92rem;
+      line-height: 1.45;
+      color: var(--muted);
+    }
+    .remove-confirm-desc strong {
+      color: var(--ink);
+      font-weight: 750;
+    }
+    .remove-confirm-actions {
+      display: flex;
+      gap: 10px;
+    }
+    .remove-confirm-btn-cancel {
+      flex: 1;
+      min-height: 44px;
+      padding: 0 16px;
+      background: #f5f2ec;
+      border: 1.5px solid var(--line);
+      border-radius: 12px;
+      color: var(--ink);
+      font-size: .92rem;
+      font-weight: 750;
+      cursor: pointer;
+      transition: background .15s ease;
+    }
+    .remove-confirm-btn-cancel:hover { background: #e8e2d5; }
+    .remove-confirm-btn-delete {
+      flex: 1;
+      min-height: 44px;
+      padding: 0 16px;
+      background: #dc2626;
+      border: 0;
+      border-radius: 12px;
+      color: white;
+      font-size: .92rem;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgb(220 38 38 / 32%);
+      transition: background .15s ease, transform .15s ease;
+    }
+    .remove-confirm-btn-delete:hover {
+      background: #b91c1c;
+      transform: translateY(-1px);
+    }
+
+    /* ==========================================================================
        Selector de Dirección y Mapa Interactivo Leaflet (Modal)
        ========================================================================== */
     .address-empty {
