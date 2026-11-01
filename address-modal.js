@@ -4,7 +4,30 @@
 (function() {
   const ADDRESS_STORAGE_KEY = "saborcito_delivery_address";
   const COORDS_STORAGE_KEY = "saborcito_delivery_coords";
-  const DEFAULT_COORDS = { lat: 4.6534, lon: -74.0836 }; // Bogotá central por defecto
+  // Coordenadas centrales por defecto: Quito, Ecuador
+  const DEFAULT_COORDS = { lat: -0.1807, lon: -78.4678 };
+
+  // Límites geográficos estrictos de Ecuador (Continental + Galápagos)
+  // Latitudes: de -5.15°S a 1.50°N
+  // Longitudes: de -92.50°O (Galápagos) a -75.15°O (Oriente)
+  const ECUADOR_LAT_MIN = -5.15;
+  const ECUADOR_LAT_MAX = 1.50;
+  const ECUADOR_LON_MIN = -92.50;
+  const ECUADOR_LON_MAX = -75.15;
+
+  function isInsideEcuador(lat, lon) {
+    const nLat = Number(lat);
+    const nLon = Number(lon);
+    return !isNaN(nLat) && !isNaN(nLon) &&
+      nLat >= ECUADOR_LAT_MIN && nLat <= ECUADOR_LAT_MAX &&
+      nLon >= ECUADOR_LON_MIN && nLon <= ECUADOR_LON_MAX;
+  }
+
+  function clampToEcuador(lat, lon) {
+    const clampedLat = Math.max(ECUADOR_LAT_MIN, Math.min(ECUADOR_LAT_MAX, Number(lat) || DEFAULT_COORDS.lat));
+    const clampedLon = Math.max(ECUADOR_LON_MIN, Math.min(ECUADOR_LON_MAX, Number(lon) || DEFAULT_COORDS.lon));
+    return { lat: clampedLat, lon: clampedLon };
+  }
 
   let modalBackdrop = null;
   let leafletMap = null;
@@ -145,7 +168,7 @@
             <h2 id="address-modal-title">📍 Dirección de entrega</h2>
             <button type="button" class="address-modal-close" data-address-close="true" aria-label="Cerrar ventana">×</button>
           </div>
-          <p class="address-modal-sub">¿Cómo prefieres indicar a dónde llevamos tu pedido?</p>
+          <p class="address-modal-sub">¿Cómo prefieres indicar a dónde llevamos tu pedido en Ecuador? 🇪🇨</p>
           
           <div class="address-options-list">
             <button type="button" class="address-option-card" id="btn-use-current-location">
@@ -161,7 +184,7 @@
               <span class="address-option-icon" aria-hidden="true">🗺️</span>
               <div class="address-option-copy">
                 <strong>Ingresar otra dirección o fijar en el mapa</strong>
-                <small>Escribe tu calle o mueve el marcador para indicar el punto exacto</small>
+                <small>Escribe tu calle o mueve el marcador para indicar el punto exacto en Ecuador</small>
               </div>
               <span class="address-option-arrow" aria-hidden="true">→</span>
             </button>
@@ -174,14 +197,14 @@
         <div class="address-modal-view" id="address-map-view" hidden>
           <div class="address-modal-header">
             <button type="button" class="address-modal-back" id="btn-map-back" aria-label="Volver a las opciones">← Volver</button>
-            <h2 class="address-modal-title-map">Fijar punto de entrega</h2>
+            <h2 class="address-modal-title-map">Fijar entrega en Ecuador 🇪🇨</h2>
             <button type="button" class="address-modal-close" data-address-close="true" aria-label="Cerrar ventana">×</button>
           </div>
 
           <div class="address-map-search-bar">
             <div class="address-input-wrapper">
               <span class="address-input-icon" aria-hidden="true">📍</span>
-              <input type="text" id="address-map-input" placeholder="Escribe tu calle, número o busca aquí..." autocomplete="off">
+              <input type="text" id="address-map-input" placeholder="Escribe tu calle, barrio o ciudad en Ecuador (ej. Av. Amazonas, Quito)..." autocomplete="off">
               <button type="button" id="btn-search-address-map" class="address-search-btn" title="Buscar en mapa">Buscar</button>
             </div>
           </div>
@@ -189,7 +212,7 @@
           <div class="address-map-wrapper">
             <div id="saborcito-map-canvas" class="address-map-canvas"></div>
             <div class="address-map-hint">
-              <span>👆 Haz clic o arrastra el marcador 📍 para afinar la ubicación exacta</span>
+              <span>🇪🇨 Mapa delimitado a Ecuador · Toca o arrastra el marcador 📍 para afinar la entrega</span>
             </div>
           </div>
 
@@ -265,17 +288,17 @@
     statusEl.hidden = true;
     refEl.value = "";
 
-    // Cargar coordenadas previas o iniciales
+    // Cargar coordenadas previas o iniciales garantizando que estén en Ecuador
     let targetCoords = initialCoords;
     if (!targetCoords) {
       try {
         const storedCoords = JSON.parse(localStorage.getItem(COORDS_STORAGE_KEY) || "null");
-        if (storedCoords && storedCoords.lat && storedCoords.lon) {
+        if (storedCoords && isInsideEcuador(storedCoords.lat, storedCoords.lon)) {
           targetCoords = storedCoords;
         }
       } catch {}
     }
-    if (!targetCoords) {
+    if (!targetCoords || !isInsideEcuador(targetCoords.lat, targetCoords.lon)) {
       targetCoords = { ...DEFAULT_COORDS };
     }
     currentCoords = targetCoords;
@@ -296,35 +319,68 @@
     const container = document.getElementById("saborcito-map-canvas");
     if (!container) return;
 
+    const safeCoords = isInsideEcuador(lat, lon) ? { lat: Number(lat), lon: Number(lon) } : { ...DEFAULT_COORDS };
+    const ecuadorBounds = L.latLngBounds(
+      L.latLng(ECUADOR_LAT_MIN, ECUADOR_LON_MIN),
+      L.latLng(ECUADOR_LAT_MAX, ECUADOR_LON_MAX)
+    );
+
     if (!leafletMap) {
       leafletMap = L.map("saborcito-map-canvas", {
         zoomControl: true,
-        attributionControl: false
-      }).setView([lat, lon], 16);
+        attributionControl: false,
+        maxBounds: ecuadorBounds,
+        maxBoundsViscosity: 1.0, // Impide arrastrar el mapa fuera del territorio ecuatoriano
+        minZoom: 6,              // Impide alejar la vista más allá de Ecuador
+        maxZoom: 19
+      }).setView([safeCoords.lat, safeCoords.lon], 16);
 
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        maxZoom: 19
+        maxZoom: 19,
+        bounds: ecuadorBounds
       }).addTo(leafletMap);
 
-      leafletMarker = L.marker([lat, lon], {
+      leafletMarker = L.marker([safeCoords.lat, safeCoords.lon], {
         draggable: true,
         autoPan: true
       }).addTo(leafletMap);
 
       leafletMarker.on("dragend", event => {
         const pos = event.target.getLatLng();
-        currentCoords = { lat: pos.lat, lon: pos.lng };
-        scheduleReverseGeocode(pos.lat, pos.lng);
+        if (!isInsideEcuador(pos.lat, pos.lng)) {
+          const clamped = clampToEcuador(pos.lat, pos.lng);
+          leafletMarker.setLatLng([clamped.lat, clamped.lon]);
+          currentCoords = clamped;
+          const statusEl = document.querySelector("#address-map-status");
+          if (statusEl) {
+            statusEl.hidden = false;
+            statusEl.textContent = "⚠️ La entrega se limita al territorio de Ecuador 🇪🇨.";
+            setTimeout(() => { if (statusEl) statusEl.hidden = true; }, 3200);
+          }
+        } else {
+          currentCoords = { lat: pos.lat, lon: pos.lng };
+        }
+        scheduleReverseGeocode(currentCoords.lat, currentCoords.lon);
       });
 
       leafletMap.on("click", event => {
+        if (!isInsideEcuador(event.latlng.lat, event.latlng.lng)) {
+          const statusEl = document.querySelector("#address-map-status");
+          if (statusEl) {
+            statusEl.hidden = false;
+            statusEl.textContent = "⚠️ Por favor, selecciona una ubicación dentro de Ecuador 🇪🇨.";
+            setTimeout(() => { if (statusEl) statusEl.hidden = true; }, 3200);
+          }
+          return;
+        }
         leafletMarker.setLatLng(event.latlng);
         currentCoords = { lat: event.latlng.lat, lon: event.latlng.lng };
         scheduleReverseGeocode(event.latlng.lat, event.latlng.lng);
       });
     } else {
-      leafletMap.setView([lat, lon], 16);
-      leafletMarker.setLatLng([lat, lon]);
+      leafletMap.setMaxBounds(ecuadorBounds);
+      leafletMap.setView([safeCoords.lat, safeCoords.lon], 16);
+      leafletMarker.setLatLng([safeCoords.lat, safeCoords.lon]);
     }
 
     setTimeout(() => {
@@ -332,7 +388,7 @@
     }, 120);
 
     if (shouldGeocode && !document.getElementById("address-map-input").value.trim()) {
-      scheduleReverseGeocode(lat, lon);
+      scheduleReverseGeocode(safeCoords.lat, safeCoords.lon);
     }
   }
 
@@ -390,38 +446,42 @@
     const statusEl = document.querySelector("#address-map-status");
     if (statusEl) {
       statusEl.hidden = false;
-      statusEl.textContent = `🔍 Buscando "${query}" en el mapa...`;
+      statusEl.textContent = `🔍 Buscando "${query}" en Ecuador 🇪🇨...`;
     }
 
     try {
-      const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`;
+      // Restringir búsqueda exclusivamente a Ecuador con countrycodes=ec y bounded
+      const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=ec&viewbox=-92.5,1.50,-75.15,-5.15&bounded=1&limit=3`;
       const res = await fetch(url, {
         headers: { "Accept-Language": "es" }
       });
       if (res.ok) {
         const results = await res.json();
-        if (Array.isArray(results) && results.length > 0) {
-          const first = results[0];
-          const newLat = parseFloat(first.lat);
-          const newLon = parseFloat(first.lon);
+        const validMatch = Array.isArray(results)
+          ? results.find(r => isInsideEcuador(parseFloat(r.lat), parseFloat(r.lon)))
+          : null;
+
+        if (validMatch) {
+          const newLat = parseFloat(validMatch.lat);
+          const newLon = parseFloat(validMatch.lon);
           currentCoords = { lat: newLat, lon: newLon };
           if (leafletMap && leafletMarker) {
             leafletMap.setView([newLat, newLon], 16);
             leafletMarker.setLatLng([newLat, newLon]);
           }
           if (statusEl) {
-            statusEl.textContent = `✓ Ubicación encontrada: ${first.display_name.split(",").slice(0, 2).join(",")}`;
-            setTimeout(() => { if (statusEl) statusEl.hidden = true; }, 2400);
+            statusEl.textContent = `✓ Ubicación encontrada en Ecuador: ${validMatch.display_name.split(",").slice(0, 2).join(",")}`;
+            setTimeout(() => { if (statusEl) statusEl.hidden = true; }, 2600);
           }
           return;
         }
       }
       if (statusEl) {
-        statusEl.textContent = "No encontramos esa dirección exacta. Puedes tocar directamente sobre el mapa para colocar el pin.";
+        statusEl.textContent = "No encontramos esa dirección en Ecuador. Puedes buscar indicando calle y ciudad (ej. Av. 9 de Octubre, Guayaquil) o marcar en el mapa.";
       }
     } catch {
       if (statusEl) {
-        statusEl.textContent = "Error al conectar con la búsqueda. Puedes marcar directamente en el mapa.";
+        statusEl.textContent = "Error al conectar con la búsqueda. Puedes marcar directamente sobre el mapa de Ecuador.";
       }
     }
   }
@@ -441,7 +501,16 @@
       async pos => {
         const lat = pos.coords.latitude;
         const lon = pos.coords.longitude;
-        statusEl.textContent = "✓ Coordenadas obtenidas. Cargando mapa y dirección...";
+
+        if (!isInsideEcuador(lat, lon)) {
+          statusEl.textContent = "⚠️ Tu GPS detectó una ubicación fuera de Ecuador. Te posicionamos en Quito para que elijas tu entrega en Ecuador 🇪🇨.";
+          setTimeout(() => {
+            openMapView({ lat: DEFAULT_COORDS.lat, lon: DEFAULT_COORDS.lon }, "Quito, Ecuador");
+          }, 1800);
+          return;
+        }
+
+        statusEl.textContent = "✓ Coordenadas obtenidas en Ecuador. Cargando mapa y dirección...";
 
         // Geocodificar ubicación actual
         let detectedAddress = "";
@@ -492,6 +561,14 @@
     const inputEl = document.querySelector("#address-map-input");
     const refEl = document.querySelector("#address-map-reference");
     const statusEl = document.querySelector("#address-map-status");
+
+    if (!isInsideEcuador(currentCoords.lat, currentCoords.lon)) {
+      if (statusEl) {
+        statusEl.hidden = false;
+        statusEl.textContent = "⚠️ La dirección de entrega debe estar ubicada dentro del territorio de Ecuador 🇪🇨.";
+      }
+      return;
+    }
 
     const street = inputEl?.value.trim();
     if (!street || street.length < 3) {

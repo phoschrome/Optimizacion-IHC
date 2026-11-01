@@ -319,10 +319,23 @@
   let userCoords = loadSavedCoords();
   let geoRequested = false;
 
+  const ECUADOR_BOUNDS = [
+    [-5.15, -92.50],
+    [1.50, -75.15]
+  ];
+
+  function isCoordsInEcuador(lat, lng) {
+    const nLat = Number(lat);
+    const nLng = Number(lng);
+    return !isNaN(nLat) && !isNaN(nLng) &&
+      nLat >= ECUADOR_BOUNDS[0][0] && nLat <= ECUADOR_BOUNDS[1][0] &&
+      nLng >= ECUADOR_BOUNDS[0][1] && nLng <= ECUADOR_BOUNDS[1][1];
+  }
+
   function loadSavedCoords() {
     try {
       const saved = JSON.parse(sessionStorage.getItem(USER_COORDS_STORAGE_KEY) || "null");
-      if (saved && Number.isFinite(saved.lat) && Number.isFinite(saved.lng)) {
+      if (saved && Number.isFinite(saved.lat) && Number.isFinite(saved.lng) && isCoordsInEcuador(saved.lat, saved.lng)) {
         return saved;
       }
     } catch {
@@ -340,9 +353,17 @@
     }
     navigator.geolocation.getCurrentPosition(
       pos => {
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
+        if (!isCoordsInEcuador(lat, lng)) {
+          userCoords = { lat: -0.1807, lng: -78.4678, isRealGps: false };
+          const lbl = document.querySelector("#tracker-gps-status");
+          if (lbl) lbl.textContent = "📍 Ubicación del pedido (Quito, Ecuador 🇪🇨)";
+          return;
+        }
         userCoords = {
-          lat: pos.coords.latitude,
-          lng: pos.coords.longitude,
+          lat,
+          lng,
           isRealGps: true
         };
         try {
@@ -354,7 +375,7 @@
       },
       () => {
         const lbl = document.querySelector("#tracker-gps-status");
-        if (lbl) lbl.textContent = "📍 Ubicación estimada en el mapa";
+        if (lbl) lbl.textContent = "📍 Ubicación estimada en el mapa (Ecuador)";
       },
       { enableHighAccuracy: true, timeout: 7000, maximumAge: 60000 }
     );
@@ -455,9 +476,17 @@
     const cLat = rLat + (uLat - rLat) * ratio;
     const cLng = rLng + (uLng - rLng) * ratio;
 
+    const ecuadorBounds = L.latLngBounds(
+      L.latLng(ECUADOR_BOUNDS[0][0], ECUADOR_BOUNDS[0][1]),
+      L.latLng(ECUADOR_BOUNDS[1][0], ECUADOR_BOUNDS[1][1])
+    );
+
     mapInstance = L.map(mapContainer, {
       zoomControl: false,
-      attributionControl: false
+      attributionControl: false,
+      maxBounds: ecuadorBounds,
+      maxBoundsViscosity: 1.0,
+      minZoom: 6
     });
 
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
