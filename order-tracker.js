@@ -1386,6 +1386,125 @@
     }, 2500);
   }
 
+  /* ==========================================================================
+     Modal Emergente de Detalles del Plato (Agregar al carro / Cancelar)
+     ========================================================================== */
+  let dishModalBackdropEl = null;
+  let activeModalDish = null;
+  let activeModalQty = 1;
+  let onAddToCartCallback = null;
+
+  function ensureDishModalDOM() {
+    if (dishModalBackdropEl) return dishModalBackdropEl;
+    dishModalBackdropEl = document.createElement("div");
+    dishModalBackdropEl.id = "dish-detail-modal-backdrop";
+    dishModalBackdropEl.className = "dish-modal-backdrop";
+    dishModalBackdropEl.hidden = true;
+    document.body.appendChild(dishModalBackdropEl);
+
+    dishModalBackdropEl.addEventListener("click", event => {
+      if (event.target === dishModalBackdropEl) {
+        closeDishModal();
+        return;
+      }
+      const btn = event.target.closest("button");
+      if (!btn) return;
+
+      if (btn.dataset.dishModalClose !== undefined) {
+        closeDishModal();
+        return;
+      }
+
+      if (btn.dataset.dishModalQtyDelta) {
+        const delta = Number(btn.dataset.dishModalQtyDelta) || 0;
+        activeModalQty = Math.max(1, Math.min(20, activeModalQty + delta));
+        const valEl = dishModalBackdropEl.querySelector("#dish-modal-qty-val");
+        if (valEl) valEl.textContent = activeModalQty;
+        const confirmBtn = dishModalBackdropEl.querySelector("#dish-modal-confirm-btn");
+        if (confirmBtn && activeModalDish) {
+          const subtotal = (Number(activeModalDish.price) || 0) * activeModalQty;
+          confirmBtn.textContent = `Añadir al carrito · $${subtotal.toFixed(2)}`;
+        }
+        return;
+      }
+
+      if (btn.dataset.dishModalConfirm !== undefined) {
+        if (!activeModalDish) return;
+        const dishToAdd = { ...activeModalDish };
+        const qtyToAdd = activeModalQty;
+        closeDishModal();
+        if (typeof onAddToCartCallback === "function") {
+          onAddToCartCallback(dishToAdd, qtyToAdd);
+        }
+      }
+    });
+
+    return dishModalBackdropEl;
+  }
+
+  function openDishModal(dish, restaurant = null, onConfirm = null) {
+    if (!dish) return;
+    ensureDishModalDOM();
+    activeModalDish = dish;
+    activeModalQty = 1;
+    onAddToCartCallback = onConfirm;
+
+    const restName = restaurant?.name || dish.restaurantName || "Saborcito";
+    const restIcon = restaurant?.icon || dish.restaurantIcon || "🍽️";
+    const numPrice = Number(dish.price) || 0;
+    const oldPrice = dish.originalPrice || dish.oldPrice || (numPrice * 1.35);
+    const hasDiscount = Boolean(dish.isPromotion || dish.badge || numPrice < oldPrice);
+    const badgeText = dish.badge || (hasDiscount ? "🔥 OFERTA" : "");
+
+    dishModalBackdropEl.innerHTML = `
+      <div class="dish-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="dish-modal-title">
+        <div class="dish-modal-header">
+          ${dish.image
+            ? `<img src="${escapeHTML(dish.image)}" alt="${escapeHTML(dish.name)}" loading="lazy">`
+            : `<div class="dish-modal-placeholder" aria-hidden="true">${escapeHTML(restIcon)}</div>`}
+          ${badgeText ? `<span class="promo-badge-pill dish-modal-badge">${escapeHTML(badgeText)}</span>` : ""}
+          <button type="button" class="dish-modal-close" data-dish-modal-close="true" aria-label="Cerrar detalles del plato">×</button>
+        </div>
+
+        <div class="dish-modal-body">
+          <span class="offer-tag dish-modal-restaurant-tag">${escapeHTML(restIcon)} ${escapeHTML(restName)}</span>
+          <h3 class="dish-modal-title" id="dish-modal-title">${escapeHTML(dish.name)}</h3>
+          <p class="dish-modal-desc">${escapeHTML(dish.description || "Delicioso platillo preparado al momento con los mejores ingredientes.")}</p>
+
+          <div class="dish-modal-pricing-box">
+            <div class="dish-modal-pricing-left">
+              ${hasDiscount ? `<span class="dish-modal-old-price">$${Number(oldPrice).toFixed(2)}</span>` : ""}
+              <strong class="dish-modal-price">$${numPrice.toFixed(2)}</strong>
+            </div>
+
+            <div class="dish-modal-qty-control" role="group" aria-label="Cantidad a ordenar">
+              <button type="button" class="dish-modal-qty-btn" data-dish-modal-qty-delta="-1" aria-label="Disminuir cantidad">−</button>
+              <span class="dish-modal-qty-val" id="dish-modal-qty-val">1</span>
+              <button type="button" class="dish-modal-qty-btn" data-dish-modal-qty-delta="1" aria-label="Aumentar cantidad">+</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="dish-modal-footer">
+          <button type="button" class="dish-modal-cancel-btn" data-dish-modal-close="true">Cancelar</button>
+          <button type="button" class="primary-button dish-modal-confirm-btn" id="dish-modal-confirm-btn" data-dish-modal-confirm="true">
+            Añadir al carrito · $${numPrice.toFixed(2)}
+          </button>
+        </div>
+      </div>
+    `;
+
+    dishModalBackdropEl.hidden = false;
+  }
+
+  function closeDishModal() {
+    activeModalDish = null;
+    activeModalQty = 1;
+    if (dishModalBackdropEl) {
+      dishModalBackdropEl.hidden = true;
+    }
+  }
+
   function setupGlobalUserMenuListeners() {
     ensureUserMenuDOM();
     decorateAccountNavButton();
@@ -1415,6 +1534,9 @@
         if (userModalBackdropEl && !userModalBackdropEl.hidden) {
           closeUserModal();
         }
+        if (dishModalBackdropEl && !dishModalBackdropEl.hidden) {
+          closeDishModal();
+        }
       }
     });
   }
@@ -1427,7 +1549,9 @@
     loadSavedCards,
     registerNewCard,
     toggleUserDropdown,
-    openUserModal
+    openUserModal,
+    openDishModal,
+    closeDishModal
   };
 
   if (document.readyState === "loading") {

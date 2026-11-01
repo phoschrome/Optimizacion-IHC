@@ -48,6 +48,7 @@
     const favoritesGrid = document.querySelector("#favorites-grid");
     const categoryRestaurantsGrid = document.querySelector("#category-restaurants-grid");
     const homePromoDishesGrid = document.querySelector("#home-promo-dishes-grid");
+    const dailyOffersGrid = document.querySelector("#daily-offers-grid");
     const search = document.querySelector("#search");
     const searchResults = document.querySelector("#search-results");
     const drawer = document.querySelector("#cart-drawer");
@@ -227,6 +228,7 @@
         renderCategoryRestaurants();
         renderFavoriteRestaurants();
         renderHomePromoDishes();
+        renderDailyOffers();
       } catch {
         // Si Oracle Cloud está despertando, se mantienen los datos en caché local
       }
@@ -293,6 +295,44 @@
             <span class="offer-tag">${escapeHTML(icon)} ${escapeHTML(restName)}</span>
             <h3 class="food-name">${escapeHTML(dish.name)}</h3>
             <p class="food-description">${escapeHTML(meta.note)}</p>
+            <div class="food-bottom promo-bottom-row">
+              <div class="promo-price-row">
+                <span class="promo-old-price">$${escapeHTML(meta.originalPrice.toFixed(2))}</span>
+                <strong class="promo-new-price">$${escapeHTML(Number(dish.price).toFixed(2))}</strong>
+              </div>
+              <button class="add-button promo-add-btn" type="button" data-add="${escapeHTML(dish.id)}" aria-label="${isAuthenticated ? `Añadir ${escapeHTML(dish.name)} al carrito` : `Inicia sesión para pedir ${escapeHTML(dish.name)}`}" title="${isAuthenticated ? "Añadir al carrito" : "Inicia sesión para pedir"}" ${!isAuthenticated ? "disabled" : ""}>+</button>
+            </div>
+            <a class="restaurant-menu-link" href="${escapeHTML(targetMenuUrl)}">Ver menú de ${escapeHTML(restName)} →</a>
+          </div>
+        </article>`;
+      }).join("");
+    }
+
+    function renderDailyOffers() {
+      if (!dailyOffersGrid) return;
+      const allRests = getCatalogRestaurants();
+
+      dailyOffersGrid.innerHTML = dishes.map(dish => {
+        const rest = allRests.find(r => String(r.id) === String(dish.restaurantId));
+        const icon = rest?.icon || "🍽️";
+        const restName = rest?.name || "Saborcito";
+        const meta = getPromoMeta(dish);
+        const targetMenuUrl = isAuthenticated
+          ? `restaurants.html?restaurant=${encodeURIComponent(dish.restaurantId)}`
+          : "auth.html";
+
+        return `
+        <article class="food-card promo-dish-card">
+          <div class="food-image promo-dish-image">
+            ${dish.image
+              ? `<img src="${escapeHTML(dish.image)}" alt="${escapeHTML(dish.alt || dish.name)}" loading="lazy">`
+              : `<div class="food-image-placeholder" aria-hidden="true"><span>${escapeHTML(icon)}</span><small>Imagen del plato</small></div>`}
+            <span class="promo-badge-pill promo-badge-floating">${escapeHTML(meta.badge)}</span>
+          </div>
+          <div class="food-info promo-dish-copy">
+            <span class="offer-tag">${escapeHTML(icon)} ${escapeHTML(restName)}</span>
+            <h3 class="food-name">${escapeHTML(dish.name)}</h3>
+            <p class="food-description">${escapeHTML(dish.description || meta.note)}</p>
             <div class="food-bottom promo-bottom-row">
               <div class="promo-price-row">
                 <span class="promo-old-price">$${escapeHTML(meta.originalPrice.toFixed(2))}</span>
@@ -443,6 +483,7 @@
       renderFavoriteRestaurants();
       renderCategoryRestaurants();
       renderHomePromoDishes();
+      renderDailyOffers();
       if (isAuthenticated) {
         loadCartFromCache();
         syncFavoritesFromCloud();
@@ -498,9 +539,29 @@
           showNotice("Este plato ya no está disponible.");
           return;
         }
-        cart.set(String(target.dataset.add), (cart.get(String(target.dataset.add)) || 0) + 1);
-        updateCart();
-        showNotice(`${dish.name} se añadió al carrito.`);
+        const allRests = getCatalogRestaurants();
+        const rest = allRests.find(r => String(r.id) === String(dish.restaurantId));
+        const meta = getPromoMeta(dish);
+        const dishToModal = {
+          ...dish,
+          originalPrice: meta.originalPrice,
+          badge: meta.badge,
+          restaurantName: rest?.name,
+          restaurantIcon: rest?.icon
+        };
+
+        if (window.SaborcitoOrderTracker?.openDishModal) {
+          window.SaborcitoOrderTracker.openDishModal(dishToModal, rest, (selectedDish, qty) => {
+            const currentQty = cart.get(String(selectedDish.id)) || 0;
+            cart.set(String(selectedDish.id), currentQty + qty);
+            updateCart();
+            showNotice(`${selectedDish.name} (x${qty}) se añadió al carrito.`);
+          });
+        } else {
+          cart.set(String(target.dataset.add), (cart.get(String(target.dataset.add)) || 0) + 1);
+          updateCart();
+          showNotice(`${dish.name} se añadió al carrito.`);
+        }
       }
       if (target.dataset.quantity) {
         if (!isAuthenticated) return;
@@ -609,6 +670,7 @@
       renderFavoriteRestaurants();
       renderCategoryRestaurants();
       renderHomePromoDishes();
+      renderDailyOffers();
     });
 
     window.addEventListener("storage", () => {
@@ -619,4 +681,5 @@
       renderFavoriteRestaurants();
       renderCategoryRestaurants();
       renderHomePromoDishes();
+      renderDailyOffers();
     });

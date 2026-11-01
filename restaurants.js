@@ -679,9 +679,28 @@ document.addEventListener("click", event => {
   if (target.dataset.add) {
     const dish = allDishes.find(item => item.id === target.dataset.add);
     if (!dish) return;
-    cart.set(dish.id, (cart.get(dish.id) || 0) + 1);
-    updateCart();
-    showNotice(`${dish.name} se añadió al carrito.`);
+    const rest = restaurants.find(r => r.id === dish.restaurantId) || currentRestaurant;
+    const meta = getPromoMeta(dish);
+    const dishToModal = {
+      ...dish,
+      originalPrice: meta.originalPrice,
+      badge: meta.badge,
+      restaurantName: rest?.name,
+      restaurantIcon: rest?.icon
+    };
+
+    if (window.SaborcitoOrderTracker?.openDishModal) {
+      window.SaborcitoOrderTracker.openDishModal(dishToModal, rest, (selectedDish, qty) => {
+        const currentQty = cart.get(selectedDish.id) || 0;
+        cart.set(selectedDish.id, currentQty + qty);
+        updateCart();
+        showNotice(`${selectedDish.name} (x${qty}) se añadió al carrito.`);
+      });
+    } else {
+      cart.set(dish.id, (cart.get(dish.id) || 0) + 1);
+      updateCart();
+      showNotice(`${dish.name} se añadió al carrito.`);
+    }
   }
   if (target.dataset.quantity) {
     const next = (cart.get(target.dataset.quantity) || 0) + Number(target.dataset.delta);

@@ -331,12 +331,25 @@ document.addEventListener("click", event => {
 
   if (btn.dataset.quickAddDish) {
     const dishId = btn.dataset.quickAddDish;
-    cart.set(dishId, (cart.get(dishId) || 0) + 1);
-    saveCartToCache();
+    const { restaurants, dishes } = getCatalogData();
+    const dish = dishes.find(d => String(d.id) === String(dishId));
+    const rest = restaurants.find(r => String(r.id) === String(dish?.restaurantId));
     if (searchResults) searchResults.hidden = true;
     if (topSearch) topSearch.value = "";
-    renderCheckout();
-    showNotice("Producto agregado a tu pedido.");
+
+    if (dish && window.SaborcitoOrderTracker?.openDishModal) {
+      window.SaborcitoOrderTracker.openDishModal(dish, rest, (selectedDish, qty) => {
+        cart.set(dishId, (cart.get(dishId) || 0) + qty);
+        saveCartToCache();
+        renderCheckout();
+        showNotice(`${selectedDish.name} (x${qty}) agregado a tu pedido.`);
+      });
+    } else {
+      cart.set(dishId, (cart.get(dishId) || 0) + 1);
+      saveCartToCache();
+      renderCheckout();
+      showNotice("Producto agregado a tu pedido.");
+    }
   }
 });
 

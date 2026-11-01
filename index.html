@@ -7,7 +7,7 @@
   <meta name="description" content="Pide tus platos favoritos y descubre restaurantes cerca de ti en Saborcito.">
   <meta name="saborcito-api-base-url" content="https://gd384485b9fe421-ecommerce.adb.sa-bogota-1.oraclecloudapps.com/ords/admin/v1">
   <title>Saborcito — comida rica, a tu manera</title>
-  <link rel="stylesheet" href="styles.css?v=20261101h">
+  <link rel="stylesheet" href="styles.css?v=20261101j">
 </head>
 <body>
   <a class="skip-link" href="#contenido">Saltar al contenido principal</a>
@@ -82,23 +82,7 @@
       <div class="section-heading">
         <div><h2 id="offers-title">Ofertas diarias <span aria-hidden="true">🔥</span></h2><p>Promociones para disfrutar algo rico hoy.</p></div>
       </div>
-      <div class="offers-grid">
-        <article class="offer-card offer-card-highlight">
-          <span class="offer-icon" aria-hidden="true">🍔</span>
-          <div class="offer-copy"><span class="offer-tag">HOY · 2X1</span><h3>Smash para compartir</h3><p>Dos clásicas smash por el precio de una.</p><strong>Desde $189</strong></div>
-          <button class="add-button" type="button" data-add="burger" aria-label="Inicia sesión para pedir la oferta de smash para compartir" title="Inicia sesión para pedir" disabled>+</button>
-        </article>
-        <article class="offer-card">
-          <span class="offer-icon" aria-hidden="true">🍕</span>
-          <div class="offer-copy"><span class="offer-tag">PRECIO ESPECIAL</span><h3>Martes de pizza</h3><p>Pizza margarita con precio especial por tiempo limitado.</p><strong>$199</strong></div>
-          <button class="add-button" type="button" data-add="pizza" aria-label="Inicia sesión para pedir la oferta de pizza margarita" title="Inicia sesión para pedir" disabled>+</button>
-        </article>
-        <article class="offer-card">
-          <span class="offer-icon" aria-hidden="true">🥗</span>
-          <div class="offer-copy"><span class="offer-tag">COMBO DEL DÍA</span><h3>Un bowl lleno de color</h3><p>Bowl arcoíris fresco para darle energía a tu día.</p><strong>Desde $149</strong></div>
-          <button class="add-button" type="button" data-add="salad" aria-label="Inicia sesión para pedir la oferta de bowl arcoíris" title="Inicia sesión para pedir" disabled>+</button>
-        </article>
-      </div>
+      <div class="food-grid" id="daily-offers-grid" aria-live="polite"></div>
     </section>
 
     <section class="section" id="categorias" aria-labelledby="categories-title">
@@ -128,7 +112,7 @@
   </aside>
   <div class="notice" id="notice" role="status" aria-live="polite" hidden></div>
 
-  <script src="order-tracker.js?v=20261101h" defer></script>
-  <script src="script.js?v=20261101i" defer></script>
+  <script src="order-tracker.js?v=20261101j" defer></script>
+  <script src="script.js?v=20261101j" defer></script>
 </body>
 </html>
