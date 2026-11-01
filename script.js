@@ -262,16 +262,18 @@
       }
 
       favoritesGrid.innerHTML = favoriteRestaurants.map(r => `
-        <article class="restaurant-card">
-          <span class="restaurant-icon" aria-hidden="true">${escapeHTML(r.icon)}</span>
-          <div class="restaurant-copy">
-            <span class="offer-tag">${escapeHTML(r.category)}</span>
-            <h3>${escapeHTML(r.name)}</h3>
-            <p>${escapeHTML(r.description)}</p>
-            <p class="rating">★ ${escapeHTML(r.rating)} · ${escapeHTML(r.time)}</p>
-            <a class="restaurant-menu-link" href="restaurants.html?restaurant=${encodeURIComponent(r.id)}">Ver menú →</a>
+        <a class="category-restaurant-card" href="restaurants.html?restaurant=${encodeURIComponent(r.id)}" aria-label="Ver menú de ${escapeHTML(r.name)} (${escapeHTML(r.category)})">
+          <div class="category-restaurant-banner">
+            ${r.banner
+              ? `<img src="${escapeHTML(r.banner)}" alt="Banner de ${escapeHTML(r.name)}" loading="lazy">`
+              : `<span class="category-banner-fallback" aria-hidden="true">${escapeHTML(r.icon)}</span>`}
+            <span class="category-banner-tag">${escapeHTML(r.icon)} ${escapeHTML(r.category)}</span>
           </div>
-        </article>`).join("");
+          <div class="category-restaurant-caption">
+            <h3 class="category-restaurant-name">${escapeHTML(r.name)}</h3>
+            <span class="category-restaurant-meta">★ ${escapeHTML(r.rating)} · ${escapeHTML(r.time)}</span>
+          </div>
+        </a>`).join("");
     }
 
     function updateOrderButtons() {
