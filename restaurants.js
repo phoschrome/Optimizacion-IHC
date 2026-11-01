@@ -463,8 +463,8 @@ function renderRestaurant() {
   const bannerEl = document.querySelector("#restaurant-banner");
   if (bannerEl) {
     bannerEl.innerHTML = currentRestaurant.banner
-      ? `<img src="${escapeHTML(currentRestaurant.banner)}" alt="Banner de ${escapeHTML(currentRestaurant.name)}"><span class="restaurant-banner-label">${escapeHTML(currentRestaurant.name)}</span>`
-      : `<span class="restaurant-banner-label">Banner de ${escapeHTML(currentRestaurant.name)}</span>`;
+      ? `<img src="${escapeHTML(currentRestaurant.banner)}" alt="Banner de ${escapeHTML(currentRestaurant.name)}">`
+      : "";
   }
 
   const logoEl = document.querySelector("#restaurant-detail-icon");
