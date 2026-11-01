@@ -48,7 +48,6 @@
     const favoritesGrid = document.querySelector("#favorites-grid");
     const categoryRestaurantsGrid = document.querySelector("#category-restaurants-grid");
     const homePromoDishesGrid = document.querySelector("#home-promo-dishes-grid");
-    const dailyOffersGrid = document.querySelector("#daily-offers-grid");
     const search = document.querySelector("#search");
     const searchResults = document.querySelector("#search-results");
     const drawer = document.querySelector("#cart-drawer");
@@ -234,7 +233,6 @@
         renderCategoryRestaurants();
         renderFavoriteRestaurants();
         renderHomePromoDishes();
-        renderDailyOffers();
       } catch {
         // Si Oracle Cloud está despertando, se mantienen los datos en caché local
       }
@@ -279,7 +277,7 @@
       }
       const top3 = promoDishes.slice(0, 3);
 
-      homePromoDishesGrid.innerHTML = top3.map(dish => {
+      homePromoDishesGrid.innerHTML = top3.map((dish, idx) => {
         const rest = allRests.find(r => String(r.id) === String(dish.restaurantId));
         const meta = getPromoMeta(dish);
         const icon = rest?.icon || "🍽️";
@@ -287,69 +285,19 @@
         const dishImage = (dish.image && !Object.values(DEFAULT_RESTAURANT_BANNERS).includes(dish.image))
           ? dish.image
           : "";
-        const targetMenuUrl = isAuthenticated
-          ? `restaurants.html?restaurant=${encodeURIComponent(dish.restaurantId)}`
-          : "auth.html";
 
         return `
-        <article class="food-card promo-dish-card">
-          <div class="food-image promo-dish-image">
-            ${dishImage
-              ? `<img src="${escapeHTML(dishImage)}" alt="${escapeHTML(dish.name)}" loading="lazy">`
-              : `<div class="food-image-placeholder" aria-hidden="true"><span>${escapeHTML(icon)}</span><small>Imagen del plato</small></div>`}
-            <span class="promo-badge-pill promo-badge-floating">${escapeHTML(meta.badge)}</span>
+        <article class="offer-card ${idx === 0 ? "offer-card-highlight" : ""}">
+          <span class="offer-icon" aria-hidden="true">${dishImage
+            ? `<img src="${escapeHTML(dishImage)}" alt="${escapeHTML(dish.name)}" loading="lazy">`
+            : escapeHTML(icon)}</span>
+          <div class="offer-copy">
+            <span class="offer-tag">${escapeHTML(meta.badge)} · ${escapeHTML(restName)}</span>
+            <h3>${escapeHTML(dish.name)}</h3>
+            <p>${escapeHTML(dish.description || meta.note)}</p>
+            <strong>$${Number(dish.price).toFixed(2)} <span class="promo-old-price">$${escapeHTML(meta.originalPrice.toFixed(2))}</span></strong>
           </div>
-          <div class="food-info promo-dish-copy">
-            <span class="offer-tag">${escapeHTML(icon)} ${escapeHTML(restName)}</span>
-            <h3 class="food-name">${escapeHTML(dish.name)}</h3>
-            <p class="food-description">${escapeHTML(meta.note)}</p>
-            <div class="food-bottom promo-bottom-row">
-              <div class="promo-price-row">
-                <span class="promo-old-price">$${escapeHTML(meta.originalPrice.toFixed(2))}</span>
-                <strong class="promo-new-price">$${escapeHTML(Number(dish.price).toFixed(2))}</strong>
-              </div>
-              <button class="add-button promo-add-btn" type="button" data-add="${escapeHTML(dish.id)}" aria-label="${isAuthenticated ? `Añadir ${escapeHTML(dish.name)} al carrito` : `Inicia sesión para pedir ${escapeHTML(dish.name)}`}" title="${isAuthenticated ? "Añadir al carrito" : "Inicia sesión para pedir"}" ${!isAuthenticated ? "disabled" : ""}>+</button>
-            </div>
-            <a class="restaurant-menu-link" href="${escapeHTML(targetMenuUrl)}">Ver menú de ${escapeHTML(restName)} →</a>
-          </div>
-        </article>`;
-      }).join("");
-    }
-
-    function renderDailyOffers() {
-      if (!dailyOffersGrid) return;
-      const allRests = getCatalogRestaurants();
-
-      dailyOffersGrid.innerHTML = dishes.map(dish => {
-        const rest = allRests.find(r => String(r.id) === String(dish.restaurantId));
-        const icon = rest?.icon || "🍽️";
-        const restName = rest?.name || "Saborcito";
-        const meta = getPromoMeta(dish);
-        const targetMenuUrl = isAuthenticated
-          ? `restaurants.html?restaurant=${encodeURIComponent(dish.restaurantId)}`
-          : "auth.html";
-
-        return `
-        <article class="food-card promo-dish-card">
-          <div class="food-image promo-dish-image">
-            ${dish.image
-              ? `<img src="${escapeHTML(dish.image)}" alt="${escapeHTML(dish.alt || dish.name)}" loading="lazy">`
-              : `<div class="food-image-placeholder" aria-hidden="true"><span>${escapeHTML(icon)}</span><small>Imagen del plato</small></div>`}
-            <span class="promo-badge-pill promo-badge-floating">${escapeHTML(meta.badge)}</span>
-          </div>
-          <div class="food-info promo-dish-copy">
-            <span class="offer-tag">${escapeHTML(icon)} ${escapeHTML(restName)}</span>
-            <h3 class="food-name">${escapeHTML(dish.name)}</h3>
-            <p class="food-description">${escapeHTML(dish.description || meta.note)}</p>
-            <div class="food-bottom promo-bottom-row">
-              <div class="promo-price-row">
-                <span class="promo-old-price">$${escapeHTML(meta.originalPrice.toFixed(2))}</span>
-                <strong class="promo-new-price">$${escapeHTML(Number(dish.price).toFixed(2))}</strong>
-              </div>
-              <button class="add-button promo-add-btn" type="button" data-add="${escapeHTML(dish.id)}" aria-label="${isAuthenticated ? `Añadir ${escapeHTML(dish.name)} al carrito` : `Inicia sesión para pedir ${escapeHTML(dish.name)}`}" title="${isAuthenticated ? "Añadir al carrito" : "Inicia sesión para pedir"}" ${!isAuthenticated ? "disabled" : ""}>+</button>
-            </div>
-            <a class="restaurant-menu-link" href="${escapeHTML(targetMenuUrl)}">Ver menú de ${escapeHTML(restName)} →</a>
-          </div>
+          <button class="add-button" type="button" data-add="${escapeHTML(dish.id)}" aria-label="${isAuthenticated ? `Añadir ${escapeHTML(dish.name)} al carrito` : `Inicia sesión para pedir ${escapeHTML(dish.name)}`}" title="${isAuthenticated ? "Añadir al carrito" : "Inicia sesión para pedir"}" ${!isAuthenticated ? "disabled" : ""}>+</button>
         </article>`;
       }).join("");
     }
@@ -481,7 +429,6 @@
       cartButton.title = isAuthenticated ? "Abrir carrito" : "Inicia sesión para acceder al carrito";
       document.querySelector("#checkout-button").disabled = !isAuthenticated;
       updateOrderButtons();
-    renderHomePromoDishes();
       accountLink.textContent = isAuthenticated ? `👤 ${user.name} ▾` : "👤 Entrar";
       accountLink.href = isAuthenticated ? "#" : "auth.html";
       accountLink.setAttribute("aria-label", isAuthenticated ? `Abrir menú de cuenta de ${user.name}` : "Iniciar sesión");
@@ -491,7 +438,6 @@
       renderFavoriteRestaurants();
       renderCategoryRestaurants();
       renderHomePromoDishes();
-      renderDailyOffers();
       if (isAuthenticated) {
         loadCartFromCache();
         syncFavoritesFromCloud();
@@ -588,7 +534,7 @@
         const dish = dishes.find(item => item.id === target.dataset.selectDish);
         if (!dish) return;
         searchResults.hidden = true;
-        document.querySelector("#ofertas").scrollIntoView({ behavior: "smooth" });
+        document.querySelector("#restaurantes")?.scrollIntoView({ behavior: "smooth" });
       }
     });
 
@@ -678,7 +624,6 @@
       renderFavoriteRestaurants();
       renderCategoryRestaurants();
       renderHomePromoDishes();
-      renderDailyOffers();
     });
 
     window.addEventListener("storage", () => {
@@ -689,5 +634,4 @@
       renderFavoriteRestaurants();
       renderCategoryRestaurants();
       renderHomePromoDishes();
-      renderDailyOffers();
     });
