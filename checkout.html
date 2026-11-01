@@ -7,7 +7,7 @@
   <meta name="description" content="Finaliza tu pedido y elige tu método de pago en Saborcito.">
   <meta name="saborcito-api-base-url" content="https://gd384485b9fe421-ecommerce.adb.sa-bogota-1.oraclecloudapps.com/ords/admin/v1">
   <title>Finalizar pedido y pago — Saborcito</title>
-  <link rel="stylesheet" href="styles.css?v=20261101s">
+  <link rel="stylesheet" href="styles.css?v=20261101t">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
 </head>
@@ -194,18 +194,13 @@
 
           <!-- Panel Efectivo -->
           <div class="payment-panel" id="payment-panel-cash" hidden>
-            <p class="cash-helper-text">¿Con qué billete o monto vas a pagar para que el repartidor lleve cambio?</p>
+            <p class="cash-helper-text">¿Con qué billete vas a pagar para que el repartidor lleve cambio?</p>
             <div class="cash-presets" id="cash-presets">
-              <button type="button" class="cash-preset-btn is-selected" data-cash-preset="exact">Pago exacto</button>
-              <button type="button" class="cash-preset-btn" data-cash-preset="20">$20.00</button>
-              <button type="button" class="cash-preset-btn" data-cash-preset="50">$50.00</button>
-              <button type="button" class="cash-preset-btn" data-cash-preset="100">$100.00</button>
+              <button type="button" class="cash-preset-btn" data-cash-preset="5">$5.00</button>
+              <button type="button" class="cash-preset-btn" data-cash-preset="10">$10.00</button>
+              <button type="button" class="cash-preset-btn is-selected" data-cash-preset="20">$20.00</button>
             </div>
-            <label class="auth-field cash-custom-field" for="cash-amount">
-              <span>O ingresa otro monto en efectivo ($)</span>
-              <input id="cash-amount" type="number" min="0" step="0.5" placeholder="Ej. 30.00">
-            </label>
-            <p class="cash-change-preview" id="cash-change-preview">El repartidor recibirá el pago exacto en efectivo.</p>
+            <p class="cash-change-preview" id="cash-change-preview">💵 Pagarás con billete de $20.00</p>
           </div>
         </section>
 
@@ -277,8 +272,8 @@
   <div class="notice" id="notice" role="status" aria-live="polite" hidden></div>
   <footer class="auth-footer restaurant-footer">© 2026 Saborcito · Hecho para disfrutar cada bocado.</footer>
 
-  <script src="order-tracker.js?v=20261101s" defer></script>
-  <script src="address-modal.js?v=20261101s" defer></script>
-  <script src="checkout.js?v=20261101s" defer></script>
+  <script src="order-tracker.js?v=20261101t" defer></script>
+  <script src="address-modal.js?v=20261101t" defer></script>
+  <script src="checkout.js?v=20261101t" defer></script>
 </body>
 </html>

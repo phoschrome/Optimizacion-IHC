@@ -45,7 +45,7 @@ const cart = new Map();
 let deliverySpeed = "standard";
 let paymentMethod = "card";
 let cardSource = "saved";
-let cashPreset = "exact";
+let cashPreset = "20";
 let selectedTip = 1;
 let noticeTimer;
 
@@ -165,34 +165,33 @@ function calculateTotals() {
 
 function updateCashPreview() {
   const preview = document.querySelector("#cash-change-preview");
-  const customInput = document.querySelector("#cash-amount");
   if (!preview) return;
   const { total } = calculateTotals();
 
-  const customVal = Number(customInput?.value || 0);
-  if (customVal > 0) {
-    if (customVal < total) {
-      preview.textContent = `⚠️ El monto en efectivo ($${customVal.toFixed(2)}) es menor al total del pedido ($${total.toFixed(2)}).`;
-      preview.classList.add("is-warning");
-    } else {
-      const change = customVal - total;
-      preview.textContent = `💵 Pagarás con $${customVal.toFixed(2)} · El repartidor llevará $${change.toFixed(2)} de cambio.`;
-      preview.classList.remove("is-warning");
-    }
+  if (!["5", "10", "20"].includes(String(cashPreset))) {
+    cashPreset = "20";
+  }
+
+  const bill = Number(cashPreset);
+  preview.classList.remove("is-warning");
+
+  if (total <= 0) {
+    preview.textContent = `💵 Pagarás con billete de $${bill.toFixed(2)}.`;
     return;
   }
 
-  preview.classList.remove("is-warning");
-  if (cashPreset === "exact") {
-    preview.textContent = `💵 Pagarás el monto exacto ($${total.toFixed(2)}) al recibir tu pedido.`;
+  if (bill >= total) {
+    const change = bill - total;
+    preview.textContent = `💵 Pagarás con billete de $${bill.toFixed(2)} · El repartidor llevará $${change.toFixed(2)} de cambio.`;
+  } else if (total > 20 && bill === 20) {
+    const billsCount = Math.ceil(total / 20);
+    const totalCash = billsCount * 20;
+    const change = totalCash - total;
+    preview.textContent = `💵 Pagarás con ${billsCount} billetes de $20.00 ($${totalCash.toFixed(2)}) · El repartidor llevará $${change.toFixed(2)} de cambio.`;
   } else {
-    const bill = Number(cashPreset);
-    if (bill < total) {
-      preview.textContent = `💵 Pagarás en efectivo ($${total.toFixed(2)}) al recibir tu pedido.`;
-    } else {
-      const change = bill - total;
-      preview.textContent = `💵 Pagarás con billete de $${bill.toFixed(2)} · El repartidor llevará $${change.toFixed(2)} de cambio.`;
-    }
+    preview.classList.add("is-warning");
+    const suggested = total <= 10 ? "$10.00" : "$20.00";
+    preview.textContent = `⚠️ El billete de $${bill.toFixed(2)} no cubre el total de tu pedido ($${total.toFixed(2)}). Te sugerimos seleccionar billete de ${suggested}.`;
   }
 }
 
@@ -239,6 +238,9 @@ function renderCheckout() {
   document.querySelector("#summary-total").textContent = `$${total.toFixed(2)}`;
   confirmBtn.textContent = `Confirmar y pagar $${total.toFixed(2)}`;
 
+  document.querySelectorAll("[data-cash-preset]").forEach(b => {
+    b.classList.toggle("is-selected", b.dataset.cashPreset === String(cashPreset));
+  });
   updateCashPreview();
   updateCheckoutPaymentButtonState();
 }
@@ -374,8 +376,6 @@ document.addEventListener("click", event => {
 
   if (btn.dataset.cashPreset) {
     cashPreset = btn.dataset.cashPreset;
-    const customInput = document.querySelector("#cash-amount");
-    if (customInput) customInput.value = "";
     document.querySelectorAll("[data-cash-preset]").forEach(b => {
       b.classList.toggle("is-selected", b.dataset.cashPreset === cashPreset);
     });
@@ -416,10 +416,7 @@ document.addEventListener("click", event => {
   }
 });
 
-document.querySelector("#cash-amount")?.addEventListener("input", () => {
-  document.querySelectorAll("[data-cash-preset]").forEach(b => b.classList.remove("is-selected"));
-  updateCashPreview();
-});
+
 
 // Buscador superior para añadir platillos extra sin salir del checkout
 if (topSearch) {
@@ -497,14 +494,22 @@ checkoutForm?.addEventListener("submit", event => {
       window.SaborcitoOrderTracker?.registerNewCard({ holder, number: rawNumber, expiry });
     }
   } else {
-    const customVal = Number(document.querySelector("#cash-amount")?.value || 0);
-    if (customVal > 0 && customVal < total) {
-      feedbackEl.textContent = `El monto en efectivo ($${customVal.toFixed(2)}) debe cubrir el total ($${total.toFixed(2)}).`;
+    const bill = Number(cashPreset) || 20;
+    if (bill < total && !(total > 20 && bill === 20)) {
+      const suggested = total <= 10 ? "$10.00" : "$20.00";
+      feedbackEl.textContent = `El billete de $${bill.toFixed(2)} no cubre el total de tu pedido ($${total.toFixed(2)}). Por favor selecciona billete de ${suggested}.`;
       feedbackEl.hidden = false;
-      document.querySelector("#cash-amount")?.focus();
       return;
     }
-    paymentLabel = "Efectivo al recibir";
+    if (bill >= total) {
+      const change = bill - total;
+      paymentLabel = `Efectivo (Billete $${bill.toFixed(2)} · Cambio: $${change.toFixed(2)})`;
+    } else {
+      const billsCount = Math.ceil(total / 20);
+      const totalCash = billsCount * 20;
+      const change = totalCash - total;
+      paymentLabel = `Efectivo (${billsCount}x Billete $20.00 · Cambio: $${change.toFixed(2)})`;
+    }
   }
 
   localStorage.setItem(ADDRESS_STORAGE_KEY, address);
