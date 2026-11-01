@@ -418,6 +418,7 @@ checkoutForm?.addEventListener("submit", event => {
         return;
       }
       paymentLabel = `Tarjeta •••• ${rawNumber.slice(-4)}`;
+      window.SaborcitoOrderTracker?.registerNewCard({ holder, number: rawNumber, expiry });
     }
   } else {
     const customVal = Number(document.querySelector("#cash-amount")?.value || 0);
@@ -498,12 +499,12 @@ try {
     }
     const accountLink = document.querySelector("#account-link");
     if (accountLink && savedUser.name) {
-      accountLink.textContent = `👤 ${savedUser.name} · Salir`;
+      accountLink.textContent = `👤 ${savedUser.name} ▾`;
       accountLink.href = "#";
+      accountLink.setAttribute("aria-label", `Abrir menú de cuenta de ${savedUser.name}`);
       accountLink.addEventListener("click", event => {
         event.preventDefault();
-        localStorage.removeItem(SESSION_STORAGE_KEY);
-        window.location.replace("auth.html");
+        window.SaborcitoOrderTracker?.toggleUserDropdown(event);
       });
     }
     loadCartFromCache();

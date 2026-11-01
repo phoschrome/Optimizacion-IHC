@@ -718,13 +718,12 @@ try {
       cartButton.title = "Abrir carrito";
     }
     if (accountLink && savedUser.name) {
-      accountLink.textContent = `👤 ${savedUser.name} · Salir`;
+      accountLink.textContent = `👤 ${savedUser.name} ▾`;
       accountLink.href = "#";
-      accountLink.setAttribute("aria-label", `Cerrar sesión de ${savedUser.name}`);
+      accountLink.setAttribute("aria-label", `Abrir menú de cuenta de ${savedUser.name}`);
       accountLink.addEventListener("click", event => {
         event.preventDefault();
-        localStorage.removeItem("saborcito_user");
-        window.location.replace("auth.html");
+        window.SaborcitoOrderTracker?.toggleUserDropdown(event);
       });
     }
     loadCloudCatalog().catch(error => {

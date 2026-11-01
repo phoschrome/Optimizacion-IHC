@@ -367,9 +367,9 @@
       cartButton.title = isAuthenticated ? "Abrir carrito" : "Inicia sesión para acceder al carrito";
       document.querySelector("#checkout-button").disabled = !isAuthenticated;
       updateOrderButtons();
-      accountLink.textContent = isAuthenticated ? `👤 ${user.name} · Salir` : "👤 Entrar";
+      accountLink.textContent = isAuthenticated ? `👤 ${user.name} ▾` : "👤 Entrar";
       accountLink.href = isAuthenticated ? "#" : "auth.html";
-      accountLink.setAttribute("aria-label", isAuthenticated ? `Cerrar sesión de ${user.name}` : "Iniciar sesión");
+      accountLink.setAttribute("aria-label", isAuthenticated ? `Abrir menú de cuenta de ${user.name}` : "Iniciar sesión");
       document.querySelectorAll("[data-restaurant-link]").forEach(link => {
         link.href = isAuthenticated ? "restaurants.html" : "auth.html";
       });
@@ -469,13 +469,15 @@
       if (event.key === "Escape") { searchResults.hidden = true; search.focus(); }
     });
     document.querySelector("#cart-button").addEventListener("click", openCart);
-    document.querySelector("#account-link").addEventListener("click", async event => {
+    window.onSaborcitoLogout = () => {
+      updateAuthentication(null);
+      window.SaborcitoOrderTracker?.renderTracker(true);
+      showNotice("Has cerrado tu sesión.");
+    };
+    document.querySelector("#account-link").addEventListener("click", event => {
       if (!isAuthenticated) return;
       event.preventDefault();
-      localStorage.removeItem(SESSION_STORAGE_KEY);
-      fetch("/api/logout", { method: "POST" }).catch(() => {});
-      updateAuthentication(null);
-      showNotice("Has cerrado tu sesión.");
+      window.SaborcitoOrderTracker?.toggleUserDropdown(event);
     });
     document.querySelector("#close-cart").addEventListener("click", closeCart);
     backdrop.addEventListener("click", closeCart);

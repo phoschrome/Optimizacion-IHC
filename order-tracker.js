@@ -134,6 +134,14 @@
     return `saborcito_active_orders_${getUserKey()}`;
   }
 
+  function getPurchaseHistoryKey() {
+    return `saborcito_purchase_history_${getUserKey()}`;
+  }
+
+  function getSavedCardsKey() {
+    return `saborcito_saved_cards_${getUserKey()}`;
+  }
+
   function getMinimizedKey() {
     return `saborcito_tracker_minimized_${getUserKey()}`;
   }
@@ -155,6 +163,135 @@
     }
   }
 
+  function getDefaultPurchaseHistory() {
+    return [
+      {
+        id: "ord_hist_1",
+        shortCode: "8421",
+        createdAt: Date.now() - 86400000 * 2,
+        address: localStorage.getItem("saborcito_delivery_address") || "Av. Siempre Viva 742",
+        paymentMethod: "card",
+        paymentLabel: "Tarjeta •••• 4242",
+        total: 26.99,
+        items: [
+          { id: "1", name: "Pizza Margherita", quantity: 1, price: 12.5 },
+          { id: "11", name: "Whopper Clásica", quantity: 2, price: 6.5 }
+        ],
+        foodRating: 5,
+        courierRating: 5,
+        ratingSubmitted: true
+      }
+    ];
+  }
+
+  function loadPurchaseHistory() {
+    try {
+      const raw = JSON.parse(localStorage.getItem(getPurchaseHistoryKey()) || "null");
+      const stored = Array.isArray(raw) ? raw : getDefaultPurchaseHistory();
+      if (!raw) {
+        localStorage.setItem(getPurchaseHistoryKey(), JSON.stringify(stored));
+      }
+      // Combinar con pedidos activos para que siempre aparezcan los más recientes
+      const active = loadActiveOrders();
+      const byId = new Map();
+      for (const ord of [...active, ...stored]) {
+        if (ord && ord.id && !byId.has(ord.id)) {
+          byId.set(ord.id, ord);
+        }
+      }
+      return [...byId.values()].sort((a, b) => Number(b.createdAt || 0) - Number(a.createdAt || 0));
+    } catch {
+      return getDefaultPurchaseHistory();
+    }
+  }
+
+  function saveOrderToHistory(order) {
+    try {
+      const current = loadPurchaseHistory();
+      const idx = current.findIndex(o => o.id === order.id);
+      if (idx >= 0) {
+        current[idx] = { ...current[idx], ...order };
+      } else {
+        current.unshift(order);
+      }
+      localStorage.setItem(getPurchaseHistoryKey(), JSON.stringify(current.slice(0, 25)));
+    } catch {
+      // ignore storage errors
+    }
+  }
+
+  function getDefaultSavedCards() {
+    const user = getCurrentUser();
+    const holderName = user?.name || "Titular Saborcito";
+    return [
+      {
+        id: "card_default_4242",
+        brand: "VISA",
+        last4: "4242",
+        holder: holderName,
+        expiry: "09/28",
+        isDefault: true
+      },
+      {
+        id: "card_default_8819",
+        brand: "MASTERCARD",
+        last4: "8819",
+        holder: holderName,
+        expiry: "11/27",
+        isDefault: false
+      }
+    ];
+  }
+
+  function loadSavedCards() {
+    try {
+      const raw = JSON.parse(localStorage.getItem(getSavedCardsKey()) || "null");
+      if (Array.isArray(raw) && raw.length > 0) {
+        return raw;
+      }
+      const seeded = getDefaultSavedCards();
+      localStorage.setItem(getSavedCardsKey(), JSON.stringify(seeded));
+      return seeded;
+    } catch {
+      return getDefaultSavedCards();
+    }
+  }
+
+  function saveSavedCards(cards) {
+    try {
+      localStorage.setItem(getSavedCardsKey(), JSON.stringify(cards));
+    } catch {
+      // ignore storage errors
+    }
+  }
+
+  function registerNewCard({ holder, number, expiry }) {
+    const digits = String(number || "").replace(/\D/g, "");
+    if (digits.length < 4) return null;
+    const last4 = digits.slice(-4);
+    const brand = digits.startsWith("5")
+      ? "MASTERCARD"
+      : digits.startsWith("3")
+        ? "AMEX"
+        : "VISA";
+    const cards = loadSavedCards();
+    const existing = cards.find(c => c.last4 === last4 && c.expiry === expiry);
+    if (existing) return existing;
+
+    cards.forEach(c => { c.isDefault = false; });
+    const newCard = {
+      id: `card_${Date.now()}_${last4}`,
+      brand,
+      last4,
+      holder: holder || getCurrentUser()?.name || "Titular",
+      expiry: expiry || "08/29",
+      isDefault: true
+    };
+    cards.unshift(newCard);
+    saveSavedCards(cards);
+    return newCard;
+  }
+
   function computeStageIndex(order) {
     const manualStage = Number(order.manualStage ?? 0);
     const elapsedStages = Math.floor(Math.max(0, Date.now() - Number(order.createdAt || Date.now())) / STAGE_DURATION_MS);
@@ -166,6 +303,11 @@
   let headerBadgeBtn = null;
   let tickTimer = null;
   let renderedSignature = "";
+
+  // Estado del menú desplegable de cuenta y modal
+  let userDropdownEl = null;
+  let userModalBackdropEl = null;
+  let activeModalView = null; // "history" | "cards" | null
 
   // Estado del mapa interactivo (Leaflet + OpenStreetMap + Geolocation API)
   let leafletReadyPromise = null;
@@ -353,6 +495,362 @@
     }, 150);
   }
 
+  /* ==========================================================================
+     Menú Desplegable de Usuario en la Barra de Navegación y Modales de Cuenta
+     ========================================================================== */
+  function ensureUserMenuDOM() {
+    const accountLink = document.querySelector("#account-link");
+    if (!accountLink) return;
+
+    const headerActions = accountLink.closest(".header-actions");
+    if (headerActions) {
+      headerActions.style.position = "relative";
+    }
+
+    if (!userDropdownEl) {
+      userDropdownEl = document.createElement("div");
+      userDropdownEl.id = "user-account-dropdown";
+      userDropdownEl.className = "user-account-dropdown";
+      userDropdownEl.setAttribute("role", "menu");
+      userDropdownEl.setAttribute("aria-label", "Opciones de tu cuenta");
+      userDropdownEl.hidden = true;
+      (headerActions || document.body).appendChild(userDropdownEl);
+
+      userDropdownEl.addEventListener("click", event => {
+        const btn = event.target.closest("button[data-user-menu-action]");
+        if (!btn) return;
+        const action = btn.dataset.userMenuAction;
+        closeUserDropdown();
+
+        if (action === "history") {
+          openUserModal("history");
+        } else if (action === "cards") {
+          openUserModal("cards");
+        } else if (action === "logout") {
+          performUserLogout();
+        }
+      });
+    }
+
+    if (!userModalBackdropEl) {
+      userModalBackdropEl = document.createElement("div");
+      userModalBackdropEl.id = "user-account-modal-backdrop";
+      userModalBackdropEl.className = "user-modal-backdrop";
+      userModalBackdropEl.hidden = true;
+      document.body.appendChild(userModalBackdropEl);
+
+      userModalBackdropEl.addEventListener("click", event => {
+        if (event.target === userModalBackdropEl) {
+          closeUserModal();
+          return;
+        }
+        const btn = event.target.closest("button");
+        if (!btn) return;
+
+        if (btn.dataset.closeUserModal !== undefined) {
+          closeUserModal();
+          return;
+        }
+
+        if (btn.dataset.switchModalTab) {
+          openUserModal(btn.dataset.switchModalTab);
+          return;
+        }
+
+        if (btn.dataset.setDefaultCard) {
+          const cardId = btn.dataset.setDefaultCard;
+          const cards = loadSavedCards().map(c => ({
+            ...c,
+            isDefault: c.id === cardId
+          }));
+          saveSavedCards(cards);
+          renderUserModalContent();
+          return;
+        }
+
+        if (btn.dataset.deleteSavedCard) {
+          const cardId = btn.dataset.deleteSavedCard;
+          let cards = loadSavedCards().filter(c => c.id !== cardId);
+          if (cards.length > 0 && !cards.some(c => c.isDefault)) {
+            cards[0].isDefault = true;
+          }
+          saveSavedCards(cards);
+          renderUserModalContent();
+        }
+      });
+
+      userModalBackdropEl.addEventListener("submit", event => {
+        const form = event.target.closest("#user-add-card-form");
+        if (!form) return;
+        event.preventDefault();
+
+        const holder = form.querySelector("#modal-card-holder")?.value.trim() || "";
+        const rawNumber = (form.querySelector("#modal-card-number")?.value || "").replace(/\D/g, "");
+        const expiry = form.querySelector("#modal-card-expiry")?.value.trim() || "";
+        const errEl = form.querySelector("#modal-card-error");
+
+        if (holder.length < 3) {
+          if (errEl) { errEl.textContent = "Ingresa el nombre del titular."; errEl.hidden = false; }
+          return;
+        }
+        if (rawNumber.length < 13) {
+          if (errEl) { errEl.textContent = "Ingresa los 16 dígitos de la tarjeta."; errEl.hidden = false; }
+          return;
+        }
+        if (!/^\d{2}\/\d{2}$/.test(expiry)) {
+          if (errEl) { errEl.textContent = "Formato de vencimiento inválido (usa MM/AA)."; errEl.hidden = false; }
+          return;
+        }
+
+        registerNewCard({ holder, number: rawNumber, expiry });
+        renderUserModalContent();
+      });
+    }
+  }
+
+  function renderUserDropdownContent() {
+    if (!userDropdownEl) return;
+    const user = getCurrentUser();
+    if (!user) {
+      userDropdownEl.hidden = true;
+      return;
+    }
+
+    const historyCount = loadPurchaseHistory().length;
+    const cardsCount = loadSavedCards().length;
+
+    userDropdownEl.innerHTML = `
+      <div class="user-dropdown-header">
+        <span class="user-dropdown-avatar" aria-hidden="true">👤</span>
+        <div class="user-dropdown-identity">
+          <strong>${escapeHTML(user.name || "Usuario")}</strong>
+          <small>${escapeHTML(user.email)}</small>
+        </div>
+      </div>
+      <div class="user-dropdown-list">
+        <button type="button" class="user-dropdown-item" role="menuitem" data-user-menu-action="history">
+          <span class="user-dropdown-item-icon" aria-hidden="true">🧾</span>
+          <span class="user-dropdown-item-copy">
+            <strong>Historial de compras</strong>
+            <small>${historyCount} ${historyCount === 1 ? "pedido registrado" : "pedidos registrados"}</small>
+          </span>
+        </button>
+        <button type="button" class="user-dropdown-item" role="menuitem" data-user-menu-action="cards">
+          <span class="user-dropdown-item-icon" aria-hidden="true">💳</span>
+          <span class="user-dropdown-item-copy">
+            <strong>Tarjetas registradas</strong>
+            <small>${cardsCount} ${cardsCount === 1 ? "tarjeta guardada" : "tarjetas guardadas"}</small>
+          </span>
+        </button>
+        <hr class="user-dropdown-divider">
+        <button type="button" class="user-dropdown-item user-dropdown-logout" role="menuitem" data-user-menu-action="logout">
+          <span class="user-dropdown-item-icon" aria-hidden="true">🚪</span>
+          <span class="user-dropdown-item-copy">
+            <strong>Cerrar sesión</strong>
+            <small>Salir de tu cuenta en este navegador</small>
+          </span>
+        </button>
+      </div>
+    `;
+  }
+
+  function toggleUserDropdown(event) {
+    const user = getCurrentUser();
+    if (!user) return false;
+    if (event) event.preventDefault();
+    ensureUserMenuDOM();
+    if (!userDropdownEl) return true;
+
+    const willOpen = userDropdownEl.hidden;
+    if (willOpen) {
+      renderUserDropdownContent();
+      userDropdownEl.hidden = false;
+      document.querySelector("#account-link")?.setAttribute("aria-expanded", "true");
+    } else {
+      closeUserDropdown();
+    }
+    return true;
+  }
+
+  function closeUserDropdown() {
+    if (userDropdownEl) {
+      userDropdownEl.hidden = true;
+    }
+    document.querySelector("#account-link")?.setAttribute("aria-expanded", "false");
+  }
+
+  function openUserModal(view) {
+    ensureUserMenuDOM();
+    activeModalView = view === "cards" ? "cards" : "history";
+    renderUserModalContent();
+    if (userModalBackdropEl) {
+      userModalBackdropEl.hidden = false;
+    }
+  }
+
+  function closeUserModal() {
+    activeModalView = null;
+    if (userModalBackdropEl) {
+      userModalBackdropEl.hidden = true;
+    }
+  }
+
+  function formatOrderDate(timestamp) {
+    try {
+      const d = new Date(Number(timestamp || Date.now()));
+      return d.toLocaleDateString("es-EC", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+    } catch {
+      return "Reciente";
+    }
+  }
+
+  function renderUserModalContent() {
+    if (!userModalBackdropEl || !activeModalView) return;
+    const isHistory = activeModalView === "history";
+    const historyOrders = loadPurchaseHistory();
+    const savedCards = loadSavedCards();
+
+    const bodyHTML = isHistory
+      ? (historyOrders.length === 0
+        ? `<p class="empty-state">Aún no tienes compras registradas en tu cuenta.</p>`
+        : `<div class="user-history-list">
+            ${historyOrders.map(ord => {
+              const itemsText = (ord.items || [])
+                .map(i => `${i.quantity}x ${i.name}`)
+                .join(", ") || "Pedido Saborcito";
+              const stageIdx = computeStageIndex(ord);
+              const isCompleted = ord.id.startsWith("ord_hist_") || stageIdx === ORDER_STAGES.length - 1;
+              const statusBadge = isCompleted
+                ? `<span class="history-status-badge is-delivered">✓ Entregado</span>`
+                : `<span class="history-status-badge is-live">${escapeHTML(ORDER_STAGES[stageIdx].icon)} ${escapeHTML(ORDER_STAGES[stageIdx].shortLabel)}</span>`;
+              const ratingBadge = ord.ratingSubmitted
+                ? `<span class="history-rating-pill">★ Comida: ${Number(ord.foodRating || 5)}/5 · Repartidor: ${Number(ord.courierRating || 5)}/5</span>`
+                : "";
+
+              return `
+                <article class="user-history-card">
+                  <div class="user-history-top">
+                    <div>
+                      <strong>Pedido #${escapeHTML(ord.shortCode || "1024")}</strong>
+                      <span class="user-history-date"> · ${escapeHTML(formatOrderDate(ord.createdAt))}</span>
+                    </div>
+                    ${statusBadge}
+                  </div>
+                  <p class="user-history-items">🍽️ ${escapeHTML(itemsText)}</p>
+                  <div class="user-history-meta">
+                    <span>📍 ${escapeHTML(ord.address || "Av. Siempre Viva 742")}</span>
+                    <span>💳 ${escapeHTML(ord.paymentLabel || "Tarjeta")}</span>
+                  </div>
+                  <div class="user-history-bottom">
+                    ${ratingBadge || `<span></span>`}
+                    <strong class="user-history-total">Total: $${Number(ord.total || 0).toFixed(2)}</strong>
+                  </div>
+                </article>
+              `;
+            }).join("")}
+          </div>`)
+      : `
+        <div class="user-cards-section">
+          <div class="user-saved-cards-list">
+            ${savedCards.length === 0
+              ? `<p class="empty-state">No tienes tarjetas guardadas en tu cuenta.</p>`
+              : savedCards.map(card => `
+                <div class="user-saved-card-row ${card.isDefault ? "is-default" : ""}">
+                  <span class="card-brand-badge">${escapeHTML(card.brand || "VISA")}</span>
+                  <div class="user-saved-card-copy">
+                    <strong>•••• •••• •••• ${escapeHTML(card.last4)} ${card.isDefault ? '<span class="card-default-pill">Predeterminada</span>' : ""}</strong>
+                    <small>${escapeHTML(card.holder)} · Vence ${escapeHTML(card.expiry)}</small>
+                  </div>
+                  <div class="user-saved-card-actions">
+                    ${!card.isDefault
+                      ? `<button type="button" class="user-card-action-btn" data-set-default-card="${escapeHTML(card.id)}">Predeterminar</button>`
+                      : ""}
+                    <button type="button" class="user-card-delete-btn" data-delete-saved-card="${escapeHTML(card.id)}" aria-label="Eliminar tarjeta terminada en ${escapeHTML(card.last4)}">Eliminar</button>
+                  </div>
+                </div>
+              `).join("")}
+          </div>
+
+          <form class="user-add-card-form" id="user-add-card-form" novalidate>
+            <h4>+ Registrar nueva tarjeta</h4>
+            <div class="user-add-card-grid">
+              <label class="auth-field" for="modal-card-holder">
+                <span>Nombre en la tarjeta</span>
+                <input id="modal-card-holder" type="text" placeholder="Ej. Carlos Mendoza" required>
+              </label>
+              <label class="auth-field" for="modal-card-number">
+                <span>Número de tarjeta (16 dígitos)</span>
+                <input id="modal-card-number" type="text" inputmode="numeric" maxlength="19" placeholder="4532 8910 2341 9921" required>
+              </label>
+              <label class="auth-field" for="modal-card-expiry">
+                <span>Vencimiento (MM/AA)</span>
+                <input id="modal-card-expiry" type="text" inputmode="numeric" maxlength="5" placeholder="08/29" required>
+              </label>
+            </div>
+            <p class="tracker-rating-error" id="modal-card-error" hidden></p>
+            <button type="submit" class="primary-button user-save-card-btn">Guardar tarjeta en mi cuenta</button>
+          </form>
+        </div>
+      `;
+
+    userModalBackdropEl.innerHTML = `
+      <div class="user-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="user-modal-title">
+        <div class="user-modal-header">
+          <div class="user-modal-tabs" role="tablist">
+            <button type="button" class="user-modal-tab" role="tab" aria-selected="${isHistory}" data-switch-modal-tab="history">
+              🧾 Historial de compras
+            </button>
+            <button type="button" class="user-modal-tab" role="tab" aria-selected="${!isHistory}" data-switch-modal-tab="cards">
+              💳 Tarjetas registradas
+            </button>
+          </div>
+          <button type="button" class="close-button" data-close-user-modal="true" aria-label="Cerrar ventana">×</button>
+        </div>
+        <div class="user-modal-body">
+          <h3 id="user-modal-title">${isHistory ? "Tu historial de compras" : "Tarjetas registradas en tu cuenta"}</h3>
+          <p class="user-modal-subtitle">${isHistory
+            ? "Revisa todos los pedidos realizados con tu cuenta de Saborcito."
+            : "Administra tus métodos de pago guardados para pagar más rápido."}</p>
+          ${bodyHTML}
+        </div>
+      </div>
+    `;
+  }
+
+  function performUserLogout() {
+    closeUserDropdown();
+    closeUserModal();
+    localStorage.removeItem(SESSION_STORAGE_KEY);
+    fetch("/api/logout", { method: "POST" }).catch(() => {});
+
+    if (typeof window.onSaborcitoLogout === "function") {
+      window.onSaborcitoLogout();
+      return;
+    }
+    window.location.replace("auth.html");
+  }
+
+  function decorateAccountNavButton() {
+    const accountLink = document.querySelector("#account-link");
+    if (!accountLink) return;
+    const user = getCurrentUser();
+    if (user && user.name) {
+      accountLink.textContent = `👤 ${user.name} ▾`;
+      accountLink.href = "#";
+      accountLink.setAttribute("aria-haspopup", "menu");
+      accountLink.setAttribute("aria-expanded", userDropdownEl && !userDropdownEl.hidden ? "true" : "false");
+      accountLink.setAttribute("aria-label", `Abrir menú de cuenta de ${user.name}`);
+    } else {
+      closeUserDropdown();
+    }
+  }
+
   function isMinimized() {
     return sessionStorage.getItem(getMinimizedKey()) === "true";
   }
@@ -446,6 +944,7 @@
             activeOrder.courierRating = val;
           }
           saveActiveOrders(orders);
+          saveOrderToHistory(activeOrder);
           updateRatingStarsDOM(target, val);
         }
         return;
@@ -474,6 +973,7 @@
         }
         activeOrder.ratingSubmitted = true;
         saveActiveOrders(orders);
+        saveOrderToHistory(activeOrder);
         renderTracker(true);
         return;
       }
@@ -564,6 +1064,7 @@
   }
 
   function renderTracker(forceRebuild = false) {
+    decorateAccountNavButton();
     const user = getCurrentUser();
     const badge = ensureHeaderBadge();
     const root = ensureTrackerDOM();
@@ -868,6 +1369,7 @@
     };
     orders.unshift(newOrder);
     saveActiveOrders(orders.slice(0, 5));
+    saveOrderToHistory(newOrder);
     selectedOrderId = newOrder.id;
     setMinimized(false);
     renderTracker(true);
@@ -884,22 +1386,68 @@
     }, 2500);
   }
 
+  function setupGlobalUserMenuListeners() {
+    ensureUserMenuDOM();
+    decorateAccountNavButton();
+
+    document.addEventListener("click", event => {
+      const accountLink = event.target.closest("#account-link");
+      if (accountLink) {
+        const user = getCurrentUser();
+        if (user) {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+          toggleUserDropdown(event);
+        }
+        return;
+      }
+
+      if (userDropdownEl && !userDropdownEl.hidden && !event.target.closest("#user-account-dropdown")) {
+        closeUserDropdown();
+      }
+    }, true);
+
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape") {
+        if (userDropdownEl && !userDropdownEl.hidden) {
+          closeUserDropdown();
+        }
+        if (userModalBackdropEl && !userModalBackdropEl.hidden) {
+          closeUserModal();
+        }
+      }
+    });
+  }
+
   window.SaborcitoOrderTracker = {
     createActiveOrder,
     renderTracker,
-    loadActiveOrders
+    loadActiveOrders,
+    loadPurchaseHistory,
+    loadSavedCards,
+    registerNewCard,
+    toggleUserDropdown,
+    openUserModal
   };
 
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", () => {
+      setupGlobalUserMenuListeners();
       renderTracker(true);
       startTicker();
     });
   } else {
+    setupGlobalUserMenuListeners();
     renderTracker(true);
     startTicker();
   }
 
-  window.addEventListener("pageshow", () => renderTracker(true));
-  window.addEventListener("storage", () => renderTracker(false));
+  window.addEventListener("pageshow", () => {
+    decorateAccountNavButton();
+    renderTracker(true);
+  });
+  window.addEventListener("storage", () => {
+    decorateAccountNavButton();
+    renderTracker(false);
+  });
 })();
