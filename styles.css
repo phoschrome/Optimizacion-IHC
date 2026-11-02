@@ -190,6 +190,9 @@
       justify-content: center;
       margin: 18px 0 26px;
     }
+    .view-switch-nav[hidden] {
+      display: none !important;
+    }
     .view-switch-tabs {
       display: inline-flex;
       gap: 6px;

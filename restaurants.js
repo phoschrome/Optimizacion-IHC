@@ -586,7 +586,7 @@ function renderRestaurant() {
     currentRestaurant = null;
     if (detailSection) detailSection.hidden = true;
     if (pageIntro) pageIntro.hidden = false;
-    if (viewSwitchNav) viewSwitchNav.hidden = false;
+    if (viewSwitchNav) viewSwitchNav.hidden = !isPromosPage;
 
     if (isPromosPage) {
       if (restaurantListSection) restaurantListSection.hidden = true;
