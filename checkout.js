@@ -189,9 +189,14 @@ function updateCashPreview() {
   preview.classList.remove("is-warning");
 
   if (cashPreset === "exact") {
-    preview.textContent = `💵 Pagarás el monto exacto: $${total.toFixed(2)} · No se requiere cambio del repartidor.`;
+    preview.hidden = true;
+    preview.style.display = "none";
+    preview.textContent = "";
     return;
   }
+
+  preview.hidden = false;
+  preview.style.display = "";
 
   const bill = Number(cashPreset);
 

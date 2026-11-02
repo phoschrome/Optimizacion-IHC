@@ -761,6 +761,7 @@
     .cash-preset-btn.is-selected { background: #fff0d5; border-color: var(--orange); color: #573600; box-shadow: 0 2px 8px rgba(255, 176, 59, 0.25); }
     .cash-change-preview { margin: 12px 0 0; padding: 11px 14px; color: #276749; background: #e6f4ea; border-radius: 11px; font-size: .86rem; font-weight: 700; }
     .cash-change-preview.is-warning { color: #702d22; background: #fff0ec; }
+    .cash-change-preview[hidden] { display: none !important; }
 
     .tip-buttons { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
     .tip-btn { min-height: 44px; padding: 0 10px; background: var(--wash); border: 1.5px solid var(--line); border-radius: 12px; font-weight: 750; cursor: pointer; }
