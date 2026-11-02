@@ -189,6 +189,25 @@ const DEFAULT_RESTAURANT_BANNERS = {
   "10": "Imagenes/banner_gelato_mio.jpg"
 };
 
+function resolveImageUrl(rawUrl, apiBase = "") {
+  if (!rawUrl || typeof rawUrl !== "string") return "";
+  const trimmed = rawUrl.trim();
+  if (!trimmed || trimmed === "null" || trimmed === "undefined") return "";
+  if (/^(https?:|\/\/|data:)/i.test(trimmed)) {
+    return trimmed;
+  }
+  if (trimmed.startsWith("Imagenes/") || trimmed.startsWith("./Imagenes/")) {
+    return trimmed;
+  }
+  if (/\.(jpe?g|png|webp|svg|gif)$/i.test(trimmed) && !trimmed.includes("/")) {
+    return `Imagenes/${trimmed}`;
+  }
+  if (apiBase) {
+    return `${apiBase.replace(/\/+$/, "")}/${trimmed.replace(/^\/+/, "")}`;
+  }
+  return trimmed;
+}
+
 function normalizeRestaurant(record, apiBase) {
   const id = record?.id ?? record?.id_restaurante;
   const name = record?.name ?? record?.nombre_comercial;
@@ -196,14 +215,11 @@ function normalizeRestaurant(record, apiBase) {
     throw new Error("Un restaurante recibido no contiene un id y un nombre válidos.");
   }
   const strId = String(id);
-  let logo = String(record.logo || "").trim();
-  if (logo && !/^https?:\/\//i.test(logo) && !logo.startsWith("Imagenes/") && apiBase) {
-    logo = `${apiBase.replace(/\/+$/, "")}/${logo.replace(/^\/+/, "")}`;
-  }
-  let banner = String(record.banner || "").trim();
-  if (banner && !/^https?:\/\//i.test(banner) && !banner.startsWith("Imagenes/") && apiBase) {
-    banner = `${apiBase.replace(/\/+$/, "")}/${banner.replace(/^\/+/, "")}`;
-  }
+  const rawLogo = record.logo || record.logo_url || "";
+  const logo = resolveImageUrl(rawLogo, apiBase);
+
+  const rawBanner = record.banner || record.banner_url || record.imagen_banner || record.imagen_url || record.imagen || "";
+  let banner = resolveImageUrl(rawBanner, apiBase);
   if (!banner) {
     banner = DEFAULT_RESTAURANT_BANNERS[strId] || "";
   }
@@ -232,10 +248,8 @@ function normalizeDish(record, apiBase) {
     throw new Error("Un plato recibido no contiene id, restaurantId, nombre y precio válidos.");
   }
 
-  let image = String(record.image || "").trim();
-  if (image && !/^https?:\/\//i.test(image) && !image.startsWith("Imagenes/") && apiBase) {
-    image = `${apiBase.replace(/\/+$/, "")}/${image.replace(/^\/+/, "")}`;
-  }
+  const rawImage = record.image || record.imagen || record.imagen_url || record.foto || "";
+  let image = resolveImageUrl(rawImage, apiBase);
   // Asegurar que la imagen del plato nunca use un banner de restaurante
   if (image && Object.values(DEFAULT_RESTAURANT_BANNERS).includes(image)) {
     image = "";

@@ -141,13 +141,30 @@
         .toLowerCase();
     }
 
+    function resolveImageUrl(rawUrl, apiBase = "") {
+      if (!rawUrl || typeof rawUrl !== "string") return "";
+      const trimmed = rawUrl.trim();
+      if (!trimmed || trimmed === "null" || trimmed === "undefined") return "";
+      if (/^(https?:|\/\/|data:)/i.test(trimmed)) {
+        return trimmed;
+      }
+      if (trimmed.startsWith("Imagenes/") || trimmed.startsWith("./Imagenes/")) {
+        return trimmed;
+      }
+      if (/\.(jpe?g|png|webp|svg|gif)$/i.test(trimmed) && !trimmed.includes("/")) {
+        return `Imagenes/${trimmed}`;
+      }
+      if (apiBase) {
+        return `${apiBase.replace(/\/+$/, "")}/${trimmed.replace(/^\/+/, "")}`;
+      }
+      return trimmed;
+    }
+
     function enrichRestaurantBanner(r, apiBase = "") {
       const id = String(r?.id ?? r?.id_restaurante ?? "");
       const seedMatch = SEED_RESTAURANTS.find(s => s.id === id);
-      let banner = String(r?.banner || "").trim();
-      if (banner && !/^https?:\/\//i.test(banner) && !banner.startsWith("Imagenes/") && apiBase) {
-        banner = `${apiBase.replace(/\/+$/, "")}/${banner.replace(/^\/+/, "")}`;
-      }
+      const rawBanner = r?.banner || r?.banner_url || r?.imagen_banner || r?.imagen_url || r?.imagen || "";
+      let banner = resolveImageUrl(rawBanner, apiBase);
       if (!banner) {
         banner = DEFAULT_RESTAURANT_BANNERS[id] || seedMatch?.banner || "";
       }
@@ -160,6 +177,40 @@
         time: String(r?.time || r?.deliveryTime || r?.time_est || seedMatch?.time || "20–30 min"),
         description: String(r?.description || r?.direccion || seedMatch?.description || ""),
         banner
+      };
+    }
+
+    function normalizeCatalogDish(d, apiBase = "") {
+      const id = String(d?.id ?? d?.id_producto ?? "");
+      const restaurantId = String(d?.restaurantId ?? d?.restaurantid ?? d?.id_restaurante ?? "");
+      const name = String(d?.name ?? d?.nombre ?? "Platillo");
+      const price = Number(d?.price ?? d?.precio ?? 0);
+      const rawImage = d?.image || d?.imagen || d?.imagen_url || d?.foto || "";
+      let image = resolveImageUrl(rawImage, apiBase);
+      if (image && Object.values(DEFAULT_RESTAURANT_BANNERS).includes(image)) {
+        image = "";
+      }
+
+      const numId = Number(id);
+      const isPromotion = Boolean(
+        d?.isPromotion === true ||
+        d?.isPromotion === "true" ||
+        d?.isPromotion === 1 ||
+        d?.ispromotion === 1 ||
+        d?.ispromotion === "true" ||
+        (Number.isFinite(numId) && numId % 5 === 1)
+      );
+
+      return {
+        id,
+        restaurantId,
+        name,
+        category: String(d?.category || d?.categoria || "Menú Principal"),
+        description: String(d?.description ?? d?.descripcion ?? ""),
+        price,
+        image,
+        alt: String(d?.alt || name),
+        isPromotion
       };
     }
 
@@ -215,19 +266,39 @@
       const apiBase = (document.querySelector('meta[name="saborcito-api-base-url"]')?.content || "").trim().replace(/\/+$/, "");
       if (!apiBase) return;
       try {
-        const response = await fetch(`${apiBase}/restaurants`, {
-          headers: { Accept: "application/json" }
-        });
-        if (!response.ok) return;
-        const payload = await response.json();
-        const records = Array.isArray(payload) ? payload : (payload?.data ?? payload?.items);
-        if (!Array.isArray(records) || records.length === 0) return;
+        const [restRes, dishRes] = await Promise.all([
+          fetch(`${apiBase}/restaurants`, { headers: { Accept: "application/json" } }).catch(() => null),
+          fetch(`${apiBase}/dishes`, { headers: { Accept: "application/json" } }).catch(() => null)
+        ]);
 
-        const cloudRestaurants = records.map(rec => enrichRestaurantBanner(rec, apiBase));
+        let cloudRestaurants = null;
+        let cloudDishes = null;
+
+        if (restRes && restRes.ok) {
+          const payload = await restRes.json();
+          const records = Array.isArray(payload) ? payload : (payload?.data ?? payload?.items);
+          if (Array.isArray(records) && records.length > 0) {
+            cloudRestaurants = records.map(rec => enrichRestaurantBanner(rec, apiBase));
+          }
+        }
+
+        if (dishRes && dishRes.ok) {
+          const payload = await dishRes.json();
+          const records = Array.isArray(payload) ? payload : (payload?.data ?? payload?.items);
+          if (Array.isArray(records) && records.length > 0) {
+            cloudDishes = records.map(rec => normalizeCatalogDish(rec, apiBase));
+          }
+        }
+
+        if (!cloudRestaurants && !cloudDishes) return;
+
         const existingCache = JSON.parse(localStorage.getItem(CATALOG_CACHE_KEY) || "null") || {};
+        const finalRestaurants = cloudRestaurants || existingCache.restaurants || SEED_RESTAURANTS;
+        const finalDishes = cloudDishes || existingCache.dishes || SEED_CATALOG_DISHES;
+
         localStorage.setItem(CATALOG_CACHE_KEY, JSON.stringify({
-          restaurants: cloudRestaurants,
-          dishes: Array.isArray(existingCache.dishes) && existingCache.dishes.length > 0 ? existingCache.dishes : SEED_CATALOG_DISHES,
+          restaurants: finalRestaurants,
+          dishes: finalDishes,
           updatedAt: Date.now()
         }));
         renderCategoryRestaurants();
