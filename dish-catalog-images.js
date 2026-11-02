@@ -9,7 +9,7 @@
     "2": "https://images.unsplash.com/photo-1628840042765-356cda07504e?auto=format&fit=crop&w=600&q=80", // Pizza Pepperoni
     "3": "https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=600&q=80", // Pizza Cuatro Quesos
     "4": "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=600&q=80", // Pizza Hawaiana
-    "5": "https://images.unsplash.com/photo-1621996346565-e3d5d6281698?auto=format&fit=crop&w=600&q=80", // Calzone Clásico
+    "5": "Imagenes/plato_calzone.jpg", // Calzone Clásico
     "6": "https://images.unsplash.com/photo-1574894709920-11b28e7367e3?auto=format&fit=crop&w=600&q=80", // Lasaña de Carne
     "7": "https://images.unsplash.com/photo-1612874742237-6526221588e3?auto=format&fit=crop&w=600&q=80", // Espagueti Carbonara
     "8": "https://images.unsplash.com/photo-1573140247632-f8fd74997d5c?auto=format&fit=crop&w=600&q=80", // Pan de Ajo
@@ -22,9 +22,9 @@
     "13": "https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=600&q=80", // Cheeseburger
     "14": "https://images.unsplash.com/photo-1625813506062-0aeb1d7a094b?auto=format&fit=crop&w=600&q=80", // Chicken Royale
     "15": "https://images.unsplash.com/photo-1562967914-608f82629710?auto=format&fit=crop&w=600&q=80", // Nuggets (10 uds)
-    "16": "https://images.unsplash.com/photo-1576107232684-1279f3908594?auto=format&fit=crop&w=600&q=80", // Papas Fritas Medianas
-    "17": "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?auto=format&fit=crop&w=600&q=80", // Papas Fritas Grandes
-    "18": "https://images.unsplash.com/photo-1639024471287-032f667051cf?auto=format&fit=crop&w=600&q=80", // Aros de Cebolla
+    "16": "Imagenes/plato_papas_fritas.jpg", // Papas Fritas Medianas
+    "17": "Imagenes/plato_papas_fritas.jpg", // Papas Fritas Grandes
+    "18": "Imagenes/plato_aros_cebolla.jpg", // Aros de Cebolla
     "19": "https://images.unsplash.com/photo-1501443762994-82bd5dace89a?auto=format&fit=crop&w=600&q=80", // Helado Cono Clásico
     "20": "https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=600&q=80", // Gaseosa Mediana
 
@@ -58,8 +58,8 @@
     "43": "https://images.unsplash.com/photo-1606755962773-d324e0a13086?auto=format&fit=crop&w=600&q=80", // Zinger Burger
     "44": "https://images.unsplash.com/photo-1569058242253-92a9c755a0ec?auto=format&fit=crop&w=600&q=80", // Popcorn Chicken
     "45": "https://images.unsplash.com/photo-1527477396000-e27163b481c2?auto=format&fit=crop&w=600&q=80", // Hot Wings (6 pzas)
-    "46": "https://images.unsplash.com/photo-1576107232684-1279f3908594?auto=format&fit=crop&w=600&q=80", // Papas Fritas Familiares
-    "47": "https://images.unsplash.com/photo-1617093727343-374698b1b08d?auto=format&fit=crop&w=600&q=80", // Puré de Papa con Gravy
+    "46": "Imagenes/plato_papas_fritas.jpg", // Papas Fritas Familiares
+    "47": "Imagenes/plato_pure_papa.jpg", // Puré de Papa con Gravy
     "48": "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=600&q=80", // Ensalada de Col
     "49": "https://images.unsplash.com/photo-1499636136210-6f4ee915583e?auto=format&fit=crop&w=600&q=80", // Postre Chocochip
     "50": "https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=600&q=80", // Gaseosa Grande
@@ -94,7 +94,7 @@
     "73": "https://images.unsplash.com/photo-1533134242443-d4fd215305ad?auto=format&fit=crop&w=600&q=80", // Cheesecake de Fresa
     "74": "https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=600&q=80", // Torta de Chocolate (Porción)
     "75": "https://images.unsplash.com/photo-1499636136210-6f4ee915583e?auto=format&fit=crop&w=600&q=80", // Galleta Chocochip Gigante
-    "76": "https://images.unsplash.com/photo-1569864321398-34865fc2d744?auto=format&fit=crop&w=600&q=80", // Macarons (Caja x6)
+    "76": "Imagenes/plato_macarons.jpg", // Macarons (Caja x6)
     "77": "https://images.unsplash.com/photo-1527515637462-cff94eecc1ac?auto=format&fit=crop&w=600&q=80", // Donut Glaseada
     "78": "https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=600&q=80", // Café Americano
     "79": "https://images.unsplash.com/photo-1534778101976-62847782c213?auto=format&fit=crop&w=600&q=80", // Latte Macchiato
@@ -106,11 +106,11 @@
     "83": "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=600&q=80", // New York Strip
     "84": "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=600&q=80", // BBQ Ribs
     "85": "https://images.unsplash.com/photo-1586190848861-99aa4a171e90?auto=format&fit=crop&w=600&q=80", // Hamburguesa Angus
-    "86": "https://images.unsplash.com/photo-1600555379765-f82335a7b1b0?auto=format&fit=crop&w=600&q=80", // Papa Horneada
+    "86": "Imagenes/plato_papa_horneada.jpg", // Papa Horneada
     "87": "https://images.unsplash.com/photo-1543339308-43e59d6b73a6?auto=format&fit=crop&w=600&q=80", // Mac & Cheese
-    "88": "https://images.unsplash.com/photo-1515471204630-e60780ebd129?auto=format&fit=crop&w=600&q=80", // Espárragos a la Parrilla
+    "88": "Imagenes/plato_esparragos.jpg", // Espárragos a la Parrilla
     "89": "https://images.unsplash.com/photo-1524351199678-941a58a3df50?auto=format&fit=crop&w=600&q=80", // Cheesecake Estilo NY
-    "90": "https://images.unsplash.com/photo-1608270170192-689c4d723565?auto=format&fit=crop&w=600&q=80", // Cerveza Artesanal
+    "90": "Imagenes/plato_cerveza.jpg", // Cerveza Artesanal
 
     // 10. Gelato Mio
     "91": "https://images.unsplash.com/photo-1570197788417-0e82375c9371?auto=format&fit=crop&w=600&q=80", // Gelato de Vainilla
@@ -147,8 +147,10 @@
     if (name.includes("hamburguesa")) return DISH_IMAGES_BY_ID["11"];
     if (name.includes("royale") || name.includes("chicken burger")) return DISH_IMAGES_BY_ID["14"];
     if (name.includes("nugget")) return DISH_IMAGES_BY_ID["15"];
-    if (name.includes("papas fritas") || name.includes("fries")) return DISH_IMAGES_BY_ID["16"];
-    if (name.includes("aros de cebolla") || name.includes("onion rings")) return DISH_IMAGES_BY_ID["18"];
+    if (name.includes("pure") || name.includes("puré") || name.includes("gravy")) return DISH_IMAGES_BY_ID["47"];
+    if ((name.includes("hornead") || name.includes("asada") || name.includes("baked")) && (name.includes("papa") || name.includes("patata"))) return DISH_IMAGES_BY_ID["86"];
+    if (name.includes("papa") || name.includes("papas") || name.includes("fries") || name.includes("fritas") || name.includes("patata") || name.includes("french fry") || name.includes("french fries")) return DISH_IMAGES_BY_ID["16"];
+    if (name.includes("aros") || name.includes("cebolla") || name.includes("onion ring")) return DISH_IMAGES_BY_ID["18"];
     if (name.includes("cono")) return DISH_IMAGES_BY_ID["19"];
 
     if (name.includes("california")) return DISH_IMAGES_BY_ID["21"];
@@ -178,7 +180,6 @@
     if (name.includes("popcorn")) return DISH_IMAGES_BY_ID["44"];
     if (name.includes("wing") || name.includes("alitas")) return DISH_IMAGES_BY_ID["45"];
     if (name.includes("pollo frito") || name.includes("combo")) return DISH_IMAGES_BY_ID["41"];
-    if (name.includes("puré") || name.includes("pure")) return DISH_IMAGES_BY_ID["47"];
     if (name.includes("col") || name.includes("coleslaw")) return DISH_IMAGES_BY_ID["48"];
 
     if (name.includes("arroz frito") || name.includes("fried rice")) return DISH_IMAGES_BY_ID["51"];
@@ -220,7 +221,6 @@
     if (name.includes("strip") || name.includes("bife")) return DISH_IMAGES_BY_ID["83"];
     if (name.includes("ribs") || name.includes("costillar") || name.includes("costillas")) return DISH_IMAGES_BY_ID["84"];
     if (name.includes("angus")) return DISH_IMAGES_BY_ID["85"];
-    if (name.includes("papa horneada")) return DISH_IMAGES_BY_ID["86"];
     if (name.includes("mac & cheese") || name.includes("mac and cheese")) return DISH_IMAGES_BY_ID["87"];
     if (name.includes("espárragos") || name.includes("esparragos")) return DISH_IMAGES_BY_ID["88"];
     if (name.includes("cerveza")) return DISH_IMAGES_BY_ID["90"];

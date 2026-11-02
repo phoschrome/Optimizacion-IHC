@@ -254,9 +254,16 @@ function normalizeDish(record, apiBase) {
   if (image && Object.values(DEFAULT_RESTAURANT_BANNERS).includes(image)) {
     image = "";
   }
-  // Si la base de datos no tiene imagen asignada aún, usar la foto que coincide exactamente con el plato
-  if (!image && typeof getMatchingDishImage === "function") {
-    image = getMatchingDishImage(name, id);
+  // Si la imagen apunta a una URL antigua rota de Unsplash para papas/aros/calzone/etc., reemplazarla
+  if (image && (image.includes("photo-1576107232684") || image.includes("photo-1639024471287") || image.includes("photo-1569864321398") || image.includes("photo-1515471204630") || image.includes("photo-1608270170192"))) {
+    image = "";
+  }
+  // Si no hay imagen o si hay una imagen local dedicada para este plato en dish-catalog-images, usarla
+  if (typeof getMatchingDishImage === "function") {
+    const catalogImage = getMatchingDishImage(name, id);
+    if (!image || (catalogImage && catalogImage.startsWith("Imagenes/"))) {
+      image = catalogImage || image;
+    }
   }
 
   const numId = Number(id);
@@ -283,11 +290,15 @@ function normalizeDish(record, apiBase) {
 }
 
 function renderRecentOrderCard(dish) {
+  const imgSrc = (dish.image && !dish.image.includes("photo-1576107232684"))
+    ? dish.image
+    : (typeof getMatchingDishImage === "function" ? getMatchingDishImage(dish.name, dish.id) : "Imagenes/plato_papas_fritas.jpg");
+
   return `
     <article class="recent-order-card">
       <div class="recent-order-thumb">
-        ${dish.image
-          ? `<img src="${escapeHTML(dish.image)}" alt="${escapeHTML(dish.alt)}" loading="lazy">`
+        ${imgSrc
+          ? `<img src="${escapeHTML(imgSrc)}" alt="${escapeHTML(dish.alt || dish.name)}" loading="lazy" onerror="this.onerror=null; this.src='Imagenes/plato_papas_fritas.jpg';">`
           : `<span class="recent-order-placeholder" aria-hidden="true">${escapeHTML(currentRestaurant?.icon || "🍽️")}</span>`}
         <button class="recent-add-button" type="button" data-add="${escapeHTML(dish.id)}" aria-label="Volver a pedir ${escapeHTML(dish.name)}" title="Añadir al carrito">+</button>
       </div>
@@ -299,10 +310,14 @@ function renderRecentOrderCard(dish) {
 }
 
 function renderDish(dish) {
+  const imgSrc = (dish.image && !dish.image.includes("photo-1576107232684"))
+    ? dish.image
+    : (typeof getMatchingDishImage === "function" ? getMatchingDishImage(dish.name, dish.id) : "");
+
   return `
     <article class="food-card">
-      <div class="food-image">${dish.image
-        ? `<img src="${escapeHTML(dish.image)}" alt="${escapeHTML(dish.alt)}" loading="lazy">`
+      <div class="food-image">${imgSrc
+        ? `<img src="${escapeHTML(imgSrc)}" alt="${escapeHTML(dish.alt || dish.name)}" loading="lazy" onerror="this.onerror=null; this.src='Imagenes/plato_papas_fritas.jpg';">`
         : `<div class="food-image-placeholder" aria-hidden="true"><span>${escapeHTML(currentRestaurant?.icon || "🍽️")}</span><small>Imagen del plato</small></div>`}</div>
       <div class="food-info">
         <h4 class="food-name">${escapeHTML(dish.name)}</h4>
@@ -358,11 +373,14 @@ function renderDirectory() {
       const meta = getPromoMeta(dish);
       const icon = rest?.icon || "🍽️";
       const restName = rest?.name || "Saborcito";
+      const imgSrc = (dish.image && !dish.image.includes("photo-1576107232684"))
+        ? dish.image
+        : (typeof getMatchingDishImage === "function" ? getMatchingDishImage(dish.name, dish.id) : "");
       return `
       <article class="food-card promo-dish-card">
         <div class="food-image promo-dish-image">
-          ${dish.image
-            ? `<img src="${escapeHTML(dish.image)}" alt="${escapeHTML(dish.alt)}" loading="lazy">`
+          ${imgSrc
+            ? `<img src="${escapeHTML(imgSrc)}" alt="${escapeHTML(dish.alt || dish.name)}" loading="lazy" onerror="this.onerror=null; this.src='Imagenes/plato_papas_fritas.jpg';">`
             : `<div class="food-image-placeholder" aria-hidden="true"><span>${escapeHTML(icon)}</span><small>Imagen del plato</small></div>`}
           <span class="promo-badge-pill promo-badge-floating">${escapeHTML(meta.badge)}</span>
         </div>

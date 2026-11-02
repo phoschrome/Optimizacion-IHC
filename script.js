@@ -362,14 +362,23 @@
         const meta = getPromoMeta(dish);
         const icon = rest?.icon || "🍽️";
         const restName = rest?.name || "Saborcito";
-        const dishImage = (dish.image && !Object.values(DEFAULT_RESTAURANT_BANNERS).includes(dish.image))
+        let dishImage = (dish.image && !Object.values(DEFAULT_RESTAURANT_BANNERS).includes(dish.image))
           ? dish.image
           : "";
+        if (dishImage && dishImage.includes("photo-1576107232684")) {
+          dishImage = "";
+        }
+        if (typeof getMatchingDishImage === "function") {
+          const match = getMatchingDishImage(dish.name, dish.id);
+          if (!dishImage || (match && match.startsWith("Imagenes/"))) {
+            dishImage = match || dishImage;
+          }
+        }
 
         return `
         <article class="offer-card ${idx === 0 ? "offer-card-highlight" : ""}">
           <span class="offer-icon" aria-hidden="true">${dishImage
-            ? `<img src="${escapeHTML(dishImage)}" alt="${escapeHTML(dish.name)}" loading="lazy">`
+            ? `<img src="${escapeHTML(dishImage)}" alt="${escapeHTML(dish.name)}" loading="lazy" onerror="this.onerror=null; this.src='Imagenes/plato_papas_fritas.jpg';">`
             : escapeHTML(icon)}</span>
           <div class="offer-copy">
             <span class="offer-tag">${escapeHTML(meta.badge)} · ${escapeHTML(restName)}</span>

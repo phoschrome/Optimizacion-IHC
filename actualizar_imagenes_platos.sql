@@ -21,7 +21,7 @@ SELECT
     WHEN '2' THEN 'https://images.unsplash.com/photo-1628840042765-356cda07504e?auto=format&fit=crop&w=600&q=80' -- Pizza Pepperoni
     WHEN '3' THEN 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=600&q=80' -- Pizza Cuatro Quesos
     WHEN '4' THEN 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=600&q=80' -- Pizza Hawaiana
-    WHEN '5' THEN 'https://images.unsplash.com/photo-1621996346565-e3d5d6281698?auto=format&fit=crop&w=600&q=80' -- Calzone Clásico
+    WHEN '5' THEN 'Imagenes/plato_calzone.jpg' -- Calzone Clásico
     WHEN '6' THEN 'https://images.unsplash.com/photo-1574894709920-11b28e7367e3?auto=format&fit=crop&w=600&q=80' -- Lasaña de Carne
     WHEN '7' THEN 'https://images.unsplash.com/photo-1612874742237-6526221588e3?auto=format&fit=crop&w=600&q=80' -- Espagueti Carbonara
     WHEN '8' THEN 'https://images.unsplash.com/photo-1573140247632-f8fd74997d5c?auto=format&fit=crop&w=600&q=80' -- Pan de Ajo
@@ -32,9 +32,9 @@ SELECT
     WHEN '13' THEN 'https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=600&q=80' -- Cheeseburger
     WHEN '14' THEN 'https://images.unsplash.com/photo-1625813506062-0aeb1d7a094b?auto=format&fit=crop&w=600&q=80' -- Chicken Royale
     WHEN '15' THEN 'https://images.unsplash.com/photo-1562967914-608f82629710?auto=format&fit=crop&w=600&q=80' -- Nuggets (10 uds)
-    WHEN '16' THEN 'https://images.unsplash.com/photo-1576107232684-1279f3908594?auto=format&fit=crop&w=600&q=80' -- Papas Fritas Medianas
-    WHEN '17' THEN 'https://images.unsplash.com/photo-1573080496219-bb080dd4f877?auto=format&fit=crop&w=600&q=80' -- Papas Fritas Grandes
-    WHEN '18' THEN 'https://images.unsplash.com/photo-1639024471287-032f667051cf?auto=format&fit=crop&w=600&q=80' -- Aros de Cebolla
+    WHEN '16' THEN 'Imagenes/plato_papas_fritas.jpg' -- Papas Fritas Medianas
+    WHEN '17' THEN 'Imagenes/plato_papas_fritas.jpg' -- Papas Fritas Grandes
+    WHEN '18' THEN 'Imagenes/plato_aros_cebolla.jpg' -- Aros de Cebolla
     WHEN '19' THEN 'https://images.unsplash.com/photo-1501443762994-82bd5dace89a?auto=format&fit=crop&w=600&q=80' -- Helado Cono Clásico
     WHEN '20' THEN 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=600&q=80' -- Gaseosa Mediana
     WHEN '21' THEN 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&w=600&q=80' -- California Roll
@@ -62,8 +62,8 @@ SELECT
     WHEN '43' THEN 'https://images.unsplash.com/photo-1606755962773-d324e0a13086?auto=format&fit=crop&w=600&q=80' -- Zinger Burger
     WHEN '44' THEN 'https://images.unsplash.com/photo-1569058242253-92a9c755a0ec?auto=format&fit=crop&w=600&q=80' -- Popcorn Chicken
     WHEN '45' THEN 'https://images.unsplash.com/photo-1527477396000-e27163b481c2?auto=format&fit=crop&w=600&q=80' -- Hot Wings (6 pzas)
-    WHEN '46' THEN 'https://images.unsplash.com/photo-1576107232684-1279f3908594?auto=format&fit=crop&w=600&q=80' -- Papas Fritas Familiares
-    WHEN '47' THEN 'https://images.unsplash.com/photo-1617093727343-374698b1b08d?auto=format&fit=crop&w=600&q=80' -- Puré de Papa con Gravy
+    WHEN '46' THEN 'Imagenes/plato_papas_fritas.jpg' -- Papas Fritas Familiares
+    WHEN '47' THEN 'Imagenes/plato_pure_papa.jpg' -- Puré de Papa con Gravy
     WHEN '48' THEN 'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=600&q=80' -- Ensalada de Col
     WHEN '49' THEN 'https://images.unsplash.com/photo-1499636136210-6f4ee915583e?auto=format&fit=crop&w=600&q=80' -- Postre Chocochip
     WHEN '50' THEN 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=600&q=80' -- Gaseosa Grande
@@ -92,7 +92,7 @@ SELECT
     WHEN '73' THEN 'https://images.unsplash.com/photo-1533134242443-d4fd215305ad?auto=format&fit=crop&w=600&q=80' -- Cheesecake de Fresa
     WHEN '74' THEN 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=600&q=80' -- Torta de Chocolate (Porción)
     WHEN '75' THEN 'https://images.unsplash.com/photo-1499636136210-6f4ee915583e?auto=format&fit=crop&w=600&q=80' -- Galleta Chocochip Gigante
-    WHEN '76' THEN 'https://images.unsplash.com/photo-1569864321398-34865fc2d744?auto=format&fit=crop&w=600&q=80' -- Macarons (Caja x6)
+    WHEN '76' THEN 'Imagenes/plato_macarons.jpg' -- Macarons (Caja x6)
     WHEN '77' THEN 'https://images.unsplash.com/photo-1527515637462-cff94eecc1ac?auto=format&fit=crop&w=600&q=80' -- Donut Glaseada
     WHEN '78' THEN 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=600&q=80' -- Café Americano
     WHEN '79' THEN 'https://images.unsplash.com/photo-1534778101976-62847782c213?auto=format&fit=crop&w=600&q=80' -- Latte Macchiato
@@ -102,11 +102,11 @@ SELECT
     WHEN '83' THEN 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=600&q=80' -- New York Strip
     WHEN '84' THEN 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=600&q=80' -- BBQ Ribs
     WHEN '85' THEN 'https://images.unsplash.com/photo-1586190848861-99aa4a171e90?auto=format&fit=crop&w=600&q=80' -- Hamburguesa Angus
-    WHEN '86' THEN 'https://images.unsplash.com/photo-1600555379765-f82335a7b1b0?auto=format&fit=crop&w=600&q=80' -- Papa Horneada
+    WHEN '86' THEN 'Imagenes/plato_papa_horneada.jpg' -- Papa Horneada
     WHEN '87' THEN 'https://images.unsplash.com/photo-1543339308-43e59d6b73a6?auto=format&fit=crop&w=600&q=80' -- Mac & Cheese
-    WHEN '88' THEN 'https://images.unsplash.com/photo-1515471204630-e60780ebd129?auto=format&fit=crop&w=600&q=80' -- Espárragos a la Parrilla
+    WHEN '88' THEN 'Imagenes/plato_esparragos.jpg' -- Espárragos a la Parrilla
     WHEN '89' THEN 'https://images.unsplash.com/photo-1524351199678-941a58a3df50?auto=format&fit=crop&w=600&q=80' -- Cheesecake Estilo NY
-    WHEN '90' THEN 'https://images.unsplash.com/photo-1608270170192-689c4d723565?auto=format&fit=crop&w=600&q=80' -- Cerveza Artesanal
+    WHEN '90' THEN 'Imagenes/plato_cerveza.jpg' -- Cerveza Artesanal
     WHEN '91' THEN 'https://images.unsplash.com/photo-1570197788417-0e82375c9371?auto=format&fit=crop&w=600&q=80' -- Gelato de Vainilla
     WHEN '92' THEN 'https://images.unsplash.com/photo-1563805042-7684c019e1cb?auto=format&fit=crop&w=600&q=80' -- Gelato de Chocolate Suizo
     WHEN '93' THEN 'https://images.unsplash.com/photo-1501443762994-82bd5dace89a?auto=format&fit=crop&w=600&q=80' -- Gelato de Pistacho
@@ -133,7 +133,7 @@ UPDATE platos SET image = 'Imagenes/plato_pizza_margarita.jpg' WHERE id = '1' OR
 UPDATE platos SET image = 'https://images.unsplash.com/photo-1628840042765-356cda07504e?auto=format&fit=crop&w=600&q=80' WHERE id = '2' OR id = 2;
 UPDATE platos SET image = 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=600&q=80' WHERE id = '3' OR id = 3;
 UPDATE platos SET image = 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=600&q=80' WHERE id = '4' OR id = 4;
-UPDATE platos SET image = 'https://images.unsplash.com/photo-1621996346565-e3d5d6281698?auto=format&fit=crop&w=600&q=80' WHERE id = '5' OR id = 5;
+UPDATE platos SET image = 'Imagenes/plato_calzone.jpg' WHERE id = '5' OR id = 5;
 UPDATE platos SET image = 'https://images.unsplash.com/photo-1574894709920-11b28e7367e3?auto=format&fit=crop&w=600&q=80' WHERE id = '6' OR id = 6;
 UPDATE platos SET image = 'https://images.unsplash.com/photo-1612874742237-6526221588e3?auto=format&fit=crop&w=600&q=80' WHERE id = '7' OR id = 7;
 UPDATE platos SET image = 'https://images.unsplash.com/photo-1573140247632-f8fd74997d5c?auto=format&fit=crop&w=600&q=80' WHERE id = '8' OR id = 8;
@@ -144,9 +144,9 @@ UPDATE platos SET image = 'https://images.unsplash.com/photo-1586190848861-99aa4
 UPDATE platos SET image = 'https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=600&q=80' WHERE id = '13' OR id = 13;
 UPDATE platos SET image = 'https://images.unsplash.com/photo-1625813506062-0aeb1d7a094b?auto=format&fit=crop&w=600&q=80' WHERE id = '14' OR id = 14;
 UPDATE platos SET image = 'https://images.unsplash.com/photo-1562967914-608f82629710?auto=format&fit=crop&w=600&q=80' WHERE id = '15' OR id = 15;
-UPDATE platos SET image = 'https://images.unsplash.com/photo-1576107232684-1279f3908594?auto=format&fit=crop&w=600&q=80' WHERE id = '16' OR id = 16;
-UPDATE platos SET image = 'https://images.unsplash.com/photo-1573080496219-bb080dd4f877?auto=format&fit=crop&w=600&q=80' WHERE id = '17' OR id = 17;
-UPDATE platos SET image = 'https://images.unsplash.com/photo-1639024471287-032f667051cf?auto=format&fit=crop&w=600&q=80' WHERE id = '18' OR id = 18;
+UPDATE platos SET image = 'Imagenes/plato_papas_fritas.jpg' WHERE id = '16' OR id = 16;
+UPDATE platos SET image = 'Imagenes/plato_papas_fritas.jpg' WHERE id = '17' OR id = 17;
+UPDATE platos SET image = 'Imagenes/plato_aros_cebolla.jpg' WHERE id = '18' OR id = 18;
 UPDATE platos SET image = 'https://images.unsplash.com/photo-1501443762994-82bd5dace89a?auto=format&fit=crop&w=600&q=80' WHERE id = '19' OR id = 19;
 UPDATE platos SET image = 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=600&q=80' WHERE id = '20' OR id = 20;
 UPDATE platos SET image = 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&w=600&q=80' WHERE id = '21' OR id = 21;
@@ -174,8 +174,8 @@ UPDATE platos SET image = 'https://images.unsplash.com/photo-1513639776629-7b61b
 UPDATE platos SET image = 'https://images.unsplash.com/photo-1606755962773-d324e0a13086?auto=format&fit=crop&w=600&q=80' WHERE id = '43' OR id = 43;
 UPDATE platos SET image = 'https://images.unsplash.com/photo-1569058242253-92a9c755a0ec?auto=format&fit=crop&w=600&q=80' WHERE id = '44' OR id = 44;
 UPDATE platos SET image = 'https://images.unsplash.com/photo-1527477396000-e27163b481c2?auto=format&fit=crop&w=600&q=80' WHERE id = '45' OR id = 45;
-UPDATE platos SET image = 'https://images.unsplash.com/photo-1576107232684-1279f3908594?auto=format&fit=crop&w=600&q=80' WHERE id = '46' OR id = 46;
-UPDATE platos SET image = 'https://images.unsplash.com/photo-1617093727343-374698b1b08d?auto=format&fit=crop&w=600&q=80' WHERE id = '47' OR id = 47;
+UPDATE platos SET image = 'Imagenes/plato_papas_fritas.jpg' WHERE id = '46' OR id = 46;
+UPDATE platos SET image = 'Imagenes/plato_pure_papa.jpg' WHERE id = '47' OR id = 47;
 UPDATE platos SET image = 'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=600&q=80' WHERE id = '48' OR id = 48;
 UPDATE platos SET image = 'https://images.unsplash.com/photo-1499636136210-6f4ee915583e?auto=format&fit=crop&w=600&q=80' WHERE id = '49' OR id = 49;
 UPDATE platos SET image = 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=600&q=80' WHERE id = '50' OR id = 50;
@@ -204,7 +204,7 @@ UPDATE platos SET image = 'https://images.unsplash.com/photo-1586985289688-ca3cf
 UPDATE platos SET image = 'https://images.unsplash.com/photo-1533134242443-d4fd215305ad?auto=format&fit=crop&w=600&q=80' WHERE id = '73' OR id = 73;
 UPDATE platos SET image = 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=600&q=80' WHERE id = '74' OR id = 74;
 UPDATE platos SET image = 'https://images.unsplash.com/photo-1499636136210-6f4ee915583e?auto=format&fit=crop&w=600&q=80' WHERE id = '75' OR id = 75;
-UPDATE platos SET image = 'https://images.unsplash.com/photo-1569864321398-34865fc2d744?auto=format&fit=crop&w=600&q=80' WHERE id = '76' OR id = 76;
+UPDATE platos SET image = 'Imagenes/plato_macarons.jpg' WHERE id = '76' OR id = 76;
 UPDATE platos SET image = 'https://images.unsplash.com/photo-1527515637462-cff94eecc1ac?auto=format&fit=crop&w=600&q=80' WHERE id = '77' OR id = 77;
 UPDATE platos SET image = 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=600&q=80' WHERE id = '78' OR id = 78;
 UPDATE platos SET image = 'https://images.unsplash.com/photo-1534778101976-62847782c213?auto=format&fit=crop&w=600&q=80' WHERE id = '79' OR id = 79;
@@ -214,11 +214,11 @@ UPDATE platos SET image = 'https://images.unsplash.com/photo-1558030006-45067539
 UPDATE platos SET image = 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=600&q=80' WHERE id = '83' OR id = 83;
 UPDATE platos SET image = 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=600&q=80' WHERE id = '84' OR id = 84;
 UPDATE platos SET image = 'https://images.unsplash.com/photo-1586190848861-99aa4a171e90?auto=format&fit=crop&w=600&q=80' WHERE id = '85' OR id = 85;
-UPDATE platos SET image = 'https://images.unsplash.com/photo-1600555379765-f82335a7b1b0?auto=format&fit=crop&w=600&q=80' WHERE id = '86' OR id = 86;
+UPDATE platos SET image = 'Imagenes/plato_papa_horneada.jpg' WHERE id = '86' OR id = 86;
 UPDATE platos SET image = 'https://images.unsplash.com/photo-1543339308-43e59d6b73a6?auto=format&fit=crop&w=600&q=80' WHERE id = '87' OR id = 87;
-UPDATE platos SET image = 'https://images.unsplash.com/photo-1515471204630-e60780ebd129?auto=format&fit=crop&w=600&q=80' WHERE id = '88' OR id = 88;
+UPDATE platos SET image = 'Imagenes/plato_esparragos.jpg' WHERE id = '88' OR id = 88;
 UPDATE platos SET image = 'https://images.unsplash.com/photo-1524351199678-941a58a3df50?auto=format&fit=crop&w=600&q=80' WHERE id = '89' OR id = 89;
-UPDATE platos SET image = 'https://images.unsplash.com/photo-1608270170192-689c4d723565?auto=format&fit=crop&w=600&q=80' WHERE id = '90' OR id = 90;
+UPDATE platos SET image = 'Imagenes/plato_cerveza.jpg' WHERE id = '90' OR id = 90;
 UPDATE platos SET image = 'https://images.unsplash.com/photo-1570197788417-0e82375c9371?auto=format&fit=crop&w=600&q=80' WHERE id = '91' OR id = 91;
 UPDATE platos SET image = 'https://images.unsplash.com/photo-1563805042-7684c019e1cb?auto=format&fit=crop&w=600&q=80' WHERE id = '92' OR id = 92;
 UPDATE platos SET image = 'https://images.unsplash.com/photo-1501443762994-82bd5dace89a?auto=format&fit=crop&w=600&q=80' WHERE id = '93' OR id = 93;

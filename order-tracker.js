@@ -1485,15 +1485,38 @@
     const hasDiscount = Boolean(dish.isPromotion || dish.badge || numPrice < oldPrice);
     const badgeText = dish.badge || (hasDiscount ? "🔥 OFERTA" : "");
 
-    const dishModalImg = (dish.image && !dish.image.includes("/photo-1513104890138") && !dish.image.includes("/photo-1550547660") && !dish.image.includes("/photo-1579871494") && !dish.image.includes("/photo-1565299585") && !dish.image.includes("/photo-1626645738") && !dish.image.includes("/photo-1512058564") && !dish.image.includes("/photo-1540420773") && !dish.image.includes("/photo-1509440159") && !dish.image.includes("/photo-1544025162") && !dish.image.includes("/photo-1501443762"))
-      ? dish.image
-      : "";
+    let dishModalImg = dish.image || "";
+    if (!dishModalImg ||
+        dishModalImg.includes("photo-1576107232684") ||
+        dishModalImg.includes("photo-1639024471287") ||
+        dishModalImg.includes("/photo-1513104890138") ||
+        dishModalImg.includes("/photo-1550547660") ||
+        dishModalImg.includes("/photo-1579871494") ||
+        dishModalImg.includes("/photo-1565299585") ||
+        dishModalImg.includes("/photo-1626645738") ||
+        dishModalImg.includes("/photo-1512058564") ||
+        dishModalImg.includes("/photo-1540420773") ||
+        dishModalImg.includes("/photo-1509440159") ||
+        dishModalImg.includes("/photo-1544025162") ||
+        dishModalImg.includes("/photo-1501443762")) {
+      if (typeof window.getMatchingDishImage === "function") {
+        dishModalImg = window.getMatchingDishImage(dish.name, dish.id);
+      } else {
+        dishModalImg = "";
+      }
+    }
+    if (typeof window.getMatchingDishImage === "function") {
+      const match = window.getMatchingDishImage(dish.name, dish.id);
+      if (match && match.startsWith("Imagenes/")) {
+        dishModalImg = match;
+      }
+    }
 
     dishModalBackdropEl.innerHTML = `
       <div class="dish-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="dish-modal-title">
         <div class="dish-modal-header">
           ${dishModalImg
-            ? `<img src="${escapeHTML(dishModalImg)}" alt="${escapeHTML(dish.name)}" loading="lazy">`
+            ? `<img src="${escapeHTML(dishModalImg)}" alt="${escapeHTML(dish.name)}" loading="lazy" onerror="this.onerror=null; this.src='Imagenes/plato_papas_fritas.jpg';">`
             : `<div class="dish-modal-placeholder" aria-hidden="true">${escapeHTML(restIcon)}</div>`}
           ${badgeText ? `<span class="promo-badge-pill dish-modal-badge">${escapeHTML(badgeText)}</span>` : ""}
           <button type="button" class="dish-modal-close" data-dish-modal-close="true" aria-label="Cerrar detalles del plato">×</button>
