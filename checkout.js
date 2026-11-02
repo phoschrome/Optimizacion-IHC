@@ -181,12 +181,15 @@ function calculateTotals() {
 function getSavedCards() {
   if (window.SaborcitoOrderTracker?.loadSavedCards) {
     const list = window.SaborcitoOrderTracker.loadSavedCards();
-    if (Array.isArray(list) && list.length > 0) return list;
+    if (Array.isArray(list)) return list;
   }
   try {
     const userKey = String(currentUser?.email || currentUser?.id || "anon").trim().toLowerCase();
-    const raw = JSON.parse(localStorage.getItem(`saborcito_saved_cards_${userKey}`) || localStorage.getItem("saborcito_saved_cards") || "null");
-    if (Array.isArray(raw) && raw.length > 0) return raw;
+    const stored = localStorage.getItem(`saborcito_saved_cards_${userKey}`) ?? localStorage.getItem("saborcito_saved_cards");
+    if (stored !== null) {
+      const raw = JSON.parse(stored);
+      if (Array.isArray(raw)) return raw;
+    }
   } catch {}
   return [
     {
@@ -220,14 +223,19 @@ function renderSavedCards() {
     const statusNote = c.isDefault ? "Predeterminada" : "Guardada";
 
     return `
-      <label class="saved-card-item ${isSelected ? 'is-selected' : ''}" data-card-choice="${escapeHTML(c.id)}">
-        <input type="radio" name="cardSource" value="${escapeHTML(c.id)}" ${isSelected ? 'checked' : ''}>
-        <span class="card-brand-badge ${badgeClass}">${escapeHTML(brand)}</span>
-        <span class="saved-card-info">
-          <strong>${cardTitle}</strong>
-          <small>Vence ${escapeHTML(c.expiry || '08/29')} · ${statusNote}</small>
-        </span>
-      </label>
+      <div class="saved-card-row ${isSelected ? 'is-selected' : ''}" data-card-choice="${escapeHTML(c.id)}">
+        <label class="saved-card-item">
+          <input type="radio" name="cardSource" value="${escapeHTML(c.id)}" ${isSelected ? 'checked' : ''}>
+          <span class="card-brand-badge ${badgeClass}">${escapeHTML(brand)}</span>
+          <span class="saved-card-info">
+            <strong>${cardTitle}</strong>
+            <small>Vence ${escapeHTML(c.expiry || '08/29')} · ${statusNote}</small>
+          </span>
+        </label>
+        <button type="button" class="btn-delete-saved-card" data-delete-card="${escapeHTML(c.id)}" aria-label="Eliminar tarjeta terminada en ${escapeHTML(c.last4)}" title="Eliminar tarjeta">
+          🗑️
+        </button>
+      </div>
     `;
   }).join("");
 
@@ -466,7 +474,7 @@ document.querySelector("#saved-cards-list")?.addEventListener("change", event =>
   if (!radio) return;
   selectedCardId = radio.value;
   cardSource = radio.value;
-  document.querySelectorAll("#saved-cards-list .saved-card-item").forEach(card => {
+  document.querySelectorAll("#saved-cards-list .saved-card-item, #saved-cards-list .saved-card-row").forEach(card => {
     card.classList.toggle("is-selected", card.dataset.cardChoice === selectedCardId);
   });
   const newCardFields = document.querySelector("#new-card-fields");
@@ -478,6 +486,67 @@ document.querySelector("#saved-cards-list")?.addEventListener("change", event =>
     }
   }
   feedbackEl.hidden = true;
+});
+
+// Delegación de clics en la lista de tarjetas: eliminar tarjeta o seleccionar fila
+document.querySelector("#saved-cards-list")?.addEventListener("click", event => {
+  const delBtn = event.target.closest("[data-delete-card]");
+  if (delBtn) {
+    event.preventDefault();
+    event.stopPropagation();
+    const cardId = delBtn.dataset.deleteCard;
+    const cards = getSavedCards();
+    const card = cards.find(c => c.id === cardId);
+    const cardLast4 = card?.last4 || "••••";
+    const cardLabel = card ? `•••• ${cardLast4}` : "esta tarjeta";
+
+    const executeDelete = () => {
+      if (window.SaborcitoOrderTracker?.deleteSavedCard) {
+        window.SaborcitoOrderTracker.deleteSavedCard(cardId);
+      } else {
+        let updatedCards = getSavedCards().filter(c => c.id !== cardId);
+        if (updatedCards.length > 0 && !updatedCards.some(c => c.isDefault)) {
+          updatedCards[0].isDefault = true;
+        }
+        try {
+          const userKey = String(currentUser?.email || currentUser?.id || "anon").trim().toLowerCase();
+          localStorage.setItem(`saborcito_saved_cards_${userKey}`, JSON.stringify(updatedCards));
+          localStorage.setItem("saborcito_saved_cards", JSON.stringify(updatedCards));
+        } catch {}
+      }
+
+      if (selectedCardId === cardId) {
+        const remaining = getSavedCards();
+        const def = remaining.find(c => c.isDefault) || remaining[0];
+        selectedCardId = def ? def.id : "new";
+        cardSource = selectedCardId;
+      }
+
+      renderSavedCards();
+      showNotice(`Tarjeta ${cardLabel} eliminada.`);
+    };
+
+    if (window.SaborcitoOrderTracker?.confirmRemoveDish) {
+      window.SaborcitoOrderTracker.confirmRemoveDish(
+        `Tarjeta terminada en ${cardLast4}`,
+        executeDelete,
+        `¿Deseas eliminar la tarjeta terminada en <strong>${escapeHTML(cardLast4)}</strong> de tus métodos de pago guardados?`
+      );
+    } else if (window.confirm(`¿Deseas eliminar la tarjeta ${cardLabel}?`)) {
+      executeDelete();
+    }
+    return;
+  }
+
+  // Si se hace clic sobre la fila pero fuera del botón de eliminar, activar su radio
+  const row = event.target.closest(".saved-card-row");
+  if (row) {
+    const radio = row.querySelector('input[type="radio"]');
+    if (radio && !radio.checked) {
+      radio.checked = true;
+      radio.dispatchEvent(new Event("change", { bubbles: true }));
+    }
+  }
 });
 
 // Validación en vivo de los 4 campos de nueva tarjeta
@@ -727,7 +796,9 @@ checkoutForm?.addEventListener("submit", event => {
     } else {
       const cards = getSavedCards();
       const chosen = cards.find(c => c.id === selectedCardId) || cards[0];
-      paymentLabel = `Tarjeta (${chosen?.brand || 'VISA'} •••• ${chosen?.last4 || '4242'})`;
+      paymentLabel = chosen
+        ? `Tarjeta (${chosen.brand || 'VISA'} •••• ${chosen.last4 || '4242'})`
+        : 'Tarjeta de crédito / débito';
     }
   } else {
     if (cashPreset === "exact") {

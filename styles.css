@@ -744,9 +744,62 @@
 
     .payment-panel[hidden], .new-card-fields[hidden] { display: none; }
     .saved-cards-list { display: grid; gap: 10px; margin-bottom: 14px; }
+    .saved-card-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      background: var(--wash);
+      border: 1.5px solid var(--line);
+      border-radius: 13px;
+      padding-right: 12px;
+      transition: all .16s ease;
+    }
+    .saved-card-row.is-selected {
+      background: white;
+      border-color: #8b5c0b;
+      box-shadow: 0 2px 8px rgb(41 37 31 / 7%);
+    }
+    .saved-card-row .saved-card-item,
+    .saved-card-row .saved-card-item.is-selected {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+      cursor: pointer;
+    }
     .saved-card-item { display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: var(--wash); border: 1.5px solid var(--line); border-radius: 13px; cursor: pointer; }
-    .saved-card-item input { position: absolute; opacity: 0; pointer-events: none; }
+    .saved-card-item input, .saved-card-row input { position: absolute; opacity: 0; pointer-events: none; }
     .saved-card-item.is-selected { background: white; border-color: #8b5c0b; box-shadow: 0 2px 8px rgb(41 37 31 / 7%); }
+    .btn-delete-saved-card {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 34px;
+      height: 34px;
+      padding: 0;
+      background: #fff5f5;
+      color: #e03131;
+      border: 1px solid #ffc9c9;
+      border-radius: 9px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      line-height: 1;
+      flex-shrink: 0;
+      transition: all .15s ease;
+    }
+    .btn-delete-saved-card:hover {
+      background: #ffe3e3;
+      border-color: #fa5252;
+      transform: scale(1.08);
+    }
+    .btn-delete-saved-card:active {
+      transform: scale(0.95);
+    }
     .card-brand-badge { display: inline-grid; min-width: 48px; height: 30px; place-items: center; padding: 0 8px; color: white; background: #1a365d; border-radius: 7px; font-size: .72rem; font-weight: 850; letter-spacing: .05em; }
     .card-brand-badge.card-brand-mastercard { background: #c53030; }
     .card-brand-badge.card-brand-amex { background: #0077b6; }

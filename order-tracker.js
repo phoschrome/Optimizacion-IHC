@@ -245,9 +245,12 @@
 
   function loadSavedCards() {
     try {
-      const raw = JSON.parse(localStorage.getItem(getSavedCardsKey()) || "null");
-      if (Array.isArray(raw) && raw.length > 0) {
-        return raw;
+      const stored = localStorage.getItem(getSavedCardsKey());
+      if (stored !== null) {
+        const raw = JSON.parse(stored);
+        if (Array.isArray(raw)) {
+          return raw;
+        }
       }
       const seeded = getDefaultSavedCards();
       localStorage.setItem(getSavedCardsKey(), JSON.stringify(seeded));
@@ -290,6 +293,15 @@
     cards.unshift(newCard);
     saveSavedCards(cards);
     return newCard;
+  }
+
+  function deleteSavedCard(cardId) {
+    let cards = loadSavedCards().filter(c => c.id !== cardId);
+    if (cards.length > 0 && !cards.some(c => c.isDefault)) {
+      cards[0].isDefault = true;
+    }
+    saveSavedCards(cards);
+    return cards;
   }
 
   function computeStageIndex(order) {
@@ -599,11 +611,7 @@
 
         if (btn.dataset.deleteSavedCard) {
           const cardId = btn.dataset.deleteSavedCard;
-          let cards = loadSavedCards().filter(c => c.id !== cardId);
-          if (cards.length > 0 && !cards.some(c => c.isDefault)) {
-            cards[0].isDefault = true;
-          }
-          saveSavedCards(cards);
+          deleteSavedCard(cardId);
           renderUserModalContent();
         }
       });
@@ -1175,6 +1183,7 @@
             </span>
           </button>
           <button type="button" class="tracker-icon-btn" data-tracker-minimize="toggle" aria-label="Expandir seguimiento" title="Expandir">▢</button>
+          ${isArrived ? `<button type="button" class="tracker-icon-btn" data-tracker-dismiss="${escapeHTML(activeOrder.id)}" aria-label="Cerrar seguimiento" title="Cerrar pedido">×</button>` : ""}
         </div>
       `;
       return;
@@ -1305,7 +1314,6 @@
         </div>
         <div class="tracker-header-actions">
           <button type="button" class="tracker-icon-btn" data-tracker-minimize="toggle" aria-label="Minimizar ventana de seguimiento" title="Minimizar (seguir explorando)">−</button>
-          <button type="button" class="tracker-icon-btn" data-tracker-dismiss="${escapeHTML(activeOrder.id)}" aria-label="Cerrar seguimiento de este pedido" title="Cerrar pedido">×</button>
         </div>
       </div>
 
@@ -1699,6 +1707,7 @@
     loadPurchaseHistory,
     loadSavedCards,
     registerNewCard,
+    deleteSavedCard,
     toggleUserDropdown,
     openUserModal,
     openDishModal,
