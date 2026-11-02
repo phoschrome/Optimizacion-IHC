@@ -54,7 +54,7 @@
 
     const cart = new Map();
     const SESSION_STORAGE_KEY = "saborcito_user";
-    const CATALOG_CACHE_KEY = "saborcito_catalog_cache_v6";
+    const CATALOG_CACHE_KEY = "saborcito_catalog_cache_v7";
     let currentUser = null;
     let isAuthenticated = false;
     let promoIndex = 0;

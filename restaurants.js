@@ -9,7 +9,7 @@ let selectedPromoFilter = "all";
 let selectedRestCategory = "all";
 const cart = new Map();
 let noticeTimer;
-const CATALOG_CACHE_KEY = "saborcito_catalog_cache_v6";
+const CATALOG_CACHE_KEY = "saborcito_catalog_cache_v7";
 const topSearch = document.querySelector("#search");
 const searchResults = document.querySelector("#search-results");
 const pageIntro = document.querySelector("#restaurant-page-intro");
