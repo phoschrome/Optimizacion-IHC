@@ -7,7 +7,7 @@
   <meta name="description" content="Finaliza tu pedido y elige tu método de pago en Saborcito.">
   <meta name="saborcito-api-base-url" content="https://gd384485b9fe421-ecommerce.adb.sa-bogota-1.oraclecloudapps.com/ords/admin/v1">
   <title>Finalizar pedido y pago — Saborcito</title>
-  <link rel="stylesheet" href="styles.css?v=20261101u">
+  <link rel="stylesheet" href="styles.css?v=20261102v3">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
 </head>
@@ -151,7 +151,7 @@
 
           <!-- Panel Tarjeta -->
           <div class="payment-panel" id="payment-panel-card">
-            <div class="saved-cards-list" role="radiogroup" aria-label="Tarjetas disponibles">
+            <div class="saved-cards-list" id="saved-cards-list" role="radiogroup" aria-label="Tarjetas disponibles">
               <label class="saved-card-item is-selected" data-card-choice="saved">
                 <input type="radio" name="cardSource" value="saved" checked>
                 <span class="card-brand-badge">VISA</span>
@@ -189,6 +189,9 @@
                   <input id="card-cvv" type="password" inputmode="numeric" maxlength="4" autocomplete="cc-csc" placeholder="123">
                 </label>
               </div>
+              <button type="button" class="save-card-button" id="btn-save-new-card" disabled>
+                Guardar tarjeta
+              </button>
             </div>
           </div>
 
@@ -201,7 +204,7 @@
               <button type="button" class="cash-preset-btn" data-cash-preset="10">$10.00</button>
               <button type="button" class="cash-preset-btn is-selected" data-cash-preset="20">$20.00</button>
             </div>
-            <p class="cash-change-preview" id="cash-change-preview">💵 Pagarás con billete de $20.00</p>
+            <p class="cash-change-preview" id="cash-change-preview" hidden></p>
           </div>
         </section>
 
@@ -276,6 +279,6 @@
   <script src="dish-catalog-images.js?v=20261102q" defer></script>
   <script src="order-tracker.js?v=20261102q" defer></script>
   <script src="address-modal.js?v=20261102q" defer></script>
-  <script src="checkout.js?v=20261102q" defer></script>
+  <script src="checkout.js?v=20261102v3" defer></script>
 </body>
 </html>

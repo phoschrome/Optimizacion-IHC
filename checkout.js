@@ -59,6 +59,7 @@ const cart = new Map();
 let deliverySpeed = "standard";
 let paymentMethod = "card";
 let cardSource = "saved";
+let selectedCardId = "card_default_4242";
 let cashPreset = "20";
 let selectedTip = 1;
 let noticeTimer;
@@ -177,6 +178,95 @@ function calculateTotals() {
   return { subtotal, deliveryFee, serviceFee, tip, total };
 }
 
+function getSavedCards() {
+  if (window.SaborcitoOrderTracker?.loadSavedCards) {
+    const list = window.SaborcitoOrderTracker.loadSavedCards();
+    if (Array.isArray(list) && list.length > 0) return list;
+  }
+  try {
+    const userKey = String(currentUser?.email || currentUser?.id || "anon").trim().toLowerCase();
+    const raw = JSON.parse(localStorage.getItem(`saborcito_saved_cards_${userKey}`) || localStorage.getItem("saborcito_saved_cards") || "null");
+    if (Array.isArray(raw) && raw.length > 0) return raw;
+  } catch {}
+  return [
+    {
+      id: "card_default_4242",
+      brand: "VISA",
+      last4: "4242",
+      holder: currentUser?.name || "Carlos Mendoza",
+      expiry: "09/28",
+      isDefault: true
+    }
+  ];
+}
+
+function renderSavedCards() {
+  const container = document.querySelector("#saved-cards-list");
+  if (!container) return;
+  const cards = getSavedCards();
+
+  const exists = cards.some(c => c.id === selectedCardId);
+  if (selectedCardId !== "new" && !exists) {
+    const def = cards.find(c => c.isDefault) || cards[0];
+    selectedCardId = def ? def.id : "new";
+    cardSource = selectedCardId;
+  }
+
+  const cardsHtml = cards.map(c => {
+    const isSelected = selectedCardId === c.id;
+    const brand = String(c.brand || "VISA").toUpperCase();
+    const badgeClass = brand === "MASTERCARD" ? "card-brand-mastercard" : brand === "AMEX" ? "card-brand-amex" : "";
+    const cardTitle = c.holder ? `Tarjeta de ${escapeHTML(c.holder)} •••• ${escapeHTML(c.last4)}` : `Tarjeta personal •••• ${escapeHTML(c.last4)}`;
+    const statusNote = c.isDefault ? "Predeterminada" : "Guardada";
+
+    return `
+      <label class="saved-card-item ${isSelected ? 'is-selected' : ''}" data-card-choice="${escapeHTML(c.id)}">
+        <input type="radio" name="cardSource" value="${escapeHTML(c.id)}" ${isSelected ? 'checked' : ''}>
+        <span class="card-brand-badge ${badgeClass}">${escapeHTML(brand)}</span>
+        <span class="saved-card-info">
+          <strong>${cardTitle}</strong>
+          <small>Vence ${escapeHTML(c.expiry || '08/29')} · ${statusNote}</small>
+        </span>
+      </label>
+    `;
+  }).join("");
+
+  const newOptionHtml = `
+    <label class="saved-card-item ${selectedCardId === 'new' ? 'is-selected' : ''}" data-card-choice="new">
+      <input type="radio" name="cardSource" value="new" ${selectedCardId === 'new' ? 'checked' : ''}>
+      <span class="card-brand-badge card-brand-new">+</span>
+      <span class="saved-card-info">
+        <strong>Ingresar otra tarjeta</strong>
+        <small>Simular pago con nuevos datos de tarjeta</small>
+      </span>
+    </label>
+  `;
+
+  container.innerHTML = cardsHtml + newOptionHtml;
+
+  const newCardFields = document.querySelector("#new-card-fields");
+  if (newCardFields) {
+    newCardFields.hidden = selectedCardId !== "new";
+  }
+}
+
+function updateSaveCardButtonState() {
+  const btn = document.querySelector("#btn-save-new-card");
+  if (!btn) return false;
+  const holder = (document.querySelector("#card-holder")?.value || "").trim();
+  const rawNumber = (document.querySelector("#card-number")?.value || "").replace(/\D/g, "");
+  const expiry = (document.querySelector("#card-expiry")?.value || "").trim();
+  const cvv = (document.querySelector("#card-cvv")?.value || "").trim();
+
+  const isValid = holder.length >= 3 &&
+    rawNumber.length >= 15 && rawNumber.length <= 19 &&
+    /^\d{2}\/\d{2}$/.test(expiry) &&
+    /^\d{3,4}$/.test(cvv);
+
+  btn.disabled = !isValid;
+  return isValid;
+}
+
 function updateCashPreview() {
   const preview = document.querySelector("#cash-change-preview");
   if (!preview) return;
@@ -270,6 +360,7 @@ function renderCheckout() {
     b.classList.toggle("is-selected", b.dataset.cashPreset === String(cashPreset));
   });
   updateCashPreview();
+  renderSavedCards();
   updateCheckoutPaymentButtonState();
 }
 
@@ -369,16 +460,87 @@ document.querySelectorAll('input[name="paymentMethod"]').forEach(radio => {
   });
 });
 
-// Cambios en tarjeta guardada vs nueva tarjeta
-document.querySelectorAll('input[name="cardSource"]').forEach(radio => {
-  radio.addEventListener("change", () => {
-    cardSource = radio.value;
-    document.querySelectorAll("[data-card-choice]").forEach(card => {
-      card.classList.toggle("is-selected", card.dataset.cardChoice === cardSource);
-    });
-    document.querySelector("#new-card-fields").hidden = cardSource !== "new";
-    feedbackEl.hidden = true;
+// Delegación de cambios en tarjeta guardada vs ingresar otra tarjeta
+document.querySelector("#saved-cards-list")?.addEventListener("change", event => {
+  const radio = event.target.closest('input[name="cardSource"]');
+  if (!radio) return;
+  selectedCardId = radio.value;
+  cardSource = radio.value;
+  document.querySelectorAll("#saved-cards-list .saved-card-item").forEach(card => {
+    card.classList.toggle("is-selected", card.dataset.cardChoice === selectedCardId);
   });
+  const newCardFields = document.querySelector("#new-card-fields");
+  if (newCardFields) {
+    newCardFields.hidden = selectedCardId !== "new";
+    if (selectedCardId === "new") {
+      updateSaveCardButtonState();
+      document.querySelector("#card-holder")?.focus();
+    }
+  }
+  feedbackEl.hidden = true;
+});
+
+// Validación en vivo de los 4 campos de nueva tarjeta
+["#card-holder", "#card-number", "#card-expiry", "#card-cvv"].forEach(selector => {
+  document.querySelector(selector)?.addEventListener("input", updateSaveCardButtonState);
+});
+
+document.querySelector("#card-cvv")?.addEventListener("input", event => {
+  event.target.value = event.target.value.replace(/\D/g, "").slice(0, 4);
+  updateSaveCardButtonState();
+});
+
+// Guardar nueva tarjeta en la lista de tarjetas guardadas
+document.querySelector("#btn-save-new-card")?.addEventListener("click", () => {
+  if (!updateSaveCardButtonState()) return;
+
+  const holder = (document.querySelector("#card-holder")?.value || "").trim();
+  const rawNumber = (document.querySelector("#card-number")?.value || "").replace(/\D/g, "");
+  const expiry = (document.querySelector("#card-expiry")?.value || "").trim();
+
+  let newCard = null;
+  if (window.SaborcitoOrderTracker?.registerNewCard) {
+    newCard = window.SaborcitoOrderTracker.registerNewCard({ holder, number: rawNumber, expiry });
+  }
+
+  if (!newCard) {
+    const last4 = rawNumber.slice(-4);
+    const brand = rawNumber.startsWith("5") ? "MASTERCARD" : rawNumber.startsWith("3") ? "AMEX" : "VISA";
+    newCard = {
+      id: `card_${Date.now()}_${last4}`,
+      brand,
+      last4,
+      holder,
+      expiry,
+      isDefault: true
+    };
+    try {
+      const userKey = String(currentUser?.email || currentUser?.id || "anon").trim().toLowerCase();
+      const storageKey = `saborcito_saved_cards_${userKey}`;
+      const cards = getSavedCards();
+      cards.forEach(c => { c.isDefault = false; });
+      cards.unshift(newCard);
+      localStorage.setItem(storageKey, JSON.stringify(cards));
+      localStorage.setItem("saborcito_saved_cards", JSON.stringify(cards));
+    } catch {}
+  }
+
+  // Limpiar campos del formulario
+  const holderInput = document.querySelector("#card-holder");
+  const numberInput = document.querySelector("#card-number");
+  const expiryInput = document.querySelector("#card-expiry");
+  const cvvInput = document.querySelector("#card-cvv");
+  if (holderInput) holderInput.value = "";
+  if (numberInput) numberInput.value = "";
+  if (expiryInput) expiryInput.value = "";
+  if (cvvInput) cvvInput.value = "";
+  updateSaveCardButtonState();
+
+  // Seleccionar la tarjeta recién guardada y refrescar la sección
+  selectedCardId = newCard.id;
+  cardSource = newCard.id;
+  renderSavedCards();
+  showNotice(`Tarjeta •••• ${newCard.last4} guardada exitosamente.`);
 });
 
 // Botones de efectivo y propina + controles de cantidad
@@ -530,7 +692,7 @@ checkoutForm?.addEventListener("submit", event => {
   let paymentLabel = "Tarjeta •••• 4242";
 
   if (paymentMethod === "card") {
-    if (cardSource === "new") {
+    if (selectedCardId === "new") {
       const holder = document.querySelector("#card-holder")?.value.trim() || "";
       const rawNumber = (document.querySelector("#card-number")?.value || "").replace(/\D/g, "");
       const expiry = document.querySelector("#card-expiry")?.value.trim() || "";
@@ -542,7 +704,7 @@ checkoutForm?.addEventListener("submit", event => {
         document.querySelector("#card-holder")?.focus();
         return;
       }
-      if (rawNumber.length < 13) {
+      if (rawNumber.length < 15) {
         feedbackEl.textContent = "Ingresa un número de tarjeta válido (16 dígitos).";
         feedbackEl.hidden = false;
         document.querySelector("#card-number")?.focus();
@@ -562,6 +724,10 @@ checkoutForm?.addEventListener("submit", event => {
       }
       paymentLabel = `Tarjeta •••• ${rawNumber.slice(-4)}`;
       window.SaborcitoOrderTracker?.registerNewCard({ holder, number: rawNumber, expiry });
+    } else {
+      const cards = getSavedCards();
+      const chosen = cards.find(c => c.id === selectedCardId) || cards[0];
+      paymentLabel = `Tarjeta (${chosen?.brand || 'VISA'} •••• ${chosen?.last4 || '4242'})`;
     }
   } else {
     if (cashPreset === "exact") {
