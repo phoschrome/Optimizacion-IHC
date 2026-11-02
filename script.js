@@ -37,6 +37,8 @@
         title: "Tu antojo favorito, a un clic",
         description: "Disfruta tus platos favoritos. Hoy tienes envío gratis en tu primer pedido.",
         tag: "ENVÍO GRATIS",
+        image: "Imagenes/banner1.jpg",
+        foodAlt: "Hamburguesa gourmet y papas fritas",
         food: "🍔",
         buttonText: "Descubrir sabores",
         href: "restaurants.html"
@@ -46,7 +48,9 @@
         title: "Ofertas y descuentos del día",
         description: "Aprovecha combos especiales, 2x1 y hasta 30% de descuento en tus platos favoritos.",
         tag: "HASTA 30% DCTO",
-        food: "🏷️",
+        image: "Imagenes/banner2.jpg",
+        foodAlt: "Pizzas artesanales para compartir",
+        food: "🍕",
         buttonText: "Ver ofertas y promociones",
         href: "promociones.html"
       }
@@ -644,7 +648,14 @@
       document.querySelector("#promo-title").textContent = promo.title;
       document.querySelector("#promo-description").textContent = promo.description;
       document.querySelector("#promo-tag").textContent = promo.tag;
-      document.querySelector("#promo-food").textContent = promo.food;
+      const promoFoodEl = document.querySelector("#promo-food");
+      if (promoFoodEl) {
+        if (promo.image) {
+          promoFoodEl.innerHTML = `<img src="${escapeHTML(promo.image)}" alt="${escapeHTML(promo.foodAlt || promo.title)}" class="promo-food-img" loading="eager">`;
+        } else {
+          promoFoodEl.textContent = promo.food || "🍽️";
+        }
+      }
       document.querySelector("#carousel-status").textContent = `Banner ${promoIndex + 1} de ${promos.length}: ${promo.title}`;
 
       const bannerLink = document.querySelector("#promo-banner-link");
