@@ -47,7 +47,7 @@
     "34": "https://images.unsplash.com/photo-1626700051175-6818013e1d4f?auto=format&fit=crop&w=600&q=80", // Burrito Mixto
     "35": "https://images.unsplash.com/photo-1618040996337-56904b7850b9?auto=format&fit=crop&w=600&q=80", // Quesadilla con Carne
     "36": "https://images.unsplash.com/photo-1513456852971-30c0b8199d4d?auto=format&fit=crop&w=600&q=80", // Nachos Supremos
-    "37": "https://images.unsplash.com/photo-1541288097308-7b8e3f58c4c6?auto=format&fit=crop&w=600&q=80", // Guacamole con Totopos
+    "37": "Imagenes/guacamole.jpg", // Guacamole con Totopos
     "38": "https://images.unsplash.com/photo-1534352956036-cd81e27dd615?auto=format&fit=crop&w=600&q=80", // Enchiladas Rojas
     "39": "https://images.unsplash.com/photo-1624300629298-e9de39c13be5?auto=format&fit=crop&w=600&q=80", // Churros Rellenos
     "40": "https://images.unsplash.com/photo-1546173159-315724a31696?auto=format&fit=crop&w=600&q=80", // Agua de Horchata

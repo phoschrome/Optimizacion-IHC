@@ -9,7 +9,7 @@ let selectedPromoFilter = "all";
 let selectedRestCategory = "all";
 const cart = new Map();
 let noticeTimer;
-const CATALOG_CACHE_KEY = "saborcito_catalog_cache_v7";
+const CATALOG_CACHE_KEY = "saborcito_catalog_cache_v8";
 const topSearch = document.querySelector("#search");
 const searchResults = document.querySelector("#search-results");
 const pageIntro = document.querySelector("#restaurant-page-intro");
@@ -344,6 +344,7 @@ function safeGetMatchingDishImage(dishName, dishId) {
   if (name.includes("margherita") || name.includes("margarita") || idStr === "1") return "Imagenes/plato_pizza_margarita.jpg";
   if (name.includes("smash") || (name.includes("whopper") && !name.includes("doble")) || idStr === "11") return "Imagenes/plato_hamburguesa_smash.jpg";
   if (name.includes("arroz frito") || name.includes("ramen") || idStr === "51") return "Imagenes/plato_ramen_casa.jpg";
+  if (name.includes("guacamole") || name.includes("totopo") || idStr === "37") return "Imagenes/guacamole.jpg";
   if (name.includes("quinoa") || name.includes("arcoiris") || idStr === "62") return "Imagenes/plato_bowl_arcoiris.jpg";
   if (name.includes("papa") || name.includes("papas") || name.includes("fritas") || idStr === "16" || idStr === "17" || idStr === "46") return "Imagenes/plato_papas_fritas.jpg";
 

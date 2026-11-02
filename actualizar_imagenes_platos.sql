@@ -53,7 +53,7 @@ SELECT
     WHEN '34' THEN 'https://images.unsplash.com/photo-1626700051175-6818013e1d4f?auto=format&fit=crop&w=600&q=80' -- Burrito Mixto
     WHEN '35' THEN 'https://images.unsplash.com/photo-1618040996337-56904b7850b9?auto=format&fit=crop&w=600&q=80' -- Quesadilla con Carne
     WHEN '36' THEN 'https://images.unsplash.com/photo-1513456852971-30c0b8199d4d?auto=format&fit=crop&w=600&q=80' -- Nachos Supremos
-    WHEN '37' THEN 'https://images.unsplash.com/photo-1541288097308-7b8e3f58c4c6?auto=format&fit=crop&w=600&q=80' -- Guacamole con Totopos
+    WHEN '37' THEN 'Imagenes/guacamole.jpg' -- Guacamole con Totopos
     WHEN '38' THEN 'https://images.unsplash.com/photo-1534352956036-cd81e27dd615?auto=format&fit=crop&w=600&q=80' -- Enchiladas Rojas
     WHEN '39' THEN 'https://images.unsplash.com/photo-1624300629298-e9de39c13be5?auto=format&fit=crop&w=600&q=80' -- Churros Rellenos
     WHEN '40' THEN 'https://images.unsplash.com/photo-1546173159-315724a31696?auto=format&fit=crop&w=600&q=80' -- Agua de Horchata
@@ -165,7 +165,7 @@ UPDATE platos SET image = 'https://images.unsplash.com/photo-1615870216519-2f9fa
 UPDATE platos SET image = 'https://images.unsplash.com/photo-1626700051175-6818013e1d4f?auto=format&fit=crop&w=600&q=80' WHERE id = '34' OR id = 34;
 UPDATE platos SET image = 'https://images.unsplash.com/photo-1618040996337-56904b7850b9?auto=format&fit=crop&w=600&q=80' WHERE id = '35' OR id = 35;
 UPDATE platos SET image = 'https://images.unsplash.com/photo-1513456852971-30c0b8199d4d?auto=format&fit=crop&w=600&q=80' WHERE id = '36' OR id = 36;
-UPDATE platos SET image = 'https://images.unsplash.com/photo-1541288097308-7b8e3f58c4c6?auto=format&fit=crop&w=600&q=80' WHERE id = '37' OR id = 37;
+UPDATE platos SET image = 'Imagenes/guacamole.jpg' WHERE id = '37' OR id = 37;
 UPDATE platos SET image = 'https://images.unsplash.com/photo-1534352956036-cd81e27dd615?auto=format&fit=crop&w=600&q=80' WHERE id = '38' OR id = 38;
 UPDATE platos SET image = 'https://images.unsplash.com/photo-1624300629298-e9de39c13be5?auto=format&fit=crop&w=600&q=80' WHERE id = '39' OR id = 39;
 UPDATE platos SET image = 'https://images.unsplash.com/photo-1546173159-315724a31696?auto=format&fit=crop&w=600&q=80' WHERE id = '40' OR id = 40;
