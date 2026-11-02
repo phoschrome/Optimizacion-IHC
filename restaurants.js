@@ -6,6 +6,7 @@ let currentRestaurant = null;
 let currentUser = null;
 let apiBaseUrl = "";
 let selectedPromoFilter = "all";
+let selectedRestCategory = "all";
 const cart = new Map();
 let noticeTimer;
 const CATALOG_CACHE_KEY = "saborcito_catalog_cache_v5";
@@ -398,6 +399,39 @@ function renderDirectory() {
     : '<p class="empty-state">No encontramos platillos en promoción con ese filtro o búsqueda.</p>';
 }
 
+function renderRestaurantsCatalog() {
+  const grid = document.querySelector("#restaurants-catalog-grid");
+  if (!grid) return;
+  const query = (topSearch?.value || "").trim().toLocaleLowerCase("es");
+
+  const filtered = restaurants.filter(r => {
+    const matchesCat = selectedRestCategory === "all" || r.category.toLocaleLowerCase("es") === selectedRestCategory.toLocaleLowerCase("es");
+    const matchesQuery = !query || `${r.name} ${r.category} ${r.description}`.toLocaleLowerCase("es").includes(query);
+    return matchesCat && matchesQuery;
+  });
+
+  if (filtered.length === 0) {
+    grid.innerHTML = '<p class="empty-state">No encontramos restaurantes con ese filtro o búsqueda.</p>';
+    return;
+  }
+
+  grid.innerHTML = filtered.map(r => `
+    <a class="category-restaurant-card" href="restaurants.html?restaurant=${encodeURIComponent(r.id)}" aria-label="Ver menú de ${escapeHTML(r.name)} (${escapeHTML(r.category)})">
+      <div class="category-restaurant-banner">
+        ${r.banner
+          ? `<img src="${escapeHTML(r.banner)}" alt="Banner de ${escapeHTML(r.name)}" loading="lazy">`
+          : `<span class="category-banner-fallback" aria-hidden="true">${escapeHTML(r.icon)}</span>`
+        }
+        <span class="category-banner-tag">${escapeHTML(r.icon)} ${escapeHTML(r.category)}</span>
+      </div>
+      <div class="category-restaurant-caption">
+        <h3 class="category-restaurant-name">${escapeHTML(r.name)}</h3>
+        <span class="category-restaurant-meta">★ ${escapeHTML(r.rating)} · ${escapeHTML(r.time)}</span>
+      </div>
+    </a>
+  `).join("");
+}
+
 function renderRecentOrders() {
   if (!recentSection || !recentGrid || !currentRestaurant) return;
   const recentDishes = recentDishIds
@@ -417,7 +451,12 @@ function renderRecentOrders() {
 
 function renderMenu() {
   if (!currentRestaurant) {
-    renderDirectory();
+    const isPromosPage = window.location.pathname.toLowerCase().includes("promociones") || new URLSearchParams(window.location.search).get("tab") === "promociones";
+    if (isPromosPage) {
+      renderDirectory();
+    } else {
+      renderRestaurantsCatalog();
+    }
     return;
   }
   const query = (topSearch?.value || "").trim().toLocaleLowerCase("es");
@@ -471,14 +510,56 @@ function renderSearchSuggestions() {
 }
 
 function renderRestaurant() {
-  const restaurantId = new URLSearchParams(window.location.search).get("restaurant");
+  const params = new URLSearchParams(window.location.search);
+  const restaurantId = params.get("restaurant");
+  const isPromosPage = window.location.pathname.toLowerCase().includes("promociones") || params.get("tab") === "promociones";
+  const viewSwitchNav = document.querySelector("#view-switch-nav");
+  const restaurantListSection = document.querySelector("#restaurant-list-section");
+  const tabBtnRestaurants = document.querySelector("#tab-btn-restaurants");
+  const tabBtnPromotions = document.querySelector("#tab-btn-promotions");
+  const heroBtn = document.querySelector("#restaurant-page-hero-btn");
+
   if (!restaurantId) {
     currentRestaurant = null;
-    detailSection.hidden = true;
+    if (detailSection) detailSection.hidden = true;
     if (pageIntro) pageIntro.hidden = false;
-    if (directorySection) directorySection.hidden = false;
-    document.title = "Ofertas y Promociones — Saborcito";
-    renderDirectory();
+    if (viewSwitchNav) viewSwitchNav.hidden = false;
+
+    if (isPromosPage) {
+      if (restaurantListSection) restaurantListSection.hidden = true;
+      if (directorySection) directorySection.hidden = false;
+      document.title = "Ofertas y Promociones — Saborcito";
+      if (tabBtnRestaurants) {
+        tabBtnRestaurants.classList.remove("is-active");
+        tabBtnRestaurants.setAttribute("aria-selected", "false");
+      }
+      if (tabBtnPromotions) {
+        tabBtnPromotions.classList.add("is-active");
+        tabBtnPromotions.setAttribute("aria-selected", "true");
+      }
+      if (heroBtn) {
+        heroBtn.setAttribute("href", "#restaurant-directory-section");
+        heroBtn.innerHTML = 'Explorar ofertas <span aria-hidden="true">↓</span>';
+      }
+      renderDirectory();
+    } else {
+      if (directorySection) directorySection.hidden = true;
+      if (restaurantListSection) restaurantListSection.hidden = false;
+      document.title = "Restaurantes — Saborcito";
+      if (tabBtnRestaurants) {
+        tabBtnRestaurants.classList.add("is-active");
+        tabBtnRestaurants.setAttribute("aria-selected", "true");
+      }
+      if (tabBtnPromotions) {
+        tabBtnPromotions.classList.remove("is-active");
+        tabBtnPromotions.setAttribute("aria-selected", "false");
+      }
+      if (heroBtn) {
+        heroBtn.setAttribute("href", "#restaurant-list-section");
+        heroBtn.innerHTML = 'Explorar restaurantes <span aria-hidden="true">↓</span>';
+      }
+      renderRestaurantsCatalog();
+    }
     return;
   }
 
@@ -488,6 +569,8 @@ function renderRestaurant() {
   }
 
   if (pageIntro) pageIntro.hidden = true;
+  if (viewSwitchNav) viewSwitchNav.hidden = true;
+  if (restaurantListSection) restaurantListSection.hidden = true;
   if (directorySection) directorySection.hidden = true;
   dishes = allDishes.filter(dish => dish.restaurantId === currentRestaurant.id);
   detailSection.hidden = false;
@@ -710,6 +793,14 @@ document.addEventListener("click", event => {
     if (searchResults && !event.target.closest(".search-wrap")) {
       searchResults.hidden = true;
     }
+    return;
+  }
+  if (target.dataset.restCategory !== undefined) {
+    selectedRestCategory = target.dataset.restCategory;
+    document.querySelectorAll("#restaurant-category-filters [data-rest-category]").forEach(btn => {
+      btn.setAttribute("aria-pressed", String(btn.dataset.restCategory === selectedRestCategory));
+    });
+    renderRestaurantsCatalog();
     return;
   }
   if (target.dataset.promoFilter !== undefined) {

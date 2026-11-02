@@ -32,9 +32,24 @@
     ];
 
     const promos = [
-      { eyebrow: "✨ Lo bueno se comparte", title: "Tu antojo favorito, a un clic", description: "Disfruta tus platos favoritos. Hoy tienes envío gratis en tu primer pedido.", tag: "ENVÍO GRATIS", food: "🍔" },
-      { eyebrow: "🎉 Novedad de la semana", title: "Un festín para tus sentidos", description: "Descubre nuevos sabores y encuentra tu próximo plato favorito.", tag: "2X1 EN PIZZAS", food: "🍕" },
-      { eyebrow: "🌱 Fresco y delicioso", title: "Dale color a tu día", description: "Opciones frescas y deliciosas, preparadas especialmente para ti.", tag: "DESDE $99", food: "🥗" }
+      {
+        eyebrow: "✨ Lo bueno se comparte",
+        title: "Tu antojo favorito, a un clic",
+        description: "Disfruta tus platos favoritos. Hoy tienes envío gratis en tu primer pedido.",
+        tag: "ENVÍO GRATIS",
+        food: "🍔",
+        buttonText: "Descubrir sabores",
+        href: "restaurants.html"
+      },
+      {
+        eyebrow: "🔥 Promociones exclusivas",
+        title: "Ofertas y descuentos del día",
+        description: "Aprovecha combos especiales, 2x1 y hasta 30% de descuento en tus platos favoritos.",
+        tag: "HASTA 30% DCTO",
+        food: "🏷️",
+        buttonText: "Ver ofertas y promociones",
+        href: "promociones.html"
+      }
     ];
 
     const cart = new Map();
@@ -522,6 +537,7 @@
       renderFavoriteRestaurants();
       renderCategoryRestaurants();
       renderHomePromoDishes();
+      changePromo(0);
       if (isAuthenticated) {
         loadCartFromCache();
         syncFavoritesFromCloud();
@@ -551,7 +567,13 @@
       document.querySelector("#promo-description").textContent = promo.description;
       document.querySelector("#promo-tag").textContent = promo.tag;
       document.querySelector("#promo-food").textContent = promo.food;
-      document.querySelector("#carousel-status").textContent = `Oferta ${promoIndex + 1} de ${promos.length}: ${promo.title}`;
+      document.querySelector("#carousel-status").textContent = `Banner ${promoIndex + 1} de ${promos.length}: ${promo.title}`;
+
+      const bannerLink = document.querySelector("#promo-banner-link");
+      if (bannerLink) {
+        bannerLink.innerHTML = `${escapeHTML(promo.buttonText)} <span aria-hidden="true">→</span>`;
+        bannerLink.href = isAuthenticated ? promo.href : (promo.href === "promociones.html" ? "promociones.html" : "restaurants.html");
+      }
     }
 
     document.addEventListener("click", event => {

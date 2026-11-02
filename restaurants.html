@@ -55,20 +55,48 @@
       <button type="button" id="address-button" class="address-btn-prompt">Ingresar dirección</button>
     </div>
 
+    <nav class="view-switch-nav" id="view-switch-nav" aria-label="Cambiar entre restaurantes y promociones" hidden>
+      <div class="view-switch-tabs" role="tablist">
+        <a class="view-switch-tab is-active" id="tab-btn-restaurants" href="restaurants.html" role="tab" aria-selected="true">🍽️ Restaurantes</a>
+        <a class="view-switch-tab" id="tab-btn-promotions" href="promociones.html" role="tab" aria-selected="false">🏷️ Ofertas y Promociones</a>
+      </div>
+    </nav>
+
     <section class="promo restaurant-page-intro" id="restaurant-page-intro" aria-labelledby="restaurant-page-title" hidden>
       <div class="promo-copy">
-        <span class="eyebrow">🔥 Promociones por tiempo limitado</span>
-        <h1 id="restaurant-page-title">Ofertas, descuentos y promociones</h1>
-        <p id="restaurant-page-subtitle">Descubre platillos con descuento, combos especiales y 2x1 de nuestros restaurantes asociados listos para pedir hoy mismo.</p>
-        <a class="primary-button" href="#restaurant-directory-section">Explorar ofertas <span aria-hidden="true">↓</span></a>
+        <span class="eyebrow">🍽️ Directorio de restaurantes</span>
+        <h1 id="restaurant-page-title">Descubre restaurantes cerca de ti</h1>
+        <p id="restaurant-page-subtitle">Explora nuestros restaurantes asociados, sus especialidades y menús completos listos para entregar.</p>
+        <a class="primary-button" id="restaurant-page-hero-btn" href="#restaurant-list-section">Explorar restaurantes <span aria-hidden="true">↓</span></a>
       </div>
       <div class="promo-art" aria-hidden="true">
-        <span class="promo-tag">HASTA 30% DCTO</span>
-        <span class="promo-food">🏷️</span>
+        <span class="promo-tag">ENVÍO GRATIS</span>
+        <span class="promo-food">🍔</span>
       </div>
     </section>
 
     <p class="catalog-source-note" id="catalog-source-note" role="status">Conectando con el catálogo...</p>
+
+    <section class="section" id="restaurant-list-section" aria-labelledby="restaurants-catalog-title" hidden>
+      <div class="section-heading">
+        <div>
+          <h2 id="restaurants-catalog-title">Restaurantes asociados 🍽️</h2>
+          <p id="restaurants-catalog-desc">Elige tu restaurante preferido para ver su menú completo y realizar tu pedido.</p>
+        </div>
+      </div>
+      <div class="filters" id="restaurant-category-filters" role="group" aria-label="Filtrar por especialidad">
+        <button class="filter-button" type="button" data-rest-category="all" aria-pressed="true">🍽️ Todos</button>
+        <button class="filter-button" type="button" data-rest-category="Hamburguesas" aria-pressed="false">🍔 Hamburguesas</button>
+        <button class="filter-button" type="button" data-rest-category="Pizza" aria-pressed="false">🍕 Pizza</button>
+        <button class="filter-button" type="button" data-rest-category="Mexicana" aria-pressed="false">🌮 Mexicana</button>
+        <button class="filter-button" type="button" data-rest-category="Asiática" aria-pressed="false">🍜 Asiática</button>
+        <button class="filter-button" type="button" data-rest-category="Saludable" aria-pressed="false">🥗 Saludable</button>
+        <button class="filter-button" type="button" data-rest-category="Postres" aria-pressed="false">🍰 Postres</button>
+        <button class="filter-button" type="button" data-rest-category="Pollo" aria-pressed="false">🍗 Pollo</button>
+        <button class="filter-button" type="button" data-rest-category="Carnes" aria-pressed="false">🥩 Carnes</button>
+      </div>
+      <div class="category-banners-grid" id="restaurants-catalog-grid" aria-live="polite"></div>
+    </section>
 
     <section class="section" id="restaurant-directory-section" aria-labelledby="directory-title" hidden>
       <div class="section-heading">
