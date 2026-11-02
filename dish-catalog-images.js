@@ -125,34 +125,45 @@
     "100": "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=600&q=80" // Café Espresso
   };
 
-  // Asignar platos por palabra clave si se usan IDs no estándar
+  // Asignar platos por palabra clave si se usan IDs no estándar o datos de Oracle Cloud
   function getMatchingDishImage(dishName, dishId) {
     if (dishId && DISH_IMAGES_BY_ID[String(dishId)]) {
       return DISH_IMAGES_BY_ID[String(dishId)];
     }
-    const name = String(dishName || "").toLowerCase();
+    const raw = String(dishName || "").toLowerCase();
+    const name = raw.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+    // Pizzería Roma
     if (name.includes("margherita") || name.includes("margarita")) return DISH_IMAGES_BY_ID["1"];
     if (name.includes("pepperoni")) return DISH_IMAGES_BY_ID["2"];
-    if (name.includes("queso") && name.includes("pizza")) return DISH_IMAGES_BY_ID["3"];
+    if (name.includes("cuatro quesos") || (name.includes("queso") && name.includes("pizza"))) return DISH_IMAGES_BY_ID["3"];
     if (name.includes("hawaiana")) return DISH_IMAGES_BY_ID["4"];
     if (name.includes("calzone")) return DISH_IMAGES_BY_ID["5"];
-    if (name.includes("lasaña") || name.includes("lasagna")) return DISH_IMAGES_BY_ID["6"];
+    if (name.includes("lasana") || name.includes("lasagna")) return DISH_IMAGES_BY_ID["6"];
     if (name.includes("carbonara") || name.includes("espagueti") || name.includes("pasta")) return DISH_IMAGES_BY_ID["7"];
-    if (name.includes("pan de ajo")) return DISH_IMAGES_BY_ID["8"];
-    if (name.includes("tiramisú") || name.includes("tiramisu")) return DISH_IMAGES_BY_ID["9"];
-    if (name.includes("gaseosa") || name.includes("soda")) return DISH_IMAGES_BY_ID["10"];
+    if (name.includes("pan") && name.includes("ajo")) return DISH_IMAGES_BY_ID["8"];
+    if (name.includes("tiramisu")) return DISH_IMAGES_BY_ID["9"];
 
+    // Gaseosas generales y bebidas
+    if (name.includes("gaseosa") || name.includes("soda") || name.includes("cola")) return DISH_IMAGES_BY_ID["10"];
+
+    // Burger King
     if (name.includes("whopper") || name.includes("smash")) return DISH_IMAGES_BY_ID["11"];
     if (name.includes("cheeseburger")) return DISH_IMAGES_BY_ID["13"];
-    if (name.includes("hamburguesa")) return DISH_IMAGES_BY_ID["11"];
+    if (name.includes("hamburguesa") && !name.includes("lenteja") && !name.includes("angus")) return DISH_IMAGES_BY_ID["11"];
     if (name.includes("royale") || name.includes("chicken burger")) return DISH_IMAGES_BY_ID["14"];
     if (name.includes("nugget")) return DISH_IMAGES_BY_ID["15"];
-    if (name.includes("pure") || name.includes("puré") || name.includes("gravy")) return DISH_IMAGES_BY_ID["47"];
-    if ((name.includes("hornead") || name.includes("asada") || name.includes("baked")) && (name.includes("papa") || name.includes("patata"))) return DISH_IMAGES_BY_ID["86"];
-    if (name.includes("papa") || name.includes("papas") || name.includes("fries") || name.includes("fritas") || name.includes("patata") || name.includes("french fry") || name.includes("french fries")) return DISH_IMAGES_BY_ID["16"];
     if (name.includes("aros") || name.includes("cebolla") || name.includes("onion ring")) return DISH_IMAGES_BY_ID["18"];
-    if (name.includes("cono")) return DISH_IMAGES_BY_ID["19"];
+    if (name.includes("cono") && name.includes("helado")) return DISH_IMAGES_BY_ID["19"];
 
+    // Variedades específicas de papas y puré (DEBEN IR ANTES DE PAPAS FRITAS GENERALES)
+    if (name.includes("camote") || name.includes("sweet potato")) return DISH_IMAGES_BY_ID["67"];
+    if (name.includes("pure") || name.includes("gravy")) return DISH_IMAGES_BY_ID["47"];
+    if (name.includes("hornead") || name.includes("asada") || name.includes("baked")) return DISH_IMAGES_BY_ID["86"];
+    if (name.includes("papa") || name.includes("papas") || name.includes("fries") || name.includes("fritas") || name.includes("patata")) return DISH_IMAGES_BY_ID["16"];
+
+    // Sushi Zen
+    if (name.includes("tempura")) return DISH_IMAGES_BY_ID["28"];
     if (name.includes("california")) return DISH_IMAGES_BY_ID["21"];
     if (name.includes("tuna roll") || name.includes("spicy tuna")) return DISH_IMAGES_BY_ID["22"];
     if (name.includes("dragon roll")) return DISH_IMAGES_BY_ID["23"];
@@ -160,9 +171,9 @@
     if (name.includes("sashimi")) return DISH_IMAGES_BY_ID["25"];
     if (name.includes("miso")) return DISH_IMAGES_BY_ID["26"];
     if (name.includes("edamame")) return DISH_IMAGES_BY_ID["27"];
-    if (name.includes("tempura")) return DISH_IMAGES_BY_ID["28"];
     if (name.includes("roll") || name.includes("sushi")) return DISH_IMAGES_BY_ID["21"];
 
+    // Tacos El Loco
     if (name.includes("pastor")) return DISH_IMAGES_BY_ID["31"];
     if (name.includes("bistec") && name.includes("taco")) return DISH_IMAGES_BY_ID["32"];
     if (name.includes("carnitas")) return DISH_IMAGES_BY_ID["33"];
@@ -175,6 +186,7 @@
     if (name.includes("churro")) return DISH_IMAGES_BY_ID["39"];
     if (name.includes("horchata")) return DISH_IMAGES_BY_ID["40"];
 
+    // KFC
     if (name.includes("bucket")) return DISH_IMAGES_BY_ID["42"];
     if (name.includes("zinger")) return DISH_IMAGES_BY_ID["43"];
     if (name.includes("popcorn")) return DISH_IMAGES_BY_ID["44"];
@@ -182,56 +194,61 @@
     if (name.includes("pollo frito") || name.includes("combo")) return DISH_IMAGES_BY_ID["41"];
     if (name.includes("col") || name.includes("coleslaw")) return DISH_IMAGES_BY_ID["48"];
 
+    // Wok Express
+    if (name.includes("platano")) return DISH_IMAGES_BY_ID["59"];
+    if (name.includes("primavera") || name.includes("spring roll")) return DISH_IMAGES_BY_ID["56"];
+    if (name.includes("brocoli")) return DISH_IMAGES_BY_ID["55"];
     if (name.includes("arroz frito") || name.includes("fried rice")) return DISH_IMAGES_BY_ID["51"];
     if (name.includes("chow mein") || name.includes("fideos")) return DISH_IMAGES_BY_ID["52"];
     if (name.includes("agridulce")) return DISH_IMAGES_BY_ID["53"];
     if (name.includes("kung pao")) return DISH_IMAGES_BY_ID["54"];
-    if (name.includes("brócoli") || name.includes("brocoli")) return DISH_IMAGES_BY_ID["55"];
-    if (name.includes("primavera") || name.includes("spring roll")) return DISH_IMAGES_BY_ID["56"];
     if (name.includes("wonton")) return DISH_IMAGES_BY_ID["57"];
     if (name.includes("dumpling") || name.includes("gyoza")) return DISH_IMAGES_BY_ID["58"];
-    if (name.includes("plátano") || name.includes("platano")) return DISH_IMAGES_BY_ID["59"];
-    if (name.includes("jazmín") || name.includes("jazmin")) return DISH_IMAGES_BY_ID["60"];
+    if (name.includes("jazmin")) return DISH_IMAGES_BY_ID["60"];
     if (name.includes("ramen")) return DISH_IMAGES_BY_ID["51"];
 
+    // Veggie Life
     if (name.includes("lenteja")) return DISH_IMAGES_BY_ID["61"];
-    if (name.includes("quinoa") || name.includes("bowl")) return DISH_IMAGES_BY_ID["62"];
+    if (name.includes("quinoa") || name.includes("arcoiris") || name.includes("bowl")) return DISH_IMAGES_BY_ID["62"];
     if (name.includes("falafel") || name.includes("wrap")) return DISH_IMAGES_BY_ID["63"];
     if (name.includes("vegan")) return DISH_IMAGES_BY_ID["64"];
-    if (name.includes("mediterránea") || name.includes("mediterranea") || name.includes("ensalada")) return DISH_IMAGES_BY_ID["65"];
+    if (name.includes("mediterranea") || name.includes("ensalada")) return DISH_IMAGES_BY_ID["65"];
     if (name.includes("hummus")) return DISH_IMAGES_BY_ID["66"];
-    if (name.includes("camote")) return DISH_IMAGES_BY_ID["67"];
     if (name.includes("brownie")) return DISH_IMAGES_BY_ID["68"];
     if (name.includes("batido") || name.includes("smoothie")) return DISH_IMAGES_BY_ID["69"];
     if (name.includes("kombucha")) return DISH_IMAGES_BY_ID["70"];
 
+    // Sweet Bakery
+    if (name.includes("muffin") || name.includes("arandano")) return DISH_IMAGES_BY_ID["72"];
+    if (name.includes("donut") || name.includes("dona")) return DISH_IMAGES_BY_ID["77"];
+    if (name.includes("macaron")) return DISH_IMAGES_BY_ID["76"];
     if (name.includes("croissant")) return DISH_IMAGES_BY_ID["71"];
-    if (name.includes("muffin")) return DISH_IMAGES_BY_ID["72"];
-    if (name.includes("cheesecake")) return DISH_IMAGES_BY_ID["73"];
+    if (name.includes("cheesecake") && name.includes("fresa")) return DISH_IMAGES_BY_ID["73"];
     if (name.includes("torta") || name.includes("pastel")) return DISH_IMAGES_BY_ID["74"];
     if (name.includes("galleta") || name.includes("cookie")) return DISH_IMAGES_BY_ID["75"];
-    if (name.includes("macaron")) return DISH_IMAGES_BY_ID["76"];
-    if (name.includes("donut") || name.includes("dona")) return DISH_IMAGES_BY_ID["77"];
     if (name.includes("americano")) return DISH_IMAGES_BY_ID["78"];
     if (name.includes("latte") || name.includes("macchiato")) return DISH_IMAGES_BY_ID["79"];
     if (name.includes("frappuccino") || name.includes("moca")) return DISH_IMAGES_BY_ID["80"];
 
+    // Texas Steakhouse
+    if (name.includes("esparrago")) return DISH_IMAGES_BY_ID["88"];
+    if (name.includes("mac & cheese") || name.includes("mac and cheese") || (name.includes("mac") && name.includes("cheese"))) return DISH_IMAGES_BY_ID["87"];
+    if (name.includes("cerveza")) return DISH_IMAGES_BY_ID["90"];
     if (name.includes("ribeye")) return DISH_IMAGES_BY_ID["81"];
     if (name.includes("t-bone") || name.includes("tbone")) return DISH_IMAGES_BY_ID["82"];
     if (name.includes("strip") || name.includes("bife")) return DISH_IMAGES_BY_ID["83"];
     if (name.includes("ribs") || name.includes("costillar") || name.includes("costillas")) return DISH_IMAGES_BY_ID["84"];
     if (name.includes("angus")) return DISH_IMAGES_BY_ID["85"];
-    if (name.includes("mac & cheese") || name.includes("mac and cheese")) return DISH_IMAGES_BY_ID["87"];
-    if (name.includes("espárragos") || name.includes("esparragos")) return DISH_IMAGES_BY_ID["88"];
-    if (name.includes("cerveza")) return DISH_IMAGES_BY_ID["90"];
+    if (name.includes("cheesecake")) return DISH_IMAGES_BY_ID["89"];
 
+    // Gelato Mio
+    if (name.includes("banana split") || name.includes("banana")) return DISH_IMAGES_BY_ID["97"];
+    if (name.includes("limon") || (name.includes("sorbete") && name.includes("lim"))) return DISH_IMAGES_BY_ID["94"];
     if (name.includes("vainilla")) return DISH_IMAGES_BY_ID["91"];
     if (name.includes("chocolate") && (name.includes("helado") || name.includes("gelato"))) return DISH_IMAGES_BY_ID["92"];
     if (name.includes("pistacho")) return DISH_IMAGES_BY_ID["93"];
-    if (name.includes("limón") || name.includes("limon")) return DISH_IMAGES_BY_ID["94"];
     if (name.includes("fresa") && (name.includes("sorbete") || name.includes("helado"))) return DISH_IMAGES_BY_ID["95"];
     if (name.includes("sundae")) return DISH_IMAGES_BY_ID["96"];
-    if (name.includes("banana split")) return DISH_IMAGES_BY_ID["97"];
     if (name.includes("waffle")) return DISH_IMAGES_BY_ID["98"];
     if (name.includes("milkshake") || name.includes("malteada")) return DISH_IMAGES_BY_ID["99"];
     if (name.includes("espresso")) return DISH_IMAGES_BY_ID["100"];

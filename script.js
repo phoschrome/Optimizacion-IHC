@@ -54,7 +54,7 @@
 
     const cart = new Map();
     const SESSION_STORAGE_KEY = "saborcito_user";
-    const CATALOG_CACHE_KEY = "saborcito_catalog_cache_v5";
+    const CATALOG_CACHE_KEY = "saborcito_catalog_cache_v6";
     let currentUser = null;
     let isAuthenticated = false;
     let promoIndex = 0;
@@ -90,6 +90,47 @@
       return `saborcito_cart_${getUserKey()}`;
     }
 
+    function safeGetMatchingDishImage(dishName, dishId) {
+      if (typeof window !== "undefined" && typeof window.getMatchingDishImage === "function") {
+        const res = window.getMatchingDishImage(dishName, dishId);
+        if (res) return res;
+      }
+      const raw = String(dishName || "").toLowerCase();
+      const name = raw.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      const idStr = String(dishId || "");
+
+      if (typeof window !== "undefined" && window.DISH_IMAGES_BY_ID && window.DISH_IMAGES_BY_ID[idStr]) {
+        return window.DISH_IMAGES_BY_ID[idStr];
+      }
+
+      if (name.includes("tempura") || idStr === "28") return "Imagenes/plato_tempura_camaron.jpg";
+      if ((name.includes("pan") && name.includes("ajo")) || idStr === "8") return "Imagenes/plato_pan_ajo.jpg";
+      if (name.includes("aros") || name.includes("cebolla") || idStr === "18") return "Imagenes/plato_aros_cebolla.jpg";
+      if (name.includes("gaseosa") || name.includes("soda") || idStr === "10" || idStr === "20" || idStr === "50") return "Imagenes/plato_gaseosa.jpg";
+      if (name.includes("pure") || name.includes("gravy") || idStr === "47") return "Imagenes/plato_pure_papa.jpg";
+      if (name.includes("platano") || idStr === "59") return "Imagenes/plato_platano_frito.jpg";
+      if (name.includes("primavera") || idStr === "56") return "Imagenes/plato_rollitos_primavera.jpg";
+      if (name.includes("brocoli") || idStr === "55") return "Imagenes/plato_res_brocoli.jpg";
+      if (name.includes("camote") || idStr === "67") return "Imagenes/plato_chips_camote.jpg";
+      if (name.includes("donut") || name.includes("dona") || idStr === "77") return "Imagenes/plato_donut_glaseada.jpg";
+      if (name.includes("muffin") || name.includes("arandano") || idStr === "72") return "Imagenes/plato_muffin_arandanos.jpg";
+      if (name.includes("hornead") || idStr === "86") return "Imagenes/plato_papa_horneada.jpg";
+      if (name.includes("esparrago") || idStr === "88") return "Imagenes/plato_esparragos.jpg";
+      if (name.includes("mac & cheese") || name.includes("mac and cheese") || (name.includes("mac") && name.includes("cheese")) || idStr === "87") return "Imagenes/plato_mac_and_cheese.jpg";
+      if (name.includes("banana") || idStr === "97") return "Imagenes/plato_banana_split.jpg";
+      if (name.includes("limon") || idStr === "94") return "Imagenes/plato_sorbete_limon.jpg";
+      if (name.includes("macaron") || idStr === "76") return "Imagenes/plato_macarons.jpg";
+      if (name.includes("cerveza") || idStr === "90") return "Imagenes/plato_cerveza.jpg";
+      if (name.includes("calzone") || idStr === "5") return "Imagenes/plato_calzone.jpg";
+      if (name.includes("margherita") || name.includes("margarita") || idStr === "1") return "Imagenes/plato_pizza_margarita.jpg";
+      if (name.includes("smash") || (name.includes("whopper") && !name.includes("doble")) || idStr === "11") return "Imagenes/plato_hamburguesa_smash.jpg";
+      if (name.includes("arroz frito") || name.includes("ramen") || idStr === "51") return "Imagenes/plato_ramen_casa.jpg";
+      if (name.includes("quinoa") || name.includes("arcoiris") || idStr === "62") return "Imagenes/plato_bowl_arcoiris.jpg";
+      if (name.includes("papa") || name.includes("papas") || name.includes("fritas") || idStr === "16" || idStr === "17" || idStr === "46") return "Imagenes/plato_papas_fritas.jpg";
+
+      return "";
+    }
+
     const SEED_CATALOG_DISHES = [
       [1,"1","Pizza Margherita",12.5],[2,"1","Pizza Pepperoni",14],[3,"1","Pizza Cuatro Quesos",15.5],[4,"1","Pizza Hawaiana",13],[5,"1","Calzone Clásico",11],[6,"1","Lasaña de Carne",10.5],[7,"1","Espagueti Carbonara",9.5],[8,"1","Pan de Ajo",4],[9,"1","Tiramisú",5.5],[10,"1","Gaseosa 1.5L",3],
       [11,"2","Whopper Clásica",6.5],[12,"2","Whopper Doble",8.5],[13,"2","Cheeseburger",3.5],[14,"2","Chicken Royale",5.5],[15,"2","Nuggets (10 uds)",4.5],[16,"2","Papas Fritas Medianas",2.5],[17,"2","Papas Fritas Grandes",3.5],[18,"2","Aros de Cebolla",3],[19,"2","Helado Cono Clásico",1.5],[20,"2","Gaseosa Mediana",2],
@@ -106,7 +147,7 @@
       restaurantId,
       name,
       price,
-      image: typeof getMatchingDishImage === "function" ? getMatchingDishImage(name, id) : ""
+      image: safeGetMatchingDishImage(name, id)
     }));
 
     function getAllKnownDishes() {
@@ -114,10 +155,13 @@
         const cached = JSON.parse(localStorage.getItem(CATALOG_CACHE_KEY) || "null");
         if (cached && Array.isArray(cached.dishes) && cached.dishes.length > 0) {
           const sanitizedCachedDishes = cached.dishes.map(d => {
-            if (d && d.image && Object.values(DEFAULT_RESTAURANT_BANNERS).includes(d.image)) {
-              return { ...d, image: "" };
+            let img = d?.image || "";
+            if (img && Object.values(DEFAULT_RESTAURANT_BANNERS).includes(img)) {
+              img = "";
             }
-            return d;
+            const match = safeGetMatchingDishImage(d?.name, d?.id);
+            if (match) img = match;
+            return { ...d, image: img };
           });
           return [...dishes, ...sanitizedCachedDishes];
         }
@@ -211,8 +255,10 @@
       if (image && Object.values(DEFAULT_RESTAURANT_BANNERS).includes(image)) {
         image = "";
       }
-      if (!image && typeof getMatchingDishImage === "function") {
-        image = getMatchingDishImage(name, id);
+      // Resolver prioritariamente con el catálogo visual local
+      const catalogImage = safeGetMatchingDishImage(name, id);
+      if (catalogImage) {
+        image = catalogImage;
       }
 
       const numId = Number(id);
@@ -377,10 +423,7 @@
         const meta = getPromoMeta(dish);
         const icon = rest?.icon || "🍽️";
         const restName = rest?.name || "Saborcito";
-        let dishImage = "";
-        if (typeof getMatchingDishImage === "function") {
-          dishImage = getMatchingDishImage(dish.name, dish.id);
-        }
+        let dishImage = safeGetMatchingDishImage(dish.name, dish.id);
         if (!dishImage && dish.image && !Object.values(DEFAULT_RESTAURANT_BANNERS).includes(dish.image)) {
           dishImage = dish.image;
         }
@@ -388,7 +431,7 @@
         return `
         <article class="offer-card ${idx === 0 ? "offer-card-highlight" : ""}">
           <span class="offer-icon" aria-hidden="true">${dishImage
-            ? `<img src="${escapeHTML(dishImage)}" alt="${escapeHTML(dish.name)}" loading="lazy" onerror="this.onerror=null; this.src='Imagenes/plato_papas_fritas.jpg';">`
+            ? `<img src="${escapeHTML(dishImage)}" alt="${escapeHTML(dish.name)}" loading="lazy" onerror="this.onerror=null; this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍽️</text></svg>';">`
             : escapeHTML(icon)}</span>
           <div class="offer-copy">
             <span class="offer-tag">${escapeHTML(meta.badge)} · ${escapeHTML(restName)}</span>

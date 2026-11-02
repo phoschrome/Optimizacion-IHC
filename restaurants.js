@@ -9,7 +9,7 @@ let selectedPromoFilter = "all";
 let selectedRestCategory = "all";
 const cart = new Map();
 let noticeTimer;
-const CATALOG_CACHE_KEY = "saborcito_catalog_cache_v5";
+const CATALOG_CACHE_KEY = "saborcito_catalog_cache_v6";
 const topSearch = document.querySelector("#search");
 const searchResults = document.querySelector("#search-results");
 const pageIntro = document.querySelector("#restaurant-page-intro");
@@ -280,12 +280,10 @@ function normalizeDish(record, apiBase) {
   if (image && Object.values(DEFAULT_RESTAURANT_BANNERS).includes(image)) {
     image = "";
   }
-  // Si el catálogo visual tiene la imagen verificada (local en Imagenes/ o catálogo oficial), usarla prioritariamente
-  if (typeof getMatchingDishImage === "function") {
-    const catalogImage = getMatchingDishImage(name, id);
-    if (catalogImage) {
-      image = catalogImage;
-    }
+  // Resolver prioritariamente con el catálogo de imágenes locales verificadas
+  const catalogImage = safeGetMatchingDishImage(name, id);
+  if (catalogImage) {
+    image = catalogImage;
   }
 
   const numId = Number(id);
@@ -311,21 +309,60 @@ function normalizeDish(record, apiBase) {
   };
 }
 
-function getResolvedDishImage(dish) {
-  if (typeof getMatchingDishImage === "function") {
-    const match = getMatchingDishImage(dish.name, dish.id);
-    if (match) return match;
+function safeGetMatchingDishImage(dishName, dishId) {
+  if (typeof window !== "undefined" && typeof window.getMatchingDishImage === "function") {
+    const res = window.getMatchingDishImage(dishName, dishId);
+    if (res) return res;
   }
+  const raw = String(dishName || "").toLowerCase();
+  const name = raw.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  const idStr = String(dishId || "");
+
+  if (typeof window !== "undefined" && window.DISH_IMAGES_BY_ID && window.DISH_IMAGES_BY_ID[idStr]) {
+    return window.DISH_IMAGES_BY_ID[idStr];
+  }
+
+  if (name.includes("tempura") || idStr === "28") return "Imagenes/plato_tempura_camaron.jpg";
+  if ((name.includes("pan") && name.includes("ajo")) || idStr === "8") return "Imagenes/plato_pan_ajo.jpg";
+  if (name.includes("aros") || name.includes("cebolla") || idStr === "18") return "Imagenes/plato_aros_cebolla.jpg";
+  if (name.includes("gaseosa") || name.includes("soda") || idStr === "10" || idStr === "20" || idStr === "50") return "Imagenes/plato_gaseosa.jpg";
+  if (name.includes("pure") || name.includes("gravy") || idStr === "47") return "Imagenes/plato_pure_papa.jpg";
+  if (name.includes("platano") || idStr === "59") return "Imagenes/plato_platano_frito.jpg";
+  if (name.includes("primavera") || idStr === "56") return "Imagenes/plato_rollitos_primavera.jpg";
+  if (name.includes("brocoli") || idStr === "55") return "Imagenes/plato_res_brocoli.jpg";
+  if (name.includes("camote") || idStr === "67") return "Imagenes/plato_chips_camote.jpg";
+  if (name.includes("donut") || name.includes("dona") || idStr === "77") return "Imagenes/plato_donut_glaseada.jpg";
+  if (name.includes("muffin") || name.includes("arandano") || idStr === "72") return "Imagenes/plato_muffin_arandanos.jpg";
+  if (name.includes("hornead") || idStr === "86") return "Imagenes/plato_papa_horneada.jpg";
+  if (name.includes("esparrago") || idStr === "88") return "Imagenes/plato_esparragos.jpg";
+  if (name.includes("mac & cheese") || name.includes("mac and cheese") || (name.includes("mac") && name.includes("cheese")) || idStr === "87") return "Imagenes/plato_mac_and_cheese.jpg";
+  if (name.includes("banana") || idStr === "97") return "Imagenes/plato_banana_split.jpg";
+  if (name.includes("limon") || idStr === "94") return "Imagenes/plato_sorbete_limon.jpg";
+  if (name.includes("macaron") || idStr === "76") return "Imagenes/plato_macarons.jpg";
+  if (name.includes("cerveza") || idStr === "90") return "Imagenes/plato_cerveza.jpg";
+  if (name.includes("calzone") || idStr === "5") return "Imagenes/plato_calzone.jpg";
+  if (name.includes("margherita") || name.includes("margarita") || idStr === "1") return "Imagenes/plato_pizza_margarita.jpg";
+  if (name.includes("smash") || (name.includes("whopper") && !name.includes("doble")) || idStr === "11") return "Imagenes/plato_hamburguesa_smash.jpg";
+  if (name.includes("arroz frito") || name.includes("ramen") || idStr === "51") return "Imagenes/plato_ramen_casa.jpg";
+  if (name.includes("quinoa") || name.includes("arcoiris") || idStr === "62") return "Imagenes/plato_bowl_arcoiris.jpg";
+  if (name.includes("papa") || name.includes("papas") || name.includes("fritas") || idStr === "16" || idStr === "17" || idStr === "46") return "Imagenes/plato_papas_fritas.jpg";
+
+  return "";
+}
+
+function getResolvedDishImage(dish) {
+  const match = safeGetMatchingDishImage(dish.name, dish.id);
+  if (match) return match;
   return dish.image || "";
 }
 
 function renderRecentOrderCard(dish) {
-  const imgSrc = getResolvedDishImage(dish) || "Imagenes/plato_papas_fritas.jpg";
+  const imgSrc = getResolvedDishImage(dish) || "Imagenes/plato_hamburguesa_smash.jpg";
 
   return `
     <article class="recent-order-card">
       <div class="recent-order-thumb">
-        <img src="${escapeHTML(imgSrc)}" alt="${escapeHTML(dish.alt || dish.name)}" loading="lazy" onerror="this.onerror=null; this.src='Imagenes/plato_papas_fritas.jpg';">
+        <img src="${escapeHTML(imgSrc)}" alt="${escapeHTML(dish.alt || dish.name)}" loading="lazy" onerror="this.onerror=null; this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍽️</text></svg>';">
         <button class="recent-add-button" type="button" data-add="${escapeHTML(dish.id)}" aria-label="Volver a pedir ${escapeHTML(dish.name)}" title="Añadir al carrito">+</button>
       </div>
       <div class="recent-order-meta">
@@ -341,7 +378,7 @@ function renderDish(dish) {
   return `
     <article class="food-card">
       <div class="food-image">${imgSrc
-        ? `<img src="${escapeHTML(imgSrc)}" alt="${escapeHTML(dish.alt || dish.name)}" loading="lazy" onerror="this.onerror=null; this.src='Imagenes/plato_papas_fritas.jpg';">`
+        ? `<img src="${escapeHTML(imgSrc)}" alt="${escapeHTML(dish.alt || dish.name)}" loading="lazy" onerror="this.onerror=null; this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍽️</text></svg>';">`
         : `<div class="food-image-placeholder" aria-hidden="true"><span>${escapeHTML(currentRestaurant?.icon || "🍽️")}</span><small>Imagen del plato</small></div>`}</div>
       <div class="food-info">
         <h4 class="food-name">${escapeHTML(dish.name)}</h4>
@@ -402,7 +439,7 @@ function renderDirectory() {
       <article class="food-card promo-dish-card">
         <div class="food-image promo-dish-image">
           ${imgSrc
-            ? `<img src="${escapeHTML(imgSrc)}" alt="${escapeHTML(dish.alt || dish.name)}" loading="lazy" onerror="this.onerror=null; this.src='Imagenes/plato_papas_fritas.jpg';">`
+            ? `<img src="${escapeHTML(imgSrc)}" alt="${escapeHTML(dish.alt || dish.name)}" loading="lazy" onerror="this.onerror=null; this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍽️</text></svg>';">`
             : `<div class="food-image-placeholder" aria-hidden="true"><span>${escapeHTML(icon)}</span><small>Imagen del plato</small></div>`}
           <span class="promo-badge-pill promo-badge-floating">${escapeHTML(meta.badge)}</span>
         </div>
@@ -686,7 +723,7 @@ async function loadCloudCatalog() {
     category: "Menú Principal",
     description: "Preparado al momento.",
     price,
-    image: typeof getMatchingDishImage === "function" ? getMatchingDishImage(name, id) : "",
+    image: safeGetMatchingDishImage(name, id),
     alt: name,
     isPromotion: id % 5 === 1
   }));
@@ -700,10 +737,8 @@ async function loadCloudCatalog() {
         if (img && Object.values(DEFAULT_RESTAURANT_BANNERS).includes(img)) {
           img = "";
         }
-        if (typeof getMatchingDishImage === "function") {
-          const match = getMatchingDishImage(d.name, d.id);
-          if (match) img = match;
-        }
+        const match = safeGetMatchingDishImage(d.name, d.id);
+        if (match) img = match;
         return { ...d, image: img };
       });
     } else {

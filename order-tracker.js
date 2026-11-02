@@ -1505,7 +1505,7 @@
       <div class="dish-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="dish-modal-title">
         <div class="dish-modal-header">
           ${dishModalImg
-            ? `<img src="${escapeHTML(dishModalImg)}" alt="${escapeHTML(dish.name)}" loading="lazy" onerror="this.onerror=null; this.src='Imagenes/plato_papas_fritas.jpg';">`
+            ? `<img src="${escapeHTML(dishModalImg)}" alt="${escapeHTML(dish.name)}" loading="lazy" onerror="this.onerror=null; this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍽️</text></svg>';">`
             : `<div class="dish-modal-placeholder" aria-hidden="true">${escapeHTML(restIcon)}</div>`}
           ${badgeText ? `<span class="promo-badge-pill dish-modal-badge">${escapeHTML(badgeText)}</span>` : ""}
           <button type="button" class="dish-modal-close" data-dish-modal-close="true" aria-label="Cerrar detalles del plato">×</button>
