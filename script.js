@@ -434,7 +434,7 @@
         }
 
         return `
-        <article class="offer-card ${idx === 0 ? "offer-card-highlight" : ""}">
+        <article class="offer-card">
           <span class="offer-icon" aria-hidden="true">${dishImage
             ? `<img src="${escapeHTML(dishImage)}" alt="${escapeHTML(dish.name)}" loading="lazy" onerror="this.onerror=null; this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍽️</text></svg>';">`
             : escapeHTML(icon)}</span>
