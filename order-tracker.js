@@ -1580,20 +1580,26 @@
     return removeConfirmBackdropEl;
   }
 
-  function confirmRemoveDish(dishName, onConfirm) {
+  function confirmRemoveDish(dishName, onConfirm, customDesc = null) {
     ensureRemoveConfirmDOM();
     onRemoveConfirmCallback = onConfirm;
+
+    const descHtml = customDesc
+      ? escapeHTML(customDesc)
+      : (dishName
+          ? `¿Deseas eliminar <strong>${escapeHTML(dishName)}</strong> del carrito?`
+          : `¿Deseas eliminar este producto del carrito?`);
 
     removeConfirmBackdropEl.innerHTML = `
       <div class="remove-confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="remove-confirm-title" aria-describedby="remove-confirm-desc">
         <button type="button" class="remove-confirm-close" data-remove-confirm-close="true" aria-label="Cerrar advertencia">×</button>
         <div class="remove-confirm-icon-wrap" aria-hidden="true">
-          <span class="remove-confirm-icon">⚠️</span>
+          <span class="remove-confirm-icon">🗑️</span>
         </div>
         <div class="remove-confirm-content">
           <h3 class="remove-confirm-title" id="remove-confirm-title">¿Eliminar producto?</h3>
           <p class="remove-confirm-desc" id="remove-confirm-desc">
-            Solo queda 1 unidad de <strong>${escapeHTML(dishName || "este producto")}</strong> en tu pedido. ¿Deseas eliminarlo del carrito?
+            ${descHtml}
           </p>
         </div>
         <div class="remove-confirm-actions">
@@ -1602,6 +1608,36 @@
           </button>
           <button type="button" class="remove-confirm-btn-delete" data-remove-confirm-delete="true">
             Sí, eliminar
+          </button>
+        </div>
+      </div>
+    `;
+
+    removeConfirmBackdropEl.hidden = false;
+  }
+
+  function confirmClearCart(onConfirm) {
+    ensureRemoveConfirmDOM();
+    onRemoveConfirmCallback = onConfirm;
+
+    removeConfirmBackdropEl.innerHTML = `
+      <div class="remove-confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="remove-confirm-title" aria-describedby="remove-confirm-desc">
+        <button type="button" class="remove-confirm-close" data-remove-confirm-close="true" aria-label="Cerrar advertencia">×</button>
+        <div class="remove-confirm-icon-wrap" aria-hidden="true">
+          <span class="remove-confirm-icon">🗑️</span>
+        </div>
+        <div class="remove-confirm-content">
+          <h3 class="remove-confirm-title" id="remove-confirm-title">¿Eliminar pedido del carrito?</h3>
+          <p class="remove-confirm-desc" id="remove-confirm-desc">
+            Esta acción vaciará por completo tu carrito y eliminará todos los platillos seleccionados.
+          </p>
+        </div>
+        <div class="remove-confirm-actions">
+          <button type="button" class="remove-confirm-btn-cancel" data-remove-confirm-close="true">
+            Cancelar
+          </button>
+          <button type="button" class="remove-confirm-btn-delete" data-remove-confirm-delete="true">
+            Sí, eliminar pedido
           </button>
         </div>
       </div>
@@ -1668,6 +1704,7 @@
     openDishModal,
     closeDishModal,
     confirmRemoveDish,
+    confirmClearCart,
     closeRemoveConfirmModal
   };
 

@@ -235,10 +235,13 @@ function renderCheckout() {
           <strong>${escapeHTML(dish.name)}</strong>
           <span class="checkout-item-unit">$${Number(dish.price).toFixed(2)} c/u · Subtotal $${lineTotal.toFixed(2)}</span>
         </div>
-        <div class="quantity-controls">
-          <button type="button" data-qty-id="${escapeHTML(dish.id)}" data-delta="-1" aria-label="Quitar una unidad de ${escapeHTML(dish.name)}">−</button>
-          <span aria-label="Cantidad">${qty}</span>
-          <button type="button" data-qty-id="${escapeHTML(dish.id)}" data-delta="1" aria-label="Añadir una unidad de ${escapeHTML(dish.name)}">+</button>
+        <div class="checkout-item-actions">
+          <div class="quantity-controls">
+            <button type="button" data-qty-id="${escapeHTML(dish.id)}" data-delta="-1" aria-label="Quitar una unidad de ${escapeHTML(dish.name)}">−</button>
+            <span aria-label="Cantidad">${qty}</span>
+            <button type="button" data-qty-id="${escapeHTML(dish.id)}" data-delta="1" aria-label="Añadir una unidad de ${escapeHTML(dish.name)}">+</button>
+          </div>
+          <button type="button" class="cart-remove-button" data-remove-cart-item="${escapeHTML(dish.id)}" aria-label="Eliminar ${escapeHTML(dish.name)} del pedido" title="Eliminar del pedido">🗑️</button>
         </div>
       </div>
     `;
@@ -373,6 +376,27 @@ document.addEventListener("click", event => {
   if (!btn) {
     if (searchResults && !event.target.closest(".search-wrap")) {
       searchResults.hidden = true;
+    }
+    return;
+  }
+
+  if (btn.dataset.removeCartItem) {
+    const id = btn.dataset.removeCartItem;
+    const { dishes } = getCatalogData();
+    const dish = dishes.find(d => String(d.id) === String(id));
+    const dishName = dish ? dish.name : "este producto";
+
+    const doRemove = () => {
+      cart.delete(id);
+      saveCartToCache();
+      renderCheckout();
+      showNotice(`Se eliminó "${dishName}" del pedido.`);
+    };
+
+    if (window.SaborcitoOrderTracker?.confirmRemoveDish) {
+      window.SaborcitoOrderTracker.confirmRemoveDish(dishName, doRemove);
+    } else if (window.confirm(`¿Deseas eliminar "${dishName}" del pedido?`)) {
+      doRemove();
     }
     return;
   }

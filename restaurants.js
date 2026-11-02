@@ -135,6 +135,9 @@ function updateCart() {
   const count = items.reduce((sum, [, quantity]) => sum + quantity, 0);
   const cartCount = document.querySelector("#cart-count");
   const cartButton = document.querySelector("#cart-button");
+  const checkoutBtn = document.querySelector("#checkout-button");
+  const clearCartBtn = document.querySelector("#clear-cart-button");
+
   if (cartCount) cartCount.textContent = count;
   if (cartButton) {
     cartButton.setAttribute("aria-label", `Abrir carrito, ${count} ${count === 1 ? "producto" : "productos"}`);
@@ -151,9 +154,31 @@ function updateCart() {
       ? items.map(([id, quantity]) => {
         const dish = findCartDish(id);
         if (!dish) return "";
-        return `<div class="cart-item"><div><strong>${escapeHTML(dish.name)}</strong><p>$${escapeHTML(dish.price.toFixed(2))} · Subtotal $${escapeHTML((dish.price * quantity).toFixed(2))}</p></div><div class="quantity-controls"><button type="button" data-quantity="${escapeHTML(id)}" data-delta="-1" aria-label="Quitar una unidad de ${escapeHTML(dish.name)}">−</button><span aria-label="Cantidad">${quantity}</span><button type="button" data-quantity="${escapeHTML(id)}" data-delta="1" aria-label="Añadir una unidad de ${escapeHTML(dish.name)}">+</button></div></div>`;
+        return `
+          <div class="cart-item">
+            <div class="cart-item-info">
+              <strong>${escapeHTML(dish.name)}</strong>
+              <p>$${escapeHTML(dish.price.toFixed(2))} · Subtotal $${escapeHTML((dish.price * quantity).toFixed(2))}</p>
+            </div>
+            <div class="cart-item-actions">
+              <div class="quantity-controls">
+                <button type="button" data-quantity="${escapeHTML(id)}" data-delta="-1" aria-label="Quitar una unidad de ${escapeHTML(dish.name)}">−</button>
+                <span aria-label="Cantidad">${quantity}</span>
+                <button type="button" data-quantity="${escapeHTML(id)}" data-delta="1" aria-label="Añadir una unidad de ${escapeHTML(dish.name)}">+</button>
+              </div>
+              <button type="button" class="cart-remove-button" data-remove-cart-item="${escapeHTML(id)}" aria-label="Eliminar ${escapeHTML(dish.name)} del pedido" title="Eliminar platillo del pedido">🗑️</button>
+            </div>
+          </div>`;
       }).join("")
       : '<p class="empty-state">Tu carrito está vacío. ¡Elige algo delicioso!</p>';
+  }
+
+  if (checkoutBtn) {
+    checkoutBtn.textContent = "Realizar pedido";
+    checkoutBtn.disabled = items.length === 0;
+  }
+  if (clearCartBtn) {
+    clearCartBtn.hidden = items.length === 0;
   }
 }
 
@@ -843,6 +868,24 @@ document.addEventListener("click", event => {
       showNotice(`${dish.name} se añadió al carrito.`);
     }
   }
+  if (target.dataset.removeCartItem) {
+    const dishId = target.dataset.removeCartItem;
+    const dish = findCartDish(dishId);
+    const dishName = dish ? dish.name : "este platillo";
+
+    const doRemove = () => {
+      cart.delete(dishId);
+      updateCart();
+      showNotice(`Se eliminó "${dishName}" del carrito.`);
+    };
+
+    if (window.SaborcitoOrderTracker?.confirmRemoveDish) {
+      window.SaborcitoOrderTracker.confirmRemoveDish(dishName, doRemove);
+    } else if (window.confirm(`¿Deseas eliminar "${dishName}" del carrito?`)) {
+      doRemove();
+    }
+    return;
+  }
   if (target.dataset.quantity) {
     const dishId = target.dataset.quantity;
     const delta = Number(target.dataset.delta);
@@ -882,6 +925,21 @@ document.querySelector("#checkout-button")?.addEventListener("click", () => {
   }
   closeCart();
   window.location.href = "checkout.html";
+});
+
+document.querySelector("#clear-cart-button")?.addEventListener("click", () => {
+  if (!cart.size) return;
+  const doClear = () => {
+    cart.clear();
+    updateCart();
+    showNotice("Se eliminó el pedido del carrito.");
+  };
+
+  if (window.SaborcitoOrderTracker?.confirmClearCart) {
+    window.SaborcitoOrderTracker.confirmClearCart(doClear);
+  } else if (window.confirm("¿Deseas eliminar todo el pedido del carrito?")) {
+    doClear();
+  }
 });
 
 try {

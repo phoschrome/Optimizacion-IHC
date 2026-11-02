@@ -481,18 +481,52 @@
       const knownDishes = getAllKnownDishes();
       const items = [...cart.entries()];
       const count = items.reduce((sum, [, quantity]) => sum + quantity, 0);
-      document.querySelector("#cart-count").textContent = count;
-      document.querySelector("#cart-button").setAttribute("aria-label", isAuthenticated ? `Abrir carrito, ${count} ${count === 1 ? "producto" : "productos"}` : "Inicia sesión para acceder al carrito");
+      const cartCountEl = document.querySelector("#cart-count");
+      const cartButtonEl = document.querySelector("#cart-button");
+      const checkoutBtn = document.querySelector("#checkout-button");
+      const clearCartBtn = document.querySelector("#clear-cart-button");
+
+      if (cartCountEl) cartCountEl.textContent = count;
+      if (cartButtonEl) {
+        cartButtonEl.setAttribute("aria-label", isAuthenticated ? `Abrir carrito, ${count} ${count === 1 ? "producto" : "productos"}` : "Inicia sesión para acceder al carrito");
+      }
       const total = items.reduce((sum, [id, quantity]) => {
         const dish = knownDishes.find(item => String(item.id) === String(id));
         return sum + (dish ? Number(dish.price) * quantity : 0);
       }, 0);
-      document.querySelector("#cart-total").textContent = `$${total.toFixed(2)}`;
-      document.querySelector("#cart-items").innerHTML = items.length ? items.map(([id, quantity]) => {
-        const dish = knownDishes.find(item => String(item.id) === String(id));
-        if (!dish) return "";
-        return `<div class="cart-item"><div><strong>${escapeHTML(dish.name)}</strong><p>$${Number(dish.price).toFixed(2)} · Subtotal $${(Number(dish.price) * quantity).toFixed(2)}</p></div><div class="quantity-controls"><button type="button" data-quantity="${escapeHTML(id)}" data-delta="-1" aria-label="Quitar una unidad de ${escapeHTML(dish.name)}">−</button><span aria-label="Cantidad">${quantity}</span><button type="button" data-quantity="${escapeHTML(id)}" data-delta="1" aria-label="Añadir una unidad de ${escapeHTML(dish.name)}">+</button></div></div>`;
-      }).join("") : '<p class="empty-state">Tu carrito está vacío. ¡Elige algo delicioso!</p>';
+      const cartTotalEl = document.querySelector("#cart-total");
+      if (cartTotalEl) cartTotalEl.textContent = `$${total.toFixed(2)}`;
+
+      const cartItemsEl = document.querySelector("#cart-items");
+      if (cartItemsEl) {
+        cartItemsEl.innerHTML = items.length ? items.map(([id, quantity]) => {
+          const dish = knownDishes.find(item => String(item.id) === String(id));
+          if (!dish) return "";
+          return `
+            <div class="cart-item">
+              <div class="cart-item-info">
+                <strong>${escapeHTML(dish.name)}</strong>
+                <p>$${Number(dish.price).toFixed(2)} · Subtotal $${(Number(dish.price) * quantity).toFixed(2)}</p>
+              </div>
+              <div class="cart-item-actions">
+                <div class="quantity-controls">
+                  <button type="button" data-quantity="${escapeHTML(id)}" data-delta="-1" aria-label="Quitar una unidad de ${escapeHTML(dish.name)}">−</button>
+                  <span aria-label="Cantidad">${quantity}</span>
+                  <button type="button" data-quantity="${escapeHTML(id)}" data-delta="1" aria-label="Añadir una unidad de ${escapeHTML(dish.name)}">+</button>
+                </div>
+                <button type="button" class="cart-remove-button" data-remove-cart-item="${escapeHTML(id)}" aria-label="Eliminar ${escapeHTML(dish.name)} del pedido" title="Eliminar platillo del pedido">🗑️</button>
+              </div>
+            </div>`;
+        }).join("") : '<p class="empty-state">Tu carrito está vacío. ¡Elige algo delicioso!</p>';
+      }
+
+      if (checkoutBtn) {
+        checkoutBtn.textContent = "Realizar pedido";
+        checkoutBtn.disabled = !isAuthenticated || items.length === 0;
+      }
+      if (clearCartBtn) {
+        clearCartBtn.hidden = items.length === 0;
+      }
     }
 
     async function syncFavoritesFromCloud() {
@@ -623,6 +657,26 @@
           showNotice(`${dish.name} se añadió al carrito.`);
         }
       }
+      if (target.dataset.removeCartItem) {
+        if (!isAuthenticated) return;
+        const dishId = target.dataset.removeCartItem;
+        const knownDishes = getAllKnownDishes();
+        const dish = knownDishes.find(item => String(item.id) === String(dishId));
+        const dishName = dish ? dish.name : "este producto";
+
+        const doRemove = () => {
+          cart.delete(dishId);
+          updateCart();
+          showNotice(`Se eliminó "${dishName}" del carrito.`);
+        };
+
+        if (window.SaborcitoOrderTracker?.confirmRemoveDish) {
+          window.SaborcitoOrderTracker.confirmRemoveDish(dishName, doRemove);
+        } else if (window.confirm(`¿Deseas eliminar "${dishName}" del carrito?`)) {
+          doRemove();
+        }
+        return;
+      }
       if (target.dataset.quantity) {
         if (!isAuthenticated) return;
         const dishId = target.dataset.quantity;
@@ -726,6 +780,21 @@
         return;
       }
       window.location.href = "checkout.html";
+    });
+
+    document.querySelector("#clear-cart-button")?.addEventListener("click", () => {
+      if (!isAuthenticated || !cart.size) return;
+      const doClear = () => {
+        cart.clear();
+        updateCart();
+        showNotice("Se eliminó el pedido del carrito.");
+      };
+
+      if (window.SaborcitoOrderTracker?.confirmClearCart) {
+        window.SaborcitoOrderTracker.confirmClearCart(doClear);
+      } else if (window.confirm("¿Deseas eliminar todo el pedido del carrito?")) {
+        doClear();
+      }
     });
 
     try {
