@@ -12,9 +12,9 @@
     "5": "Imagenes/plato_calzone.jpg", // Calzone Clásico
     "6": "https://images.unsplash.com/photo-1574894709920-11b28e7367e3?auto=format&fit=crop&w=600&q=80", // Lasaña de Carne
     "7": "https://images.unsplash.com/photo-1612874742237-6526221588e3?auto=format&fit=crop&w=600&q=80", // Espagueti Carbonara
-    "8": "https://images.unsplash.com/photo-1573140247632-f8fd74997d5c?auto=format&fit=crop&w=600&q=80", // Pan de Ajo
+    "8": "Imagenes/plato_pan_ajo.jpg", // Pan de Ajo
     "9": "https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?auto=format&fit=crop&w=600&q=80", // Tiramisú
-    "10": "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=600&q=80", // Gaseosa 1.5L
+    "10": "Imagenes/plato_gaseosa.jpg", // Gaseosa 1.5L
 
     // 2. Burger King
     "11": "Imagenes/plato_hamburguesa_smash.jpg", // Whopper Clásica
@@ -26,7 +26,7 @@
     "17": "Imagenes/plato_papas_fritas.jpg", // Papas Fritas Grandes
     "18": "Imagenes/plato_aros_cebolla.jpg", // Aros de Cebolla
     "19": "https://images.unsplash.com/photo-1501443762994-82bd5dace89a?auto=format&fit=crop&w=600&q=80", // Helado Cono Clásico
-    "20": "https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=600&q=80", // Gaseosa Mediana
+    "20": "Imagenes/plato_gaseosa.jpg", // Gaseosa Mediana
 
     // 3. Sushi Zen
     "21": "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&w=600&q=80", // California Roll
@@ -36,7 +36,7 @@
     "25": "https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?auto=format&fit=crop&w=600&q=80", // Sashimi Mixto
     "26": "https://images.unsplash.com/photo-1547592166-23ac45744acd?auto=format&fit=crop&w=600&q=80", // Sopa Miso
     "27": "https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?auto=format&fit=crop&w=600&q=80", // Edamame
-    "28": "https://images.unsplash.com/photo-1541544741938-0af808871cc0?auto=format&fit=crop&w=600&q=80", // Tempura de Camarón
+    "28": "Imagenes/plato_tempura_camaron.jpg", // Tempura de Camarón
     "29": "https://images.unsplash.com/photo-1505394033641-40c6ad1178d7?auto=format&fit=crop&w=600&q=80", // Helado de Té Verde
     "30": "https://images.unsplash.com/photo-1556679343-c7306c1976bc?auto=format&fit=crop&w=600&q=80", // Té Helado
 
@@ -62,18 +62,18 @@
     "47": "Imagenes/plato_pure_papa.jpg", // Puré de Papa con Gravy
     "48": "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=600&q=80", // Ensalada de Col
     "49": "https://images.unsplash.com/photo-1499636136210-6f4ee915583e?auto=format&fit=crop&w=600&q=80", // Postre Chocochip
-    "50": "https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=600&q=80", // Gaseosa Grande
+    "50": "Imagenes/plato_gaseosa.jpg", // Gaseosa Grande
 
     // 6. Wok Express
     "51": "Imagenes/plato_ramen_casa.jpg", // Arroz Frito / Ramen Especial
     "52": "https://images.unsplash.com/photo-1585032226651-759b368d7246?auto=format&fit=crop&w=600&q=80", // Chow Mein de Pollo
     "53": "https://images.unsplash.com/photo-1525755662778-989d0524087e?auto=format&fit=crop&w=600&q=80", // Cerdo Agridulce
     "54": "https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&w=600&q=80", // Pollo Kung Pao
-    "55": "https://images.unsplash.com/photo-1541832676-9b763b0239ab?auto=format&fit=crop&w=600&q=80", // Res con Brócoli
-    "56": "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=600&q=80", // Rollitos de Primavera
+    "55": "Imagenes/plato_res_brocoli.jpg", // Res con Brócoli
+    "56": "Imagenes/plato_rollitos_primavera.jpg", // Rollitos de Primavera
     "57": "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&w=600&q=80", // Sopa Wonton
     "58": "https://images.unsplash.com/photo-1496116218417-1a781b1c416c?auto=format&fit=crop&w=600&q=80", // Dumplings al Vapor
-    "59": "https://images.unsplash.com/photo-1528751014936-863e6e7a319c?auto=format&fit=crop&w=600&q=80", // Plátano Frito
+    "59": "Imagenes/plato_platano_frito.jpg", // Plátano Frito
     "60": "https://images.unsplash.com/photo-1576092768241-dec231879fc3?auto=format&fit=crop&w=600&q=80", // Té de Jazmín
 
     // 7. Veggie Life
@@ -83,19 +83,19 @@
     "64": "https://images.unsplash.com/photo-1585238342024-78d387f4a707?auto=format&fit=crop&w=600&q=80", // Pizza Vegana
     "65": "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=600&q=80", // Ensalada Mediterránea
     "66": "https://images.unsplash.com/photo-1577906096429-f73c2c312435?auto=format&fit=crop&w=600&q=80", // Hummus con Pan Pita
-    "67": "https://images.unsplash.com/photo-1526230427044-d092040d48dc?auto=format&fit=crop&w=600&q=80", // Chips de Camote
+    "67": "Imagenes/plato_chips_camote.jpg", // Chips de Camote
     "68": "https://images.unsplash.com/photo-1606313564200-e75d5e30476c?auto=format&fit=crop&w=600&q=80", // Brownie Sin Gluten
     "69": "https://images.unsplash.com/photo-1610970881699-44a5587cabec?auto=format&fit=crop&w=600&q=80", // Batido Verde
     "70": "https://images.unsplash.com/photo-1563227812-0ea4c22e6cc8?auto=format&fit=crop&w=600&q=80", // Kombucha
 
     // 8. Sweet Bakery
     "71": "https://images.unsplash.com/photo-1555507036-ab1f4038808a?auto=format&fit=crop&w=600&q=80", // Croissant de Mantequilla
-    "72": "https://images.unsplash.com/photo-1586985289688-ca3cf47d3e6e?auto=format&fit=crop&w=600&q=80", // Muffin de Arándanos
+    "72": "Imagenes/plato_muffin_arandanos.jpg", // Muffin de Arándanos
     "73": "https://images.unsplash.com/photo-1533134242443-d4fd215305ad?auto=format&fit=crop&w=600&q=80", // Cheesecake de Fresa
     "74": "https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=600&q=80", // Torta de Chocolate (Porción)
     "75": "https://images.unsplash.com/photo-1499636136210-6f4ee915583e?auto=format&fit=crop&w=600&q=80", // Galleta Chocochip Gigante
     "76": "Imagenes/plato_macarons.jpg", // Macarons (Caja x6)
-    "77": "https://images.unsplash.com/photo-1527515637462-cff94eecc1ac?auto=format&fit=crop&w=600&q=80", // Donut Glaseada
+    "77": "Imagenes/plato_donut_glaseada.jpg", // Donut Glaseada
     "78": "https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=600&q=80", // Café Americano
     "79": "https://images.unsplash.com/photo-1534778101976-62847782c213?auto=format&fit=crop&w=600&q=80", // Latte Macchiato
     "80": "https://images.unsplash.com/photo-1572490122747-3968b75cc699?auto=format&fit=crop&w=600&q=80", // Frappuccino Moca
@@ -107,7 +107,7 @@
     "84": "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=600&q=80", // BBQ Ribs
     "85": "https://images.unsplash.com/photo-1586190848861-99aa4a171e90?auto=format&fit=crop&w=600&q=80", // Hamburguesa Angus
     "86": "Imagenes/plato_papa_horneada.jpg", // Papa Horneada
-    "87": "https://images.unsplash.com/photo-1543339308-43e59d6b73a6?auto=format&fit=crop&w=600&q=80", // Mac & Cheese
+    "87": "Imagenes/plato_mac_and_cheese.jpg", // Mac & Cheese
     "88": "Imagenes/plato_esparragos.jpg", // Espárragos a la Parrilla
     "89": "https://images.unsplash.com/photo-1524351199678-941a58a3df50?auto=format&fit=crop&w=600&q=80", // Cheesecake Estilo NY
     "90": "Imagenes/plato_cerveza.jpg", // Cerveza Artesanal
@@ -116,10 +116,10 @@
     "91": "https://images.unsplash.com/photo-1570197788417-0e82375c9371?auto=format&fit=crop&w=600&q=80", // Gelato de Vainilla
     "92": "https://images.unsplash.com/photo-1563805042-7684c019e1cb?auto=format&fit=crop&w=600&q=80", // Gelato de Chocolate Suizo
     "93": "https://images.unsplash.com/photo-1501443762994-82bd5dace89a?auto=format&fit=crop&w=600&q=80", // Gelato de Pistacho
-    "94": "https://images.unsplash.com/photo-1590080875515-8a3a8dc5735e?auto=format&fit=crop&w=600&q=80", // Sorbete de Limón
+    "94": "Imagenes/plato_sorbete_limon.jpg", // Sorbete de Limón
     "95": "https://images.unsplash.com/photo-1497034825429-c343d7c6a68f?auto=format&fit=crop&w=600&q=80", // Sorbete de Fresa
     "96": "https://images.unsplash.com/photo-1563805042-7684c019e1cb?auto=format&fit=crop&w=600&q=80", // Copa Sundae
-    "97": "https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=600&q=80", // Banana Split
+    "97": "Imagenes/plato_banana_split.jpg", // Banana Split
     "98": "https://images.unsplash.com/photo-1562376552-0d160a2f238d?auto=format&fit=crop&w=600&q=80", // Waffle con Helado
     "99": "https://images.unsplash.com/photo-1572490122747-3968b75cc699?auto=format&fit=crop&w=600&q=80", // Milkshake Clásico
     "100": "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=600&q=80" // Café Espresso

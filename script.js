@@ -39,7 +39,7 @@
 
     const cart = new Map();
     const SESSION_STORAGE_KEY = "saborcito_user";
-    const CATALOG_CACHE_KEY = "saborcito_catalog_cache_v1";
+    const CATALOG_CACHE_KEY = "saborcito_catalog_cache_v5";
     let currentUser = null;
     let isAuthenticated = false;
     let promoIndex = 0;
@@ -362,17 +362,12 @@
         const meta = getPromoMeta(dish);
         const icon = rest?.icon || "🍽️";
         const restName = rest?.name || "Saborcito";
-        let dishImage = (dish.image && !Object.values(DEFAULT_RESTAURANT_BANNERS).includes(dish.image))
-          ? dish.image
-          : "";
-        if (dishImage && dishImage.includes("photo-1576107232684")) {
-          dishImage = "";
-        }
+        let dishImage = "";
         if (typeof getMatchingDishImage === "function") {
-          const match = getMatchingDishImage(dish.name, dish.id);
-          if (!dishImage || (match && match.startsWith("Imagenes/"))) {
-            dishImage = match || dishImage;
-          }
+          dishImage = getMatchingDishImage(dish.name, dish.id);
+        }
+        if (!dishImage && dish.image && !Object.values(DEFAULT_RESTAURANT_BANNERS).includes(dish.image)) {
+          dishImage = dish.image;
         }
 
         return `

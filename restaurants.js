@@ -8,7 +8,7 @@ let apiBaseUrl = "";
 let selectedPromoFilter = "all";
 const cart = new Map();
 let noticeTimer;
-const CATALOG_CACHE_KEY = "saborcito_catalog_cache_v1";
+const CATALOG_CACHE_KEY = "saborcito_catalog_cache_v5";
 const topSearch = document.querySelector("#search");
 const searchResults = document.querySelector("#search-results");
 const pageIntro = document.querySelector("#restaurant-page-intro");
@@ -254,15 +254,11 @@ function normalizeDish(record, apiBase) {
   if (image && Object.values(DEFAULT_RESTAURANT_BANNERS).includes(image)) {
     image = "";
   }
-  // Si la imagen apunta a una URL antigua rota de Unsplash para papas/aros/calzone/etc., reemplazarla
-  if (image && (image.includes("photo-1576107232684") || image.includes("photo-1639024471287") || image.includes("photo-1569864321398") || image.includes("photo-1515471204630") || image.includes("photo-1608270170192"))) {
-    image = "";
-  }
-  // Si no hay imagen o si hay una imagen local dedicada para este plato en dish-catalog-images, usarla
+  // Si el catálogo visual tiene la imagen verificada (local en Imagenes/ o catálogo oficial), usarla prioritariamente
   if (typeof getMatchingDishImage === "function") {
     const catalogImage = getMatchingDishImage(name, id);
-    if (!image || (catalogImage && catalogImage.startsWith("Imagenes/"))) {
-      image = catalogImage || image;
+    if (catalogImage) {
+      image = catalogImage;
     }
   }
 
@@ -289,17 +285,21 @@ function normalizeDish(record, apiBase) {
   };
 }
 
+function getResolvedDishImage(dish) {
+  if (typeof getMatchingDishImage === "function") {
+    const match = getMatchingDishImage(dish.name, dish.id);
+    if (match) return match;
+  }
+  return dish.image || "";
+}
+
 function renderRecentOrderCard(dish) {
-  const imgSrc = (dish.image && !dish.image.includes("photo-1576107232684"))
-    ? dish.image
-    : (typeof getMatchingDishImage === "function" ? getMatchingDishImage(dish.name, dish.id) : "Imagenes/plato_papas_fritas.jpg");
+  const imgSrc = getResolvedDishImage(dish) || "Imagenes/plato_papas_fritas.jpg";
 
   return `
     <article class="recent-order-card">
       <div class="recent-order-thumb">
-        ${imgSrc
-          ? `<img src="${escapeHTML(imgSrc)}" alt="${escapeHTML(dish.alt || dish.name)}" loading="lazy" onerror="this.onerror=null; this.src='Imagenes/plato_papas_fritas.jpg';">`
-          : `<span class="recent-order-placeholder" aria-hidden="true">${escapeHTML(currentRestaurant?.icon || "🍽️")}</span>`}
+        <img src="${escapeHTML(imgSrc)}" alt="${escapeHTML(dish.alt || dish.name)}" loading="lazy" onerror="this.onerror=null; this.src='Imagenes/plato_papas_fritas.jpg';">
         <button class="recent-add-button" type="button" data-add="${escapeHTML(dish.id)}" aria-label="Volver a pedir ${escapeHTML(dish.name)}" title="Añadir al carrito">+</button>
       </div>
       <div class="recent-order-meta">
@@ -310,9 +310,7 @@ function renderRecentOrderCard(dish) {
 }
 
 function renderDish(dish) {
-  const imgSrc = (dish.image && !dish.image.includes("photo-1576107232684"))
-    ? dish.image
-    : (typeof getMatchingDishImage === "function" ? getMatchingDishImage(dish.name, dish.id) : "");
+  const imgSrc = getResolvedDishImage(dish);
 
   return `
     <article class="food-card">
@@ -373,9 +371,7 @@ function renderDirectory() {
       const meta = getPromoMeta(dish);
       const icon = rest?.icon || "🍽️";
       const restName = rest?.name || "Saborcito";
-      const imgSrc = (dish.image && !dish.image.includes("photo-1576107232684"))
-        ? dish.image
-        : (typeof getMatchingDishImage === "function" ? getMatchingDishImage(dish.name, dish.id) : "");
+      const imgSrc = getResolvedDishImage(dish);
       return `
       <article class="food-card promo-dish-card">
         <div class="food-image promo-dish-image">
@@ -592,11 +588,15 @@ async function loadCloudCatalog() {
     if (cached && Array.isArray(cached.restaurants) && Array.isArray(cached.dishes)) {
       restaurants = cached.restaurants;
       allDishes = cached.dishes.map(d => {
-        // Asegurarse de que ningún plato en caché contenga un banner de restaurante como foto
-        if (d && d.image && Object.values(DEFAULT_RESTAURANT_BANNERS).includes(d.image)) {
-          return { ...d, image: "" };
+        let img = d.image || "";
+        if (img && Object.values(DEFAULT_RESTAURANT_BANNERS).includes(img)) {
+          img = "";
         }
-        return d;
+        if (typeof getMatchingDishImage === "function") {
+          const match = getMatchingDishImage(d.name, d.id);
+          if (match) img = match;
+        }
+        return { ...d, image: img };
       });
     } else {
       restaurants = SEED_RESTAURANTS;

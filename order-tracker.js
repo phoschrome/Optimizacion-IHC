@@ -1485,31 +1485,12 @@
     const hasDiscount = Boolean(dish.isPromotion || dish.badge || numPrice < oldPrice);
     const badgeText = dish.badge || (hasDiscount ? "🔥 OFERTA" : "");
 
-    let dishModalImg = dish.image || "";
-    if (!dishModalImg ||
-        dishModalImg.includes("photo-1576107232684") ||
-        dishModalImg.includes("photo-1639024471287") ||
-        dishModalImg.includes("/photo-1513104890138") ||
-        dishModalImg.includes("/photo-1550547660") ||
-        dishModalImg.includes("/photo-1579871494") ||
-        dishModalImg.includes("/photo-1565299585") ||
-        dishModalImg.includes("/photo-1626645738") ||
-        dishModalImg.includes("/photo-1512058564") ||
-        dishModalImg.includes("/photo-1540420773") ||
-        dishModalImg.includes("/photo-1509440159") ||
-        dishModalImg.includes("/photo-1544025162") ||
-        dishModalImg.includes("/photo-1501443762")) {
-      if (typeof window.getMatchingDishImage === "function") {
-        dishModalImg = window.getMatchingDishImage(dish.name, dish.id);
-      } else {
-        dishModalImg = "";
-      }
-    }
+    let dishModalImg = "";
     if (typeof window.getMatchingDishImage === "function") {
-      const match = window.getMatchingDishImage(dish.name, dish.id);
-      if (match && match.startsWith("Imagenes/")) {
-        dishModalImg = match;
-      }
+      dishModalImg = window.getMatchingDishImage(dish.name, dish.id);
+    }
+    if (!dishModalImg && dish.image) {
+      dishModalImg = dish.image;
     }
 
     dishModalBackdropEl.innerHTML = `
