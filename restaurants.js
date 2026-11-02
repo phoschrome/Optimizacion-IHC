@@ -254,6 +254,10 @@ function normalizeDish(record, apiBase) {
   if (image && Object.values(DEFAULT_RESTAURANT_BANNERS).includes(image)) {
     image = "";
   }
+  // Si la base de datos no tiene imagen asignada aún, usar la foto que coincide exactamente con el plato
+  if (!image && typeof getMatchingDishImage === "function") {
+    image = getMatchingDishImage(name, id);
+  }
 
   const numId = Number(id);
   const isPromotion = Boolean(
@@ -560,7 +564,7 @@ async function loadCloudCatalog() {
     category: "Menú Principal",
     description: "Preparado al momento.",
     price,
-    image: "",
+    image: typeof getMatchingDishImage === "function" ? getMatchingDishImage(name, id) : "",
     alt: name,
     isPromotion: id % 5 === 1
   }));

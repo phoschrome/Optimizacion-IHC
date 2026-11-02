@@ -86,7 +86,13 @@
       [71,"8","Croissant de Mantequilla",2.5],[72,"8","Muffin de Arándanos",3],[73,"8","Cheesecake de Fresa",5.5],[74,"8","Torta de Chocolate (Porción)",6],[75,"8","Galleta Chocochip Gigante",2],[76,"8","Macarons (Caja x6)",8],[77,"8","Donut Glaseada",1.5],[78,"8","Café Americano",2.5],[79,"8","Latte Macchiato",3.5],[80,"8","Frappuccino Moca",4.5],
       [81,"9","Ribeye (300g)",24],[82,"9","T-Bone Steak",26],[83,"9","New York Strip",22],[84,"9","BBQ Ribs (Medio Costillar)",18],[85,"9","Hamburguesa Angus",12.5],[86,"9","Papa Horneada",4],[87,"9","Mac & Cheese",5],[88,"9","Espárragos a la Parrilla",6],[89,"9","Cheesecake Estilo NY",7],[90,"9","Cerveza Artesanal",5.5],
       [91,"10","Gelato de Vainilla (1 Bola)",2.5],[92,"10","Gelato de Chocolate Suizo (2 Bolas)",4.5],[93,"10","Gelato de Pistacho",3],[94,"10","Sorbete de Limón",2.5],[95,"10","Sorbete de Fresa",2.5],[96,"10","Copa Sundae",6],[97,"10","Banana Split",7.5],[98,"10","Waffle con Helado",8],[99,"10","Milkshake Clásico",5.5],[100,"10","Café Espresso",2]
-    ].map(([id, restaurantId, name, price]) => ({ id: String(id), restaurantId, name, price }));
+    ].map(([id, restaurantId, name, price]) => ({
+      id: String(id),
+      restaurantId,
+      name,
+      price,
+      image: typeof getMatchingDishImage === "function" ? getMatchingDishImage(name, id) : ""
+    }));
 
     function getAllKnownDishes() {
       try {
@@ -189,6 +195,9 @@
       let image = resolveImageUrl(rawImage, apiBase);
       if (image && Object.values(DEFAULT_RESTAURANT_BANNERS).includes(image)) {
         image = "";
+      }
+      if (!image && typeof getMatchingDishImage === "function") {
+        image = getMatchingDishImage(name, id);
       }
 
       const numId = Number(id);

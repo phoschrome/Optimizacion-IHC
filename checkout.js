@@ -50,7 +50,8 @@ const SEED_DISHES = [
   id: String(id),
   restaurantId,
   name,
-  price
+  price,
+  image: typeof getMatchingDishImage === "function" ? getMatchingDishImage(name, id) : ""
 }));
 
 let currentUser = null;
