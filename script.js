@@ -1,14 +1,14 @@
     const DEFAULT_RESTAURANT_BANNERS = {
-      "1": "https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=900&q=80",
-      "2": "https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=900&q=80",
-      "3": "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&w=900&q=80",
-      "4": "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?auto=format&fit=crop&w=900&q=80",
-      "5": "https://images.unsplash.com/photo-1626645738196-c2a7c87a8f58?auto=format&fit=crop&w=900&q=80",
-      "6": "https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&w=900&q=80",
-      "7": "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=900&q=80",
-      "8": "https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=900&q=80",
-      "9": "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=900&q=80",
-      "10": "https://images.unsplash.com/photo-1501443762994-82bd5dace89a?auto=format&fit=crop&w=900&q=80"
+      "1": "Imagenes/banner_pizzeria_roma.jpg",
+      "2": "Imagenes/banner_burger_king.jpg",
+      "3": "Imagenes/banner_sushi_zen.jpg",
+      "4": "Imagenes/banner_taco_loco.jpg",
+      "5": "Imagenes/banner_kfc.jpg",
+      "6": "Imagenes/banner_wok_express.jpg",
+      "7": "Imagenes/banner_veggie_life.jpg",
+      "8": "Imagenes/banner_sweet_bakery.jpg",
+      "9": "Imagenes/banner_steakhouse.jpg",
+      "10": "Imagenes/banner_gelato_mio.jpg"
     };
 
     const SEED_RESTAURANTS = [
@@ -25,10 +25,10 @@
     ];
 
     let dishes = [
-      { id: "burger", restaurantId: "2", name: "La clásica smash", category: "Hamburguesas", description: "Doble carne, queso cheddar y salsa de la casa.", price: 189, image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=700&q=80", alt: "Hamburguesa con queso, lechuga y tomate" },
-      { id: "pizza", restaurantId: "1", name: "Pizza margarita", category: "Pizza", description: "Tomate, mozzarella fresca y albahaca.", price: 220, image: "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?auto=format&fit=crop&w=700&q=80", alt: "Pizza margarita recién horneada" },
-      { id: "salad", restaurantId: "7", name: "Bowl arcoíris", category: "Saludable", description: "Quinoa, aguacate y vegetales de temporada.", price: 165, image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=700&q=80", alt: "Bowl de ensalada colorida con vegetales" },
-      { id: "ramen", restaurantId: "6", name: "Ramen de la casa", category: "Asiática", description: "Caldo lento, fideos y toppings frescos.", price: 198, image: "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&w=700&q=80", alt: "Tazón de ramen con fideos y huevo" }
+      { id: "burger", restaurantId: "2", name: "La clásica smash", category: "Hamburguesas", description: "Doble carne, queso cheddar y salsa de la casa.", price: 189, image: "Imagenes/plato_hamburguesa_smash.jpg", alt: "Hamburguesa con queso, lechuga y tomate" },
+      { id: "pizza", restaurantId: "1", name: "Pizza margarita", category: "Pizza", description: "Tomate, mozzarella fresca y albahaca.", price: 220, image: "Imagenes/plato_pizza_margarita.jpg", alt: "Pizza margarita recién horneada" },
+      { id: "salad", restaurantId: "7", name: "Bowl arcoíris", category: "Saludable", description: "Quinoa, aguacate y vegetales de temporada.", price: 165, image: "Imagenes/plato_bowl_arcoiris.jpg", alt: "Bowl de ensalada colorida con vegetales" },
+      { id: "ramen", restaurantId: "6", name: "Ramen de la casa", category: "Asiática", description: "Caldo lento, fideos y toppings frescos.", price: 198, image: "Imagenes/plato_ramen_casa.jpg", alt: "Tazón de ramen con fideos y huevo" }
     ];
 
     const promos = [
@@ -145,7 +145,7 @@
       const id = String(r?.id ?? r?.id_restaurante ?? "");
       const seedMatch = SEED_RESTAURANTS.find(s => s.id === id);
       let banner = String(r?.banner || "").trim();
-      if (banner && !/^https?:\/\//i.test(banner) && apiBase) {
+      if (banner && !/^https?:\/\//i.test(banner) && !banner.startsWith("Imagenes/") && apiBase) {
         banner = `${apiBase.replace(/\/+$/, "")}/${banner.replace(/^\/+/, "")}`;
       }
       if (!banner) {

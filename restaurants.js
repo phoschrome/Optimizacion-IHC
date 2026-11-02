@@ -177,16 +177,16 @@ function normalizeCollection(payload, name) {
 }
 
 const DEFAULT_RESTAURANT_BANNERS = {
-  "1": "https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=900&q=80",
-  "2": "https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=900&q=80",
-  "3": "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&w=900&q=80",
-  "4": "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?auto=format&fit=crop&w=900&q=80",
-  "5": "https://images.unsplash.com/photo-1626645738196-c2a7c87a8f58?auto=format&fit=crop&w=900&q=80",
-  "6": "https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&w=900&q=80",
-  "7": "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=900&q=80",
-  "8": "https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=900&q=80",
-  "9": "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=900&q=80",
-  "10": "https://images.unsplash.com/photo-1501443762994-82bd5dace89a?auto=format&fit=crop&w=900&q=80"
+  "1": "Imagenes/banner_pizzeria_roma.jpg",
+  "2": "Imagenes/banner_burger_king.jpg",
+  "3": "Imagenes/banner_sushi_zen.jpg",
+  "4": "Imagenes/banner_taco_loco.jpg",
+  "5": "Imagenes/banner_kfc.jpg",
+  "6": "Imagenes/banner_wok_express.jpg",
+  "7": "Imagenes/banner_veggie_life.jpg",
+  "8": "Imagenes/banner_sweet_bakery.jpg",
+  "9": "Imagenes/banner_steakhouse.jpg",
+  "10": "Imagenes/banner_gelato_mio.jpg"
 };
 
 function normalizeRestaurant(record, apiBase) {
@@ -197,11 +197,11 @@ function normalizeRestaurant(record, apiBase) {
   }
   const strId = String(id);
   let logo = String(record.logo || "").trim();
-  if (logo && !/^https?:\/\//i.test(logo) && apiBase) {
+  if (logo && !/^https?:\/\//i.test(logo) && !logo.startsWith("Imagenes/") && apiBase) {
     logo = `${apiBase.replace(/\/+$/, "")}/${logo.replace(/^\/+/, "")}`;
   }
   let banner = String(record.banner || "").trim();
-  if (banner && !/^https?:\/\//i.test(banner) && apiBase) {
+  if (banner && !/^https?:\/\//i.test(banner) && !banner.startsWith("Imagenes/") && apiBase) {
     banner = `${apiBase.replace(/\/+$/, "")}/${banner.replace(/^\/+/, "")}`;
   }
   if (!banner) {
@@ -233,7 +233,7 @@ function normalizeDish(record, apiBase) {
   }
 
   let image = String(record.image || "").trim();
-  if (image && !/^https?:\/\//i.test(image) && apiBase) {
+  if (image && !/^https?:\/\//i.test(image) && !image.startsWith("Imagenes/") && apiBase) {
     image = `${apiBase.replace(/\/+$/, "")}/${image.replace(/^\/+/, "")}`;
   }
   // Asegurar que la imagen del plato nunca use un banner de restaurante

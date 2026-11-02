@@ -15,6 +15,19 @@ const SEED_RESTAURANTS = [
   { id: "10", name: "Gelato Mio", category: "Postres", icon: "🍨" }
 ];
 
+const DEFAULT_RESTAURANT_BANNERS = {
+  "1": "Imagenes/banner_pizzeria_roma.jpg",
+  "2": "Imagenes/banner_burger_king.jpg",
+  "3": "Imagenes/banner_sushi_zen.jpg",
+  "4": "Imagenes/banner_taco_loco.jpg",
+  "5": "Imagenes/banner_kfc.jpg",
+  "6": "Imagenes/banner_wok_express.jpg",
+  "7": "Imagenes/banner_veggie_life.jpg",
+  "8": "Imagenes/banner_sweet_bakery.jpg",
+  "9": "Imagenes/banner_steakhouse.jpg",
+  "10": "Imagenes/banner_gelato_mio.jpg"
+};
+
 const PROMO_DISHES = [
   { id: "burger", restaurantId: "2", name: "La clásica smash", price: 189 },
   { id: "pizza", restaurantId: "1", name: "Pizza margarita", price: 220 },
