@@ -755,8 +755,8 @@
     .new-card-fields { display: grid; gap: 13px; padding: 16px; background: var(--wash); border-radius: 15px; }
 
     .cash-helper-text { margin: 0 0 10px; font-size: .9rem; font-weight: 650; }
-    .cash-presets { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 14px; }
-    .cash-preset-btn { min-height: 46px; padding: 0 16px; background: var(--wash); border: 1.5px solid var(--line); border-radius: 12px; font-size: 1.05rem; font-weight: 800; color: var(--ink); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all .16s ease; }
+    .cash-presets { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; margin-bottom: 14px; }
+    .cash-preset-btn { min-height: 46px; padding: 0 12px; background: var(--wash); border: 1.5px solid var(--line); border-radius: 12px; font-size: .95rem; font-weight: 800; color: var(--ink); cursor: pointer; display: flex; align-items: center; justify-content: center; text-align: center; transition: all .16s ease; }
     .cash-preset-btn:hover { border-color: var(--orange); transform: translateY(-1px); }
     .cash-preset-btn.is-selected { background: #fff0d5; border-color: var(--orange); color: #573600; box-shadow: 0 2px 8px rgba(255, 176, 59, 0.25); }
     .cash-change-preview { margin: 12px 0 0; padding: 11px 14px; color: #276749; background: #e6f4ea; border-radius: 11px; font-size: .86rem; font-weight: 700; }

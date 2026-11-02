@@ -182,12 +182,18 @@ function updateCashPreview() {
   if (!preview) return;
   const { total } = calculateTotals();
 
-  if (!["5", "10", "20"].includes(String(cashPreset))) {
+  if (!["exact", "5", "10", "20"].includes(String(cashPreset))) {
     cashPreset = "20";
   }
 
-  const bill = Number(cashPreset);
   preview.classList.remove("is-warning");
+
+  if (cashPreset === "exact") {
+    preview.textContent = `💵 Pagarás el monto exacto: $${total.toFixed(2)} · No se requiere cambio del repartidor.`;
+    return;
+  }
+
+  const bill = Number(cashPreset);
 
   if (total <= 0) {
     preview.textContent = `💵 Pagarás con billete de $${bill.toFixed(2)}.`;
@@ -205,7 +211,7 @@ function updateCashPreview() {
   } else {
     preview.classList.add("is-warning");
     const suggested = total <= 10 ? "$10.00" : "$20.00";
-    preview.textContent = `⚠️ El billete de $${bill.toFixed(2)} no cubre el total de tu pedido ($${total.toFixed(2)}). Te sugerimos seleccionar billete de ${suggested}.`;
+    preview.textContent = `⚠️ El billete de $${bill.toFixed(2)} no cubre el total de tu pedido ($${total.toFixed(2)}). Te sugerimos seleccionar billete de ${suggested} o pagar monto exacto.`;
   }
 }
 
@@ -553,21 +559,25 @@ checkoutForm?.addEventListener("submit", event => {
       window.SaborcitoOrderTracker?.registerNewCard({ holder, number: rawNumber, expiry });
     }
   } else {
-    const bill = Number(cashPreset) || 20;
-    if (bill < total && !(total > 20 && bill === 20)) {
-      const suggested = total <= 10 ? "$10.00" : "$20.00";
-      feedbackEl.textContent = `El billete de $${bill.toFixed(2)} no cubre el total de tu pedido ($${total.toFixed(2)}). Por favor selecciona billete de ${suggested}.`;
-      feedbackEl.hidden = false;
-      return;
-    }
-    if (bill >= total) {
-      const change = bill - total;
-      paymentLabel = `Efectivo (Billete $${bill.toFixed(2)} · Cambio: $${change.toFixed(2)})`;
+    if (cashPreset === "exact") {
+      paymentLabel = `Efectivo (Monto exacto: $${total.toFixed(2)} · Sin cambio)`;
     } else {
-      const billsCount = Math.ceil(total / 20);
-      const totalCash = billsCount * 20;
-      const change = totalCash - total;
-      paymentLabel = `Efectivo (${billsCount}x Billete $20.00 · Cambio: $${change.toFixed(2)})`;
+      const bill = Number(cashPreset) || 20;
+      if (bill < total && !(total > 20 && bill === 20)) {
+        const suggested = total <= 10 ? "$10.00" : "$20.00";
+        feedbackEl.textContent = `El billete de $${bill.toFixed(2)} no cubre el total de tu pedido ($${total.toFixed(2)}). Por favor selecciona billete de ${suggested} o monto exacto.`;
+        feedbackEl.hidden = false;
+        return;
+      }
+      if (bill >= total) {
+        const change = bill - total;
+        paymentLabel = `Efectivo (Billete $${bill.toFixed(2)} · Cambio: $${change.toFixed(2)})`;
+      } else {
+        const billsCount = Math.ceil(total / 20);
+        const totalCash = billsCount * 20;
+        const change = totalCash - total;
+        paymentLabel = `Efectivo (${billsCount}x Billete $20.00 · Cambio: $${change.toFixed(2)})`;
+      }
     }
   }
 
