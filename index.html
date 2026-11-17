@@ -7,9 +7,10 @@
   <meta name="description" content="Pide tus platos favoritos y descubre restaurantes cerca de ti en Saborcito.">
   <meta name="saborcito-api-base-url" content="https://gd384485b9fe421-ecommerce.adb.sa-bogota-1.oraclecloudapps.com/ords/admin/v1">
   <title>Saborcito — comida rica, a tu manera</title>
-  <link rel="stylesheet" href="styles.css?v=20261102x">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
+  <link rel="preconnect" href="https://gd384485b9fe421-ecommerce.adb.sa-bogota-1.oraclecloudapps.com" crossorigin>
+  <link rel="preload" as="image" href="Imagenes/banner1.webp" fetchpriority="high">
+  <link rel="stylesheet" href="styles.css?v=20261117">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" media="print" onload="this.media='all'">
 </head>
 <body>
   <a class="skip-link" href="#contenido">Saltar al contenido principal</a>
@@ -57,7 +58,7 @@
       <div class="promo-art" aria-hidden="true">
         <span class="promo-tag" id="promo-tag">ENVÍO GRATIS</span>
         <span class="promo-food" id="promo-food">
-          <img src="Imagenes/banner1.jpg" alt="Hamburguesa gourmet y papas fritas" class="promo-food-img">
+          <img src="Imagenes/banner1.webp" alt="Hamburguesa gourmet y papas fritas" class="promo-food-img" width="520" height="360" fetchpriority="high" decoding="async">
         </span>
       </div>
       <div class="carousel-controls" role="group" aria-label="Controles de ofertas">
@@ -110,9 +111,9 @@
   </aside>
   <div class="notice" id="notice" role="status" aria-live="polite" hidden></div>
 
-  <script src="dish-catalog-images.js?v=20261102x" defer></script>
-  <script src="order-tracker.js?v=20261102x" defer></script>
-  <script src="address-modal.js?v=20261102x" defer></script>
-  <script src="script.js?v=20261102x" defer></script>
+  <script src="dish-catalog-images.js?v=20261117" defer></script>
+  <script src="order-tracker.js?v=20261117" defer></script>
+  <script src="address-modal.js?v=20261117" defer></script>
+  <script src="script.js?v=20261117" defer></script>
 </body>
 </html>

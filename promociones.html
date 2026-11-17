@@ -6,27 +6,11 @@
   <meta name="theme-color" content="#FFB03B">
   <meta name="description" content="Descubre platillos en oferta, descuentos exclusivos y promociones de tus restaurantes favoritos en Saborcito.">
   <meta name="saborcito-api-base-url" content="https://gd384485b9fe421-ecommerce.adb.sa-bogota-1.oraclecloudapps.com/ords/admin/v1">
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-  <meta http-equiv="Pragma" content="no-cache">
-  <meta http-equiv="Expires" content="0">
   <title>Ofertas y Promociones — Saborcito</title>
-  <link rel="stylesheet" href="styles.css?v=20261102x">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
-  <style>
-    .restaurant-banner-label,
-    .restaurant-banner > :not(img),
-    .restaurant-banner::before,
-    .restaurant-banner::after,
-    .restaurant-banner *::before,
-    .restaurant-banner *::after {
-      display: none !important;
-      visibility: hidden !important;
-      opacity: 0 !important;
-      content: none !important;
-      pointer-events: none !important;
-    }
-  </style>
+  <link rel="preconnect" href="https://gd384485b9fe421-ecommerce.adb.sa-bogota-1.oraclecloudapps.com" crossorigin>
+  <link rel="preload" as="image" href="Imagenes/bannerpromo.webp" fetchpriority="high">
+  <link rel="stylesheet" href="styles.css?v=20261117">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" media="print" onload="this.media='all'">
 </head>
 <body class="restaurant-page">
   <a class="skip-link" href="#restaurant-content">Saltar al contenido principal</a>
@@ -72,7 +56,7 @@
       <div class="promo-art" aria-hidden="true">
         <span class="promo-tag">HASTA 30% DCTO</span>
         <span class="promo-food">
-          <img src="Imagenes/bannerpromo.jpg" alt="Ofertas y promociones" class="promo-food-img">
+          <img src="Imagenes/bannerpromo.webp" alt="Ofertas y promociones" class="promo-food-img" width="520" height="360" fetchpriority="high" decoding="async">
         </span>
       </div>
     </section>
@@ -174,9 +158,9 @@
   <div class="notice" id="notice" role="status" aria-live="polite" hidden></div>
 
   <footer class="auth-footer restaurant-footer">© 2026 Saborcito · Hecho para disfrutar cada bocado.</footer>
-  <script src="dish-catalog-images.js?v=20261102x" defer></script>
-  <script src="order-tracker.js?v=20261102x" defer></script>
-  <script src="address-modal.js?v=20261102x" defer></script>
-  <script src="restaurants.js?v=20261102x" defer></script>
+  <script src="dish-catalog-images.js?v=20261117" defer></script>
+  <script src="order-tracker.js?v=20261117" defer></script>
+  <script src="address-modal.js?v=20261117" defer></script>
+  <script src="restaurants.js?v=20261117" defer></script>
 </body>
 </html>
